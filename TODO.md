@@ -9,3 +9,5 @@ Items to complete (not ranked):
 * Divide install script into configurable chunks, use make
 * Figure out best Docker storage backend
 * Add X11 application support
+* Support setting options in script
+* Print help message when runing install script with options
