@@ -81,51 +81,15 @@ function hi {
 
 function logo {
 cat <<"EOF"
-===========================================
+==============================================
 
-		Bro
-	    -----------
-	  /             \
-	 |  (   (0)   )  |
-	 |            // |
-	  \     <====// /
-	    -----------
+   Zoo Keeper: Linux-based Training System
 
-	Web: http://bro.org
+   Web: https://github.com/jonschipp/zookeeper
 
-===========================================
+==============================================
 
 EOF
-}
-
-pull_configs() {
-local COUNT=0
-local SUCCESS=0
-local FILES="
-https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/$DOCKER_FILE
-https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/etc.default.docker
-https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/sandbox.cron
-https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/remove_old_containers
-https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/remove_old_users
-https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/disk_limit
-https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/sandbox_login
-https://raw.githubusercontent.com/jonschipp/vagrant/master/bro-sandbox/scripts/sandbox_shell
-"
-
-echo -e "Downloading required configuration files!\n"
-
-for url in $FILES
-do
-	COUNT=$((COUNT+1))
-	wget $url 2>/dev/null
-	if [ $? -ne 0 ]; then
-		echo "$COUNT - Download for $url failed!"
-	else
-		echo "$COUNT - Success! for $url"
-		SUCCESS=$((SUCCESS+1))
-	fi
-done
-echo
 }
 
 function install_docker() {
@@ -327,110 +291,16 @@ then
 		sleep 5
 	fi
 fi
-
-if ! docker images | grep -q $IMAGE
-then
-	if [ -e $HOME/$DOCKER_FILE ] && [[ "$CUSTOM_IMAGE" == "yes" ]]; then
-		docker build -t $IMAGE - < $HOME/$DOCKER_FILE
-	else
-		docker pull jonschipp/latest-bro-sandbox
-		docker tag jonschipp/latest-bro-sandbox $IMAGE
-	fi
-fi
-}
-
-training_configuration() {
-local COUNT=0
-local SUCCESS=0
-local FILES="
-http://www.bro.org/downloads/archive/bro-2.2.tar.gz
-http://www.bro.org/downloads/archive/bro-2.1.tar.gz
-http://www.bro.org/downloads/archive/bro-2.0.tar.gz
-http://www.bro.org/downloads/archive/bro-1.5.tar.gz
-http://www.bro.org/downloads/archive/bro-1.4.tar.gz
-http://www.bro.org/downloads/archive/bro-1.3.tar.gz
-http://www.bro.org/downloads/archive/bro-1.2.tar.gz
-http://www.bro.org/downloads/archive/bro-1.1.tar.gz
-http://www.bro.org/downloads/archive/bro-1.0.tar.gz
-http://www.bro.org/downloads/archive/bro-0.9-stable.tar.gz
-"
-echo -e "Applying training configuration!\n"
-
-if [ ! -d /exercises ]
-then
-	mkdir /exercises
-fi
-
-if [ ! -d /versions ]
-then
-	mkdir /versions
-	cd /versions
-
-	for url in $FILES
-	do
-		COUNT=$((COUNT+1))
-		wget $url 2>/dev/null
-		if [ $? -ne 0 ]; then
-			echo "$COUNT - Download for $url failed!"
-		else
-			echo "$COUNT - Success! for $url"
-			SUCCESS=$((SUCCESS+1))
-		fi
-done
-
-cat > /versions/README <<EOF
-* Still in development: compilation fails *
-
-This is mostly for fun, to see how Bro has changed over time.
-
-/versions is mounted read-only.
-You must copy a release tarball to your home directory and compile it there to play with it. e.g.
-
-$ cp /versions/bro-2.0.tar.gz ~/
-$ cd bro-2.0
-$ ./configure
-$ make
-$ ./build/src/bro
-
-EOF
-fi
-}
-
-sample_exercises() {
-local DIR=/exercises
-echo -e "Installing sample exercises!\n"
-if [ ! -d $DIR ]; then
-	mkdir /exercises
-fi
-
-cd $DIR
-
-if [ ! -d $DIR/BroCon14 ]
-then
-	wget http://www.bro.org/static/BroCon14/BroCon14.tar.gz 2>/dev/null
-	if [ $? -ne 0 ]; then
-		echo "$COUNT - Download for $url failed!"
-	else
-		echo "$COUNT - Success! for $url"
-	fi
-	tar zxf BroCon14.tar.gz
-	rm -f BroCon14.tar.gz
-fi
 }
 
 logo
 
-# Run if not using Vagrant (We have to get the files another way)
+install_docker "1.)"
+user_configuration "2.)"
+system_configuration "3.)"
+container_scripts "4.)"
+docker_configuration "5.)"
+install_configuration_file "6.)"
 
-pull_configs "1.)"
-install_docker "2.)"
-user_configuration "3.)"
-system_configuration "4.)"
-container_scripts "5.)"
-docker_configuration "6.)"
-install_configuration_file "7.)"
-#training_configuration "6.)"
-#sample_exercises "7.)"
 
-echo
-echo "Try it out: ssh $USER@<ip> -o UserKnownHostsFile=/dev/null"
+"Try it out: ssh $USER@<ip> -o UserKnownHostsFile=/dev/null"
