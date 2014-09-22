@@ -1,4 +1,4 @@
-.PHONY: default help install uninstall update logo
+.PHONY: default help install uninstall pull update logo
 
 PROG = zookeeper
 CONFIG_DIR = /etc/$(PROG)
@@ -17,7 +17,8 @@ help:
 install:
 	$(info Installing $(PROG))
 	mkdir -m 755 -p $(CONFIG_DIR)
-	mkdir -m 755 -p $(INSTALL_DIR)
+	mkdir -m 755 -p $(CRON_DIR)
+	mkdir -m 755 -p $(BIN_DIR)
 	install -o root -g root -m 644 config/zookeeper.conf $(CONFIG_DIR)/$(PROG).conf
 	install -o root -g root -m 755 bin/zookeeper_shell $(BIN_DIR)/$(PROG)_shell
 	install -o root -g root -m 755 bin/zookeeper_login $(BIN_DIR)/$(PROG)_login
