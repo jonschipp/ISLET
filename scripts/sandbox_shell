@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Global Variables
+CONFIG=/etc/sandbox/sandbox.conf
+if [ -f $CONFIG ]; then
+	source $CONFIG
+else
+	echo "$CONFIG not found! Exiting..."
+	exit 1
+fi
+
+clear
+
+echo "Welcome to Bro Live!"
+echo "===================="
+cat <<"EOF"
+    -----------
+  /             \
+ |  (   (0)   )  |
+ |            // |
+  \     <====// /
+    -----------
+EOF
+echo
+echo "A place to try out Bro."
+echo
+
+#########################################
+exec timeout 1m $LAUNCH_CONTAINER $IMAGE
+#########################################

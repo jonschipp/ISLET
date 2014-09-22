@@ -1,0 +1,178 @@
+#!/usr/bin/env bash
+
+# Global Variables
+CONFIG=/etc/sandbox/sandbox.conf
+
+# Varables:
+FAILURE_COUNT=0
+TIME=$(date +"%s")
+DAYS=3 # Length of the event in days
+EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
+DB=/var/tmp/sandbox_db
+AVAILABLE_USER=1
+PW_LENGTH=4 # Not implemented
+
+# Retrieve globals
+if [ -f $CONFIG ]; then
+	source $CONFIG
+fi
+
+## Other
+IMAGE="$1"           # Custom image name passed from sandbox_shell as argument
+BASENAME="$IMAGE"    # Container prefix as $BASENAME.$USERNAME, used for re-attachment
+
+# Override with per image configuration
+if [ -f $CONFIG_DIR/${IMAGE}.conf ]; then
+	source $CONFIG_DIR/${IMAGE}.conf
+fi
+
+if [ ! -r $DB ]; then
+        touch $DB
+	chown ${USER}:${USER} $DB
+	chmod 660 $DB
+fi
+
+function quit {
+        MESSAGE=$1
+        echo "Exiting session!"
+        log "$MESSAGE"
+        exit 1
+}
+
+function log {
+        MESSAGE=$1
+        logger -p local0.notice -t "sandbox" "sandbox_login.sh: $MESSAGE"
+}
+
+function message {
+MESSAGE=$1
+echo
+echo "$1"
+echo "$MOTD"
+echo
+}
+
+function identify {
+        read -r -p "Are you a new or existing user? [new/existing]: " CHOICE
+        echo
+
+        if [[ "$CHOICE" = "new" ]] || [[ "$CHOICE" = "existing" ]]; then
+                [[ "$CHOICE" = "new" ]] && new_user
+                [[ "$CHOICE" = "existing" ]] && existing_user
+        else
+                try_again
+        fi
+}
+
+function sanitize {
+ITEM="$1"
+        echo ${ITEM//[^a-zA-Z0-9]/}
+}
+
+function new_user {
+        echo "A temporary account will be created so that you can resume your session. Account is valid for the length of the event."
+        echo
+
+        until test $AVAILABLE_USER -ne 1
+        do
+                read -r -p "Choose a username [a-zA-Z0-9]: " USERNAME
+                USERNAME=$(sanitize $USERNAME)
+                echo "Your username is $USERNAME"
+                verify_new_user
+        done
+
+        read -r -s -p "Choose a password: " PASSWORD
+        echo
+        read -r -s -p "Verify your password: " PASSWORD_VERIFY
+        echo
+        verify_new_password
+}
+
+function existing_user {
+        echo "Your previous account is only valid for the length of the event, after that you must create a new account"
+        echo
+        while test $FAILURE_COUNT -lt 3
+        do
+                read -r -p "Username: " USERNAME
+                USERNAME=$(sanitize $USERNAME)
+                read -r -s -p "Password: " PASSWORD
+                echo
+                USER_SUPPLIED_PASSWORD=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
+                HASH=$(awk -F : -v user=$USERNAME '$1 == user { print $2 }' $DB)
+                if [ "$USER_SUPPLIED_PASSWORD" = "$HASH" ]
+                then
+                        echo Success
+                        log "${USERNAME}: Returning user"
+                        message "Welcome back!"
+                        sudo docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && exec sudo docker attach "${BASENAME}.${USERNAME}"
+                        if [ $? -ne 0 ]; then
+                                echo "Launching container failed! Please report to admins"
+                                quit "Launching container failed!"
+                        fi
+                else
+                        echo "Login Failed, try again."
+                fi
+                let FAILURE_COUNT++
+        done
+        echo "Too many failed attempts!"
+        quit "$FAILURE_COUNT failed password verification attempts"
+}
+
+function verify_new_user {
+        grep -w -q "$USERNAME" $DB 2>/dev/null
+        if [ $? -eq 0 ]; then
+                echo "User already exists! Try a different one."
+                AVAILABLE_USER=1
+        else
+                AVAILABLE_USER=0
+        fi
+}
+
+function verify_new_password {
+        while [ "$PASSWORD" != "$PASSWORD_VERIFY" ]
+        do
+                if [ $FAILURE_COUNT -lt 3 ]
+                then
+                        echo "Passwords do not match! Try again."
+                        read -r -s -p "Choose a password: " PASSWORD
+                        echo
+                        read -r -s -p "Verify your password: " PASSWORD_VERIFY
+                        echo
+                else
+                        echo "Too many failed attempts!"
+                        quit "$FAILURE_COUNT failed password verification attempts"
+                fi
+        let FAILURE_COUNT++
+        done
+
+        HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
+
+        (
+        flock --timeout 10 100 || quit "Couldn't obtain lock on file, try again later"
+        echo "${USERNAME}:${HASH}:${TIME}" >> $DB
+        ) 100>~/sandbox.lock
+
+        log "${USERNAME}: Account created"
+        echo "Your account will expire on $EXPIRATION"
+        start_container
+}
+
+function try_again {
+        read -r -p "I didn't understand your response. Would you like to try again? [Y/N]: " TRY
+        if [[ "$TRY" = [YyNn] ]] || [[ "$TRY" = "[yY][eE]sS]" ]] || [[ "$TRY" = "[nN][oO]" ]]; then
+                [[ "$TRY" = [Yy] ]] || [[ "$TRY" = "[yY][eE][sS]" ]] && clear && identify
+                [[ "$TRY" = [Nn] ]] || [[ "$TRY" = "[nN][oO]" ]] && quit "User chose to exit from try_again"
+        else
+                quit "User forced to exit from try_again because of invalid response to question"
+        fi
+}
+
+function start_container {
+        message "Enjoy yourself!"
+	exec sudo docker run --name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME -c $CPU -m $RAM --net $NETWORK --dns $DNS \
+		-v /exercises:/exercises:ro -i $IMAGE sudo -i -u $VIRTUSER 2>/dev/null
+}
+
+trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
+identify
+exit
