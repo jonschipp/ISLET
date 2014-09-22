@@ -47,8 +47,8 @@ install-files:
 	install -o root -g root -m 644 cron/zookeeper.crontab $(CRON)/$(PROG)
 	install -o root -g root -m 750 cron/remove_old_containers $(CRON_DIR)/remove_old_containers
 	install -o root -g root -m 750 cron/remove_old_users $(CRON_DIR)/remove_old_users
-	$(Q)echo " $(yellow)Configuration directory is$(normal) $(underline)$(CONFIG_DIR)$(normal)"
-	$(Q)echo " $(yellow)Install directory is$(normal) $(underline)$(INSTALL_DIR)$(normal)"
+	$(Q)echo " $(bold)--> Configuration directory is$(normal) $(underline)$(CONFIG_DIR)$(normal)"
+	$(Q)echo " $(bold)--> Install directory is$(normal) $(underline)$(INSTALL_DIR)$(normal)"
 
 configuration:
 	$(Q)echo " $(yellow)Post-install configuration$(normal)"
