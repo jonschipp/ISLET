@@ -15,7 +15,7 @@ install:
 	$(info Installing $(PROG))
 	mkdir -m 755 -p $(CONFIGS_DIR)
 	mkdir -m 755 -p $(SCRIPTS_DIR)
-	install -o root -g root -m 644 config/sandbox.conf $(CONFIGS_DIR)/$(PROG).conf
+	install -o root -g root -m 644 config/zookeeper.conf $(CONFIGS_DIR)/$(PROG).conf
 	install -o root -g root -m 644 scripts/sandbox.cron $(CRON)/$(PROG)
 	sed -i "s|LOCATION|$(CRON_DIR)|g" $(CRON)/$(PROG)
 	install -o root -g root -m 755 scripts/sandbox_shell $(BIN_DIR)/$(PROG)_shell
