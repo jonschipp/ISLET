@@ -8,11 +8,26 @@ CRON_DIR = $(INSTALL_DIR)/cron
 BIN_DIR = $(INSTALL_DIR)/bin
 FUNCTIONS = ./functions.sh
 AUTOINSTALL = ./auto-install.sh
+Q = @
+
+bold   = $(shell tput bold)
+normal = $(shell tput sgr0)
 
 default: help
 
 help:
-	$(info Options for $(PROG))
+	$(Q)echo "$(bold)Zookeeper installation targets:$(normal)"
+	$(Q)echo " install                  	- Installs zookeeper"
+	$(Q)echo " uninstall 	                - Uninstalls zookeeper (custom files too)"
+	$(Q)echo " update               	- Update code and reinstall zookeeper"
+	$(Q)echo " mrproper                     - Remove all files not in source distribution"
+	$(Q)echo "$(bold)System installation targets (Ubuntu only):$(normal)"
+	$(Q)echo " install-docker               - Install docker"
+	$(Q)echo " user-config               	- Configure demo user for zookeeper"
+	$(Q)echo " system-config               	- Configure system controls for zookeeper"
+	$(Q)echo "$(bold)Miscellaneous targets:$(normal)"
+	$(Q)echo " install-sample-config        - Install sample default config file"
+	$(Q)echo " logo                         - Print logo to stdout"
 
 install:
 	$(info Installing $(PROG))
@@ -45,7 +60,7 @@ update: pull
    
 #function docker_configuration() {
  
-install-config:
+install-sample-config:
 	$(FUNCTIONS) install_configuration_file
 
 install-docker:
