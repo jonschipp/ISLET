@@ -11,22 +11,24 @@ AUTOINSTALL 	= ./auto-install.sh
 Q 		= @
 bold   		= $(shell tput bold)
 normal 		= $(shell tput sgr0)
+red		= $(shell tput setaf 1)
+yellow	 	= $(shell tput setaf 3)
 
 default: help
 
 help:
 	$(Q)echo "$(bold)Zookeeper installation targets:$(normal)"
-	$(Q)echo " install                  	- Installs zookeeper"
-	$(Q)echo " uninstall 	                - Uninstalls zookeeper (custom files too)"
-	$(Q)echo " update               		- Update code and reinstall zookeeper"
-	$(Q)echo " mrproper                     	- Remove all files not in source distribution"
-	$(Q)echo "$(bold)System installation targets (Ubuntu only):$(normal)"
-	$(Q)echo " install-docker               	- Install docker"
-	$(Q)echo " user-config               	- Configure demo user for zookeeper"
-	$(Q)echo " system-config               	- Configure system controls for zookeeper"
+	$(Q)echo " $(red)install$(normal)                  	- Installs zookeeper"
+	$(Q)echo " $(red)uninstall$(normal) 	                - Uninstalls zookeeper (custom files too)"
+	$(Q)echo " $(red)update$(normal)               		- Update code and reinstall zookeeper"
+	$(Q)echo " $(red)mrproper$(normal)                     	- Remove all files not in source distribution"
+	$(Q)echo "$(bold)System installation targets ($(normal)$(yellow)Ubuntu only$(normal))$(bold):$(normal)"
+	$(Q)echo " $(red)install-docker$(normal)               	- Install docker"
+	$(Q)echo " $(red)user-config$(normal)               	- Configure demo user for zookeeper"
+	$(Q)echo " $(red)system-config$(normal)               	- Configure system controls for zookeeper"
 	$(Q)echo "$(bold)Miscellaneous targets:$(normal)"
-	$(Q)echo " install-sample-config        	- Install sample default config file"
-	$(Q)echo " logo                         	- Print logo to stdout"
+	$(Q)echo " $(red)install-sample-config$(normal)        	- Install sample default config file"
+	$(Q)echo " $(red)logo$(normal)                         	- Print logo to stdout"
 
 install:
 	$(info Installing $(PROG))
