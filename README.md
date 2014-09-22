@@ -23,7 +23,7 @@ configuration   | Configures the newly copied config and script files. Sets CONF
 pull  	        | Checkout master branch and run git pull
 install-docker  | Installs latest Docker from Docker repo (Ubuntu only)
 user-config     | Configures a demo user account, sudoer file, and sshd with security in mind
-system-config   | Configures ulimit for the Docker
+system-config   | Configures ulimit for the system
 
 ### Dependencies 
 
@@ -39,7 +39,7 @@ It is designed to be a quick way to get a working system with a good configurati
 ```shell
 make install-docker	# Installs latest Docker
 make user-config	# Configures demo user account, sudo access, and SSH security controls
-make system-config 	# Configure ulimit security settings for docker
+make system-config 	# Configure ulimit security settings for the system
 ```
 
 #### Manual
@@ -51,12 +51,12 @@ Manually install and configure all dependencies to your liking.
 I used Zookeeper to teach the Bro platform at BroCon14.
 
 Steps:
-1. Install Zookeeper and dependencies
-2. Build Docker image containing Bro
-3. Write a Zookeeper config file for the Bro image
-4. Edit the zookeeper_shell script to do some light branding (logo)
-5. Hand out the demo account credentials to your students so they can SSH in
-6. Instruct them on the software
+* Install Zookeeper and dependencies
+* Build Docker image containing Bro
+* Write a Zookeeper config file for the Bro image
+* Edit the zookeeper_shell script to do some light branding (logo)
+* Hand out the demo account credentials to your students so they can SSH in
+* Instruct them on the software
 
 Here's a brief demonstration:
 
