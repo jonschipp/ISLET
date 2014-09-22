@@ -58,8 +58,8 @@ mrproper:
 
 pull:
 	$(Q)echo " $(yellow)Pulling latest code from:$(normal) $(underline)$(REPO)$(normal)"
-	git checkout master
-	git pull
+	$(Q)git checkout master 1>/dev/null 2>/dev/null
+	$(Q)git pull
 
 update: pull
 	$(Q)echo " $(yellow)Installing latest code$(normal)"
