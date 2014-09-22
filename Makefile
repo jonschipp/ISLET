@@ -8,8 +8,10 @@ CRON_DIR 	= $(INSTALL_DIR)/cron
 BIN_DIR 	= $(INSTALL_DIR)/bin
 FUNCTIONS 	= ./functions.sh
 AUTOINSTALL 	= ./auto-install.sh
+REPO		= http://github.com/jonschipp/zookeeper
 Q 		= @
 bold   		= $(shell tput bold)
+underline 	= $(shell tput smul)
 normal 		= $(shell tput sgr0)
 red		= $(shell tput setaf 1)
 yellow	 	= $(shell tput setaf 3)
@@ -31,7 +33,7 @@ help:
 	$(Q)echo " $(red)logo$(normal)                         	- Print logo to stdout"
 
 install:
-	$(info Installing $(PROG))
+	$(Q)echo " $(yellow)Installing $(PROG)$(normal)"
 	mkdir -m 755 -p $(CONFIG_DIR)
 	mkdir -m 755 -p $(CRON_DIR)
 	mkdir -m 755 -p $(BIN_DIR)
@@ -45,18 +47,18 @@ install:
 	$(info Scripts directory is $(INSTALL_DIR))
 
 uninstall:
-	$(info Uninstalling $(PROG))
+	$(Q)echo " $(yellow)Uninstalling $(PROG)$(normal)"
 	rm -rf $(CONFIG_DIR)
 	rm -rf $(INSTALL_DIR)
 	rm -f $(CRON)/$(PROG)
 
 pull:
-	$(info 1. Getting latest code)
+	$(Q)echo " $(yellow)Pulling latest code from:$(normal) $(underline)$(REPO)$(normal)"
 	git checkout master
 	git pull
 
 update: pull
-	$(info 2. Installing latest code)
+	$(Q)echo " $(yellow)Installing latest code$(normal)"
 	make install
    
 #function docker_configuration() {
