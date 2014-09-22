@@ -8,9 +8,8 @@ FAILURE_COUNT=0
 TIME=$(date +"%s")
 DAYS=3 # Length of the event in days
 EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
-DB=/var/tmp/sandbox_db
+DB=/var/tmp/zookeeper_db
 AVAILABLE_USER=1
-PW_LENGTH=4 # Not implemented
 
 # Retrieve globals
 if [ -f $CONFIG ]; then
@@ -18,7 +17,7 @@ if [ -f $CONFIG ]; then
 fi
 
 ## Other
-IMAGE="$1"           # Custom image name passed from sandbox_shell as argument
+IMAGE="$1"           # Custom image name passed from zookeeper_shell as argument
 BASENAME="$IMAGE"    # Container prefix as $BASENAME.$USERNAME, used for re-attachment
 
 # Override with per image configuration
@@ -41,7 +40,7 @@ function quit {
 
 function log {
         MESSAGE=$1
-        logger -p local0.notice -t "sandbox" "sandbox_login.sh: $MESSAGE"
+        logger -p local0.notice -t "zookeeper" "zookeeper_login.sh: $MESSAGE"
 }
 
 function message {
@@ -150,7 +149,7 @@ function verify_new_password {
         (
         flock --timeout 10 100 || quit "Couldn't obtain lock on file, try again later"
         echo "${USERNAME}:${HASH}:${TIME}" >> $DB
-        ) 100>~/sandbox.lock
+        ) 100>~/zookeeper.lock
 
         log "${USERNAME}: Account created"
         echo "Your account will expire on $EXPIRATION"
