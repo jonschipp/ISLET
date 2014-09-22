@@ -3,8 +3,8 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 # m h dom mon dow user  command
 # No longer necessary when using devicemapper to limit container size
-#* * * * *   root    /usr/local/bin/sandbox_disk_limit
+#* * * * *   root    LOCATION
 
 # Don't run at the same time, causes problems
-@daily   	 root    /usr/local/bin/sandbox_remove_old_containers
-0 22 * * *       root    /usr/local/bin/sandbox_remove_old_users
+@daily   	 root    LOCATION/remove_old_containers.sh 
+* * * * *        root    LOCATION/remove_old_users.sh 
