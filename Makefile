@@ -24,11 +24,12 @@ install:
 	install -o root -g root -m 755 bin/zookeeper_login $(BIN_DIR)/$(PROG)_login
 	install -o root -g root -m 644 cron/zookeeper.crontab $(CRON)/$(PROG)
 	install -o root -g root -m 750 cron/remove_old_containers $(CRON_DIR)/remove_old_containers
-	install -o root -g root -m 750 cron/remove_old_user $(CRON_DIR)/remove_old_users
+	install -o root -g root -m 750 cron/remove_old_users $(CRON_DIR)/remove_old_users
 	$(info Configuration directory is $(CONFIG_DIR))
 	$(info Scripts directory is $(INSTALL_DIR))
 
 uninstall:
+	$(info Uninstalling $(PROG))
 	rm -rf $(CONFIG_DIR)
 	rm -rf $(INSTALL_DIR)
 	rm -f $(CRON)/$(PROG)
