@@ -39,7 +39,9 @@ pull:
 	git checkout master
 	git pull
 
-update: pull install
+update: pull
+	$(info 2. Installing latest code)
+	make install
    
 #function docker_configuration() {
  
