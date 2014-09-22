@@ -16,16 +16,18 @@ DOCKER_FILE="Dockerfile" 			# Build image from specific Dockerfile. Defaults to 
 CUSTOM_IMAGE="no"				# no to pull image from Docker hub, yes to build image from $DOCKER_FILE if it exists
 CONTAINER_DESTINATION= 				# Put containers on another volume e.g. /dev/sdb1 (optional). You must mkfs.$FS first!
 FS="ext4"					# Filesystem type for CONTAINER_DESTINATION, used for mounting
-IMAGE="bro-2.3.1"		 		# Assign a different name to the image (optional)
+IMAGE="ubuntu"			 		# Assign a different name to the image (optional)
 USER="demo" 					# User account to create for that people will ssh into to enter container
 PASS="demo" 					# Password for the account that users will ssh into
-DB=/var/tmp/sandbox_db 				# Credentials database, must be readable by $USER
-SCRIPTS_DIR=/usr/local/bin 			# Directory to install admin scripts
-CONFIG_DIR=/etc/sandbox 			# Directory to install configuration and scripts
-CONFIG="$CONFIG_DIR/sandbox.conf" 		# Global configuration file
-SHELL="$CONFIG_DIR/sandbox_shell"		# $USER's shell: displays login banner then launches sandbox_login
-LAUNCH_CONTAINER="$CONFIG_DIR/sandbox_login"	# User management script and container launcher
-BASENAME="brolive"				# Container prefix as $BASENAME.$USERNAME, used for re-attachment.
+DB=/var/tmp/zookeeper_db 			# Credentials database, must be readable by $USER
+INSTALL_DIR=/opt/zookeeper	 		# Zookeeper component directory
+BIN_DIR="$INSTALL_DIR/bin" 			# Directory to install zookeeper scripts
+CRON_DIR="$INSTALL_DIR/cron" 			# Directory to install cron scripts
+CONFIG_DIR=/etc/zookeeper 			# Directory to install configuration files
+CONFIG="$CONFIG_DIR/zookeeper.conf" 		# Global configuration file
+SHELL="$BIN_DIR/zookeeper_shell"		# $USER's shell: displays login banner then launches zookeeper_login
+LAUNCH_CONTAINER="$BIN_DIR/zookeeper_login"	# User management script and container launcher
+BASENAME="zk"					# Container prefix as $BASENAME.$USERNAME, used for re-attachment.
 MOTD="Training materials are in /exercises"	# Message of the day is displayed before container launch and reattachment
 
 ## Container configuration (applies to each container)
@@ -33,7 +35,7 @@ DAYS=3	       # Container lifetime specified in days, removed after x days
 VIRTUSER=demo  # Account used when container is entered (Must exist in container!)
 CPU=1          # Number of CPU's allocated to each container
 RAM=256m       # Amount of memory allocated to each container
-HOSTNAME=bro   # Cosmetic: Will end up as $USER@$HOSTNAME:~$ in shell
+HOSTNAME=zk    # Cosmetic: Will end up as $USER@$HOSTNAME:~$ in shell
 NETWORK=none   # Disable networking by default: none; Enable networking: bridge
 DNS=127.0.0.1  # Use loopback when networking is disabled to prevent error messages
 
@@ -122,15 +124,15 @@ local ORDER=$1
 local RESTART_SSH=0
 echo -e "$ORDER Configuring the $USER user account!\n"
 
-if [ ! -e /etc/sudoers.d/sandbox ]; then
-cat > /etc/sudoers.d/sandbox <<EOF
+if [ ! -e /etc/sudoers.d/zookeeper ]; then
+cat > /etc/sudoers.d/zookeeper <<EOF
 Cmnd_Alias SANDBOX = /usr/bin/docker
 $USER ALL=(root) NOPASSWD: SANDBOX
 EOF
-chmod 0440 /etc/sudoers.d/sandbox && chown root:root /etc/sudoers.d/sandbox
+chmod 0440 /etc/sudoers.d/zookeeper && chown root:root /etc/sudoers.d/zookeeper
 fi
 
-if ! grep -q sandbox /etc/shells
+if ! grep -q zookeeper /etc/shells
 then
 	sh -c "echo $SHELL >> /etc/shells"
 fi
@@ -174,7 +176,7 @@ local ORDER=$1
 local LIMITS=/etc/security/limits.d
 echo -e "$ORDER Configuring the system for use!\n"
 
-if [ ! -e $LIMITS/sandbox.conf ]; then
+if [ ! -e $LIMITS/zookeeper.conf ]; then
 	echo "*                hard    fsize           1000000" > $LIMITS/fsize.conf
 	echo "*                hard    nproc           10000" >> $LIMITS/nproc.conf
 fi
@@ -188,7 +190,7 @@ echo -e "Installing global configuration file to ${CONFIG}!\n"
 echo "# System Configuration"		 									>> $CONFIG
 echo "IMAGE=\"$IMAGE\"       # Default: launch containers from this image" 					>> $CONFIG
 echo "CONFIG_DIR=\"$CONFIG_DIR\"" 	 									>> $CONFIG
-echo "SHELL=\"$SHELL\"       # User's shell: displays login banner then launches sandbox_login"    		>> $CONFIG
+echo "SHELL=\"$SHELL\"       # User's shell: displays login banner then launches zookeeper_login"    		>> $CONFIG
 echo "LAUNCH_CONTAINER=\"$LAUNCH_CONTAINER\"       # User management script and container launcher"		>> $CONFIG
 echo "DB=\"$DB\"             # Credentials database, must be readable by \$USER"				>> $CONFIG
 echo "BASENAME=\"$BASENAME\" # Container prefix as \$BASENAME.\$USERNAME, Used for re-attachment." 		>> $CONFIG
