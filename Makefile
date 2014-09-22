@@ -1,4 +1,4 @@
-.PHONY: default help install uninstall pull update logo
+.PHONY: default help install uninstall pull update logo mrproper
 
 PROG 		= zookeeper
 CONFIG_DIR 	= /etc/$(PROG)
@@ -51,6 +51,10 @@ uninstall:
 	rm -rf $(CONFIG_DIR)
 	rm -rf $(INSTALL_DIR)
 	rm -f $(CRON)/$(PROG)
+
+mrproper:
+	$(Q)echo " $(yellow)Removing files not in source$(normal)"
+	$(Q)git ls-files -o | xargs rm -rf
 
 pull:
 	$(Q)echo " $(yellow)Pulling latest code from:$(normal) $(underline)$(REPO)$(normal)"
