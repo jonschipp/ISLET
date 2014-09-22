@@ -1,17 +1,16 @@
 .PHONY: default help install uninstall pull update logo
 
-PROG = zookeeper
-CONFIG_DIR = /etc/$(PROG)
-INSTALL_DIR = /opt/$(PROG)
-CRON = /etc/cron.d
-CRON_DIR = $(INSTALL_DIR)/cron
-BIN_DIR = $(INSTALL_DIR)/bin
-FUNCTIONS = ./functions.sh
-AUTOINSTALL = ./auto-install.sh
-Q = @
-
-bold   = $(shell tput bold)
-normal = $(shell tput sgr0)
+PROG 		= zookeeper
+CONFIG_DIR 	= /etc/$(PROG)
+INSTALL_DIR 	= /opt/$(PROG)
+CRON 		= /etc/cron.d
+CRON_DIR 	= $(INSTALL_DIR)/cron
+BIN_DIR 	= $(INSTALL_DIR)/bin
+FUNCTIONS 	= ./functions.sh
+AUTOINSTALL 	= ./auto-install.sh
+Q 		= @
+bold   		= $(shell tput bold)
+normal 		= $(shell tput sgr0)
 
 default: help
 
