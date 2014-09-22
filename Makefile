@@ -23,7 +23,7 @@ install:
 	install -o root -g root -m 750 cron/remove_old_containers $(CRON_DIR)/remove_old_containers.sh
 	install -o root -g root -m 750 cron/remove_old_user $(CRON_DIR)/remove_old_users.sh
 	$(info Configuration directory is $(CONFIGS_DIR))
-	$(info Scripts directory is $(SCRIPTS__DIR))
+	$(info Scripts directory is $(SCRIPTS_DIR))
 
 uninstall:
 	rm -rf $(CONFIGS_DIR)
