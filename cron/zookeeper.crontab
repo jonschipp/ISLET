@@ -6,5 +6,5 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 #* * * * *   root    LOCATION
 
 # Don't run at the same time, causes problems
-@daily   	 root    LOCATION/remove_old_containers.sh 
-* * * * *        root    LOCATION/remove_old_users.sh 
+@daily   	 root    LOCATION/remove_old_containers
+* * * * *        root    LOCATION/remove_old_users
