@@ -1,33 +1,35 @@
-.PHONY: default install uninstall update logo
+.PHONY: default help install uninstall update logo
 
 PROG = zookeeper
-CONFIGS_DIR = /etc/$(PROG)
-SCRIPTS_DIR = /opt/$(PROG)
+CONFIG_DIR = /etc/$(PROG)
+INSTALL_DIR = /opt/$(PROG)
 CRON = /etc/cron.d
-CRON_DIR = $(SCRIPTS_DIR)/cron
-BIN_DIR = $(SCRIPTS_DIR)/bin
+CRON_DIR = $(INSTALL_DIR)/cron
+BIN_DIR = $(INSTALL_DIR)/bin
 FUNCTIONS = ./functions.sh
 AUTOINSTALL = ./auto-install.sh
 
-default: install
+default: help
+
+help:
+	$(info Options for $(PROG))
 
 install:
 	$(info Installing $(PROG))
-	mkdir -m 755 -p $(CONFIGS_DIR)
-	mkdir -m 755 -p $(SCRIPTS_DIR)
-	install -o root -g root -m 644 config/zookeeper.conf $(CONFIGS_DIR)/$(PROG).conf
-	install -o root -g root -m 644 scripts/sandbox.cron $(CRON)/$(PROG)
-	sed -i "s|LOCATION|$(CRON_DIR)|g" $(CRON)/$(PROG)
-	install -o root -g root -m 755 scripts/sandbox_shell $(BIN_DIR)/$(PROG)_shell
-	install -o root -g root -m 755 scripts/sandbox_login $(BIN_DIR)/$(PROG)_login
-	install -o root -g root -m 750 cron/remove_old_containers $(CRON_DIR)/remove_old_containers.sh
-	install -o root -g root -m 750 cron/remove_old_user $(CRON_DIR)/remove_old_users.sh
-	$(info Configuration directory is $(CONFIGS_DIR))
-	$(info Scripts directory is $(SCRIPTS_DIR))
+	mkdir -m 755 -p $(CONFIG_DIR)
+	mkdir -m 755 -p $(INSTALL_DIR)
+	install -o root -g root -m 644 config/zookeeper.conf $(CONFIG_DIR)/$(PROG).conf
+	install -o root -g root -m 755 bin/zookeeper_shell $(BIN_DIR)/$(PROG)_shell
+	install -o root -g root -m 755 bin/zookeeper_login $(BIN_DIR)/$(PROG)_login
+	install -o root -g root -m 644 cron/zookeeper.crontab $(CRON)/$(PROG)
+	install -o root -g root -m 750 cron/remove_old_containers $(CRON_DIR)/remove_old_containers
+	install -o root -g root -m 750 cron/remove_old_user $(CRON_DIR)/remove_old_users
+	$(info Configuration directory is $(CONFIG_DIR))
+	$(info Scripts directory is $(INSTALL_DIR))
 
 uninstall:
-	rm -rf $(CONFIGS_DIR)
-	rm -rf $(SCRIPTS_DIR)
+	rm -rf $(CONFIG_DIR)
+	rm -rf $(INSTALL_DIR)
 	rm -f $(CRON)/$(PROG)
 
 update:
