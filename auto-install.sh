@@ -92,6 +92,16 @@ cat <<"EOF"
 EOF
 }
 
+function is_ubuntu(){
+if ! lsb_release -s -d 2>/dev/null | grep -q Ubuntu
+then 
+        echo -e "\n==> Ubuntu Linux is required for installation! <==\n"
+	echo "This automation script is designed to run on Ubuntu, but all is not lost..."
+	echo "You can manually complete its tasks on your distribution of choice with the same end result"
+        exit 1
+fi
+}
+
 function install_docker() {
 local ORDER=$1
 echo -e "$ORDER Installing Docker!\n"
@@ -294,6 +304,8 @@ fi
 }
 
 logo
+
+is_ubuntu
 
 install_docker "1.)"
 user_configuration "2.)"
