@@ -20,8 +20,10 @@ default: help
 
 help:
 	$(Q)echo "$(bold)Zookeeper installation targets:$(normal)"
-	$(Q)echo " $(red)install$(normal)                  	- Installs zookeeper"
-	$(Q)echo " $(red)uninstall$(normal) 	                - Uninstalls zookeeper (custom files too)"
+	$(Q)echo " $(red)install$(normal)                  	- Installs and configures zookeeper"
+	$(Q)echo " $(red)uninstall$(normal) 	                - Uninstalls zookeeper ($(yellow)Backup first!$(normal))"
+	$(Q)echo " $(red)install-files$(normal)                  - Installs zookeeper files"
+	$(Q)echo " $(red)configuration$(normal)                  - Initializes CONFIG variable across scripts"
 	$(Q)echo " $(red)update$(normal)               		- Update code and reinstall zookeeper"
 	$(Q)echo " $(red)mrproper$(normal)                     	- Remove all files not in source distribution"
 	$(Q)echo "$(bold)System installation targets ($(normal)$(yellow)Ubuntu only$(normal))$(bold):$(normal)"
@@ -32,7 +34,9 @@ help:
 	$(Q)echo " $(red)install-sample-config$(normal)        	- Install sample default config file for Bro"
 	$(Q)echo " $(red)logo$(normal)                         	- Print logo to stdout"
 
-install:
+install: install-files configuration
+
+install-files:
 	$(Q)echo " $(yellow)Installing $(PROG)$(normal)"
 	mkdir -m 755 -p $(CONFIG_DIR)
 	mkdir -m 755 -p $(CRON_DIR)
@@ -43,15 +47,20 @@ install:
 	install -o root -g root -m 644 cron/zookeeper.crontab $(CRON)/$(PROG)
 	install -o root -g root -m 750 cron/remove_old_containers $(CRON_DIR)/remove_old_containers
 	install -o root -g root -m 750 cron/remove_old_users $(CRON_DIR)/remove_old_users
-	$(info Configuration directory is $(CONFIG_DIR))
-	$(info Scripts directory is $(INSTALL_DIR))
+	$(Q)echo " $(yellow)Configuration directory is$(normal) $(underline)$(CONFIG_DIR)$(normal)"
+	$(Q)echo " $(yellow)Install directory is$(normal) $(underline)$(INSTALL_DIR)$(normal)"
+
+configuration:
+	$(Q)echo " $(yellow)Post-install configuration$(normal)"
+	sed -i "s|LOCATION|$(CRON_DIR)|g" $(CRON)/$(PROG)
+	sed -i "s|LOCATION|$(CONFIG_DIR)/$(PROG).conf|g" $(BIN_DIR)/* $(CRON_DIR)/*
 
 uninstall:
 	$(Q)echo " $(yellow)Uninstalling $(PROG)$(normal)"
 	rm -rf $(CONFIG_DIR)
 	rm -rf $(INSTALL_DIR)
 	rm -f $(CRON)/$(PROG)
-
+	
 mrproper:
 	$(Q)echo " $(yellow)Removing files not in source$(normal)"
 	$(Q)git ls-files -o | xargs rm -rf
