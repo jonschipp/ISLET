@@ -10,18 +10,19 @@ fi
 
 clear
 
-echo "Welcome to Bro Live!"
+echo "Welcome to Zookeeper!"
 echo "===================="
 cat <<"EOF"
-    -----------
-  /             \
- |  (   (0)   )  |
- |            // |
-  \     <====// /
-    -----------
+==============================================
+
+   Zoo Keeper: A Linux-based Training System
+
+   Web: https://github.com/jonschipp/zookeeper
+
+==============================================
 EOF
 echo
-echo "A place to try out Bro."
+echo "A place to try out Linux software."
 echo
 
 #########################################
