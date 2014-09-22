@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Global Variables
-CONFIG=/etc/sandbox/sandbox.conf
+CONFIG=LOCATION
 if [ -f $CONFIG ]; then
 	source $CONFIG
 else

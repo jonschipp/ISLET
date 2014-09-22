@@ -4,12 +4,11 @@ CURRENT=$(date +"%s")
 ARGC=$#
 DAYS=3 		   # Overwritten by value in $CONFIG
 DB=/var/tmp/sandbox_db # Overwritten by value in $CONFIG
-CONFIG=/etc/sandbox/sandbox.conf
+CONFIG=LOCATION
 if [ -f $CONFIG ]; then
         source $CONFIG
 else
-        echo "$CONFIG not found! Exiting..."
-        exit 1
+	echo "$0: Warning: CONFIG not found"
 fi
 
 KEEP=$(($DAYS*86400))

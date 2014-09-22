@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Global Variables
-CONFIG=/etc/sandbox/sandbox.conf
+CONFIG=LOCATION
 
 # Varables:
 FAILURE_COUNT=0
