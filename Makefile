@@ -32,12 +32,12 @@ uninstall:
 	rm -rf $(INSTALL_DIR)
 	rm -f $(CRON)/$(PROG)
 
-update:
+pull:
 	$(info 1. Getting latest code)
 	git checkout master
 	git pull
-	$(info 2. Installing latest code)
-	install 
+
+update: pull install
    
 #function docker_configuration() {
  
