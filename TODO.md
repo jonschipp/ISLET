@@ -11,3 +11,4 @@ Items to complete (not ranked):
 * Add X11 application support
 * Support setting options in script
 * Print help message when runing install script with options
+* Add color to zookeeper_shell and other scripts
