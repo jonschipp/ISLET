@@ -133,11 +133,6 @@ EOF
 chmod 0440 /etc/sudoers.d/zookeeper && chown root:root /etc/sudoers.d/zookeeper
 fi
 
-if ! grep -q zookeeper /etc/shells
-then
-	sh -c "echo $SHELL >> /etc/shells"
-fi
-
 if ! getent passwd $USER 1>/dev/null
 then
 	adduser --disabled-login --gecos "" --shell $SHELL $USER
