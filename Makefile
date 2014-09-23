@@ -31,7 +31,7 @@ help:
 	$(Q)echo " $(red)user-config$(normal)               	- Configure demo user for zookeeper"
 	$(Q)echo " $(red)system-config$(normal)               	- Configure system controls for zookeeper"
 	$(Q)echo "$(bold)Miscellaneous targets:$(normal)"
-	$(Q)echo " $(red)install-sample-config$(normal)        	- Install sample default config file for Bro"
+	$(Q)echo " $(red)install-sample-config$(normal)        	- Install working image and config
 	$(Q)echo " $(red)logo$(normal)                         	- Print logo to stdout"
 
 install: install-files configuration
@@ -60,7 +60,7 @@ uninstall:
 	rm -rf $(CONFIG_DIR)
 	rm -rf $(INSTALL_DIR)
 	rm -f $(CRON)/$(PROG)
-	
+
 mrproper:
 	$(Q)echo " $(yellow)Removing files not in source$(normal)"
 	$(Q)git ls-files -o | xargs rm -rf
@@ -73,11 +73,13 @@ pull:
 update: pull
 	$(Q)echo " $(yellow)Installing latest code$(normal)"
 	make install
-   
+
 #function docker_configuration() {
- 
+
 install-sample-config:
-	$(FUNCTIONS) install_configuration_file
+	$(FUNCTIONS) install_sample_configuration
+	install -o root -g root -m 644 extra/brolive.conf $(CONFIG_DIR)/brolive.conf
+	$(Q)echo " $(yellow)Try it out: ssh demo@<ip>$(normal)"
 
 install-docker:
 	$(FUNCTIONS) install_docker

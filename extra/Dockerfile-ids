@@ -1,0 +1,15 @@
+FROM      ubuntu
+MAINTAINER Jon Schipp <jonschipp@gmail.com>
+RUN apt-get update
+RUN apt-get install -y snort suricata
+RUN apt-get install -y git vim emacs nano tcpdump gawk screen tmux
+RUN mv /etc/suricata/suricata-debian.yaml /etc/suricata/suricata.yaml
+RUN chmod -R 777 /etc/snort /etc/suricata
+RUN adduser --disabled-password --gecos "" demo
+RUN echo "PATH=$PATH:/usr/sbin/:/usr/bin/" > /etc/profile.d/ids.sh && chmod 555 /etc/profile.d/ids.sh
+RUN echo "export TMOUT=1800; readonly TMOUT" > /etc/profile.d/timeout.sh && chmod 555 /etc/profile.d/timeout.sh
+RUN echo "demo ALL=(root) NOPASSWD:/usr/sbin/snort"    >> /etc/sudoers.d/ids
+RUN echo "demo ALL=(root) NOPASSWD:/usr/bin/suricata"  >> /etc/sudoers.d/ids
+RUN chmod 0440 /etc/sudoers.d/ids && chown root:root   /etc/sudoers.d/ids
+RUN echo "alias snort='sudo /usr/sbin/snort'"          >> /etc/profile.d/ids.sh
+RUN echo "alias suricata='sudo /usr/bin/suricata'"     >> /etc/profile.d/ids.sh

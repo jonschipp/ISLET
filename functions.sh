@@ -183,33 +183,6 @@ if [ ! -e $LIMITS/zookeeper.conf ]; then
 fi
 }
 
-function install_configuration_file() {
-if [ ! -f $CONFIG ]; then
-
-echo -e "Installing global configuration file to ${CONFIG}!\n"
-
-echo "# System Configuration"		 									>> $CONFIG
-echo "IMAGE=\"$IMAGE\"       # Default: launch containers from this image" 					>> $CONFIG
-echo "CONFIG_DIR=\"$CONFIG_DIR\"" 	 									>> $CONFIG
-echo "SHELL=\"$SHELL\"       # User's shell: displays login banner then launches zookeeper_login"    		>> $CONFIG
-echo "LAUNCH_CONTAINER=\"$LAUNCH_CONTAINER\"       # User management script and container launcher"		>> $CONFIG
-echo "DB=\"$DB\"             # Credentials database, must be readable by \$USER"				>> $CONFIG
-echo "BASENAME=\"$BASENAME\" # Container prefix as \$BASENAME.\$USERNAME, Used for re-attachment." 		>> $CONFIG
-echo "USER=\"$USER\"	     # User created during install, used for ssh (def: demo)"				>> $CONFIG
-echo 														>> $CONFIG
-echo "# Container Configuration"										>> $CONFIG
-echo "DAYS=\"$DAYS\" 	     # Container lifetime specified in days, removed after x days" 			>> $CONFIG
-echo "VIRTUSER=\"$VIRTUSER\" # Account used when container is entered (Must exist in container!)"		>> $CONFIG
-echo "CPU=\"$CPU\" 	     # Number of CPU's allocated to each container"					>> $CONFIG
-echo "RAM=\"$RAM\"           # Amount of memory allocated to each container"					>> $CONFIG
-echo "HOSTNAME=\"$HOSTNAME\" # Cosmetic: Will end up as \$USER@\$HOSTNAME:~\$ in shell" 			>> $CONFIG
-echo "NETWORK=\"$NETWORK\"   # Disable networking by default: none; Enable networking: bridge"			>> $CONFIG
-echo "DNS=\"$DNS\"           # Use loopback when networking is disabled to prevent error messages"		>> $CONFIG
-echo "MOTD=\"$MOTD\"         # Message of the day is displayed before container launch and reattachment"	>> $CONFIG
-
-fi
-}
-
 function docker_configuration() {
 is_ubuntu
 local ORDER=$1
@@ -257,6 +230,15 @@ then
 		restart docker
 		sleep 5
 	fi
+fi
+}
+
+function install_sample_configuration(){
+echo -e "$ORDER Installing sample training image for Bro!\n"
+if ! docker images | grep -q brolive
+then
+	docker pull broplatform/brolive
+	docker tag broplatform/brolive brolive
 fi
 }
 
