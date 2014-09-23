@@ -38,6 +38,7 @@ RAM=256m       # Amount of memory allocated to each container
 HOSTNAME=zk    # Cosmetic: Will end up as $USER@$HOSTNAME:~$ in shell
 NETWORK=none   # Disable networking by default: none; Enable networking: bridge
 DNS=127.0.0.1  # Use loopback when networking is disabled to prevent error messages
+MOUNT="-v /exercises:/exercises:ro" # Mount directory in container, src:dst:attributes
 
 # Logging
 #exec > >(tee -a "$LOGFILE") 2>&1
@@ -83,7 +84,7 @@ EOF
 
 function is_ubuntu(){
 if ! lsb_release -s -d 2>/dev/null | grep -q Ubuntu
-then 
+then
 	echo -e "\n==> Ubuntu Linux is required for installation! <==\n"
 	exit 1
 fi
