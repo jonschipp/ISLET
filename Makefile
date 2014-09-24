@@ -29,7 +29,7 @@ help:
 	$(Q)echo "$(bold)System installation targets ($(normal)$(yellow)Ubuntu only$(normal))$(bold):$(normal)"
 	$(Q)echo " $(red)install-docker$(normal)               	- Install docker"
 	$(Q)echo " $(red)user-config$(normal)               	- Configure demo user for zookeeper"
-	$(Q)echo " $(red)system-config$(normal)               	- Configure system controls for zookeeper"
+	$(Q)echo " $(red)security-config$(normal)               	- Configure security controls (ulimit, sshd_config)"
 	$(Q)echo "$(bold)Miscellaneous targets:$(normal)"
 	$(Q)echo " $(red)install-sample-config$(normal)        	- Install working image and config"
 	$(Q)echo " $(red)logo$(normal)                         	- Print logo to stdout"
@@ -87,7 +87,7 @@ install-docker:
 user-config:
 	$(FUNCTIONS) user_configuration
 
-system-config:
+security-config:
 	$(FUNCTIONS) system_configuration
 
 logo:

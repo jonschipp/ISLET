@@ -136,6 +136,17 @@ then
 	groupadd docker
 	gpasswd -a $USER docker
 fi
+}
+
+function security_configuration() {
+local ORDER=$1
+local LIMITS=/etc/security/limits.d
+hi "$ORDER Configuring the system with security in mind!\n"
+
+if [ ! -e $LIMITS/zookeeper.conf ]; then
+	echo "*                hard    fsize           1000000" > $LIMITS/fsize.conf
+	echo "*                hard    nproc           10000" >> $LIMITS/nproc.conf
+fi
 
 if ! grep -q "ClientAliveInterval 15" $SSH_CONFIG
 then
@@ -162,17 +173,6 @@ if [ $RESTART_SSH -eq 1 ]
 then
 	restart ssh
 	echo
-fi
-}
-
-function system_configuration() {
-local ORDER=$1
-local LIMITS=/etc/security/limits.d
-hi "$ORDER Configuring the system for use!\n"
-
-if [ ! -e $LIMITS/zookeeper.conf ]; then
-	echo "*                hard    fsize           1000000" > $LIMITS/fsize.conf
-	echo "*                hard    nproc           10000" >> $LIMITS/nproc.conf
 fi
 }
 
