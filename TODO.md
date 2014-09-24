@@ -10,3 +10,4 @@ Items to complete (not ranked):
 * Support setting options in script
 * Print help message when runing install script without options, argcheck
 * Per-image variable to not show config file in available configs list
+* Support for per-image banners
