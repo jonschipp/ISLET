@@ -3,6 +3,7 @@
 # Written for Ubuntu Saucy and Trusty, should be adaptable to other distros.
 
 # Installation notification (not implemented yet)
+MAIL=$(which mail 2>/dev/null)
 COWSAY=/usr/games/cowsay
 IRCSAY=/usr/local/bin/ircsay
 IRC_CHAN="#replace_me"
@@ -33,7 +34,7 @@ function die {
     if [ -f $IRCSAY ]; then
         ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
     fi
-    if [ -f $(which mail 2>/dev/null) ]; then
+    if [ -f ${MAIL:-none} ]; then
     	echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
     fi
 
@@ -49,7 +50,7 @@ function hi {
     if [ -f $IRCSAY ]; then
         ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
     fi
-    if [ -f $(which mail 2>/dev/null) ]; then
+    if [ -f ${MAIL:-none} ]; then
     	echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
     fi
 }
