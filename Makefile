@@ -40,6 +40,7 @@ install: install-files configuration
 install-files:
 	$(Q)echo " $(yellow)Installing $(PROG)$(normal)"
 	mkdir -m 755 -p $(CONFIG_DIR)
+	mkdir -m 755 -p $(LIB_DIR)
 	mkdir -m 755 -p $(CRON_DIR)
 	mkdir -m 755 -p $(BIN_DIR)
 	install -o root -g root -m 644 config/zookeeper.conf $(CONFIG_DIR)/$(PROG).conf
