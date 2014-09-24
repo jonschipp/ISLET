@@ -113,7 +113,7 @@ hi "$ORDER Configuring the $USER user account!\n"
 
 if ! getent passwd $USER 1>/dev/null
 then
-	adduser --disabled-login --gecos "" --shell $SHELL $USER
+	useradd --create-home --shell $SHELL $USER
 	echo "$USER:$PASS" | chpasswd
 fi
 
