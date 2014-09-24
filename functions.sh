@@ -33,7 +33,10 @@ function die {
     if [ -f $IRCSAY ]; then
         ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
     fi
-    echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+    if [ -f $(which mail 2>/dev/null) ]; then
+    	echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+    fi
+
     exit 1
 }
 
@@ -46,7 +49,9 @@ function hi {
     if [ -f $IRCSAY ]; then
         ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
     fi
-    echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+    if [ -f $(which mail 2>/dev/null) ]; then
+    	echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+    fi
 }
 
 function logo {
