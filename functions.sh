@@ -117,7 +117,7 @@ then
 	echo "$USER:$PASS" | chpasswd
 fi
 
-if ! getent group docker 1>/dev/null
+if ! getent group docker | grep -q $USER 1>/dev/null
 then
 	groupadd docker
 	gpasswd -a $USER docker
