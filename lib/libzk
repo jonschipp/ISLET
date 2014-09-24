@@ -14,7 +14,7 @@ whiteb="$(tput setab 7)"
 
 N="${normal}"
 B="${bold}"
-U="{underline}"
+U="${underline}"
 Y="${yellow}"
 RF="${redf}"
 RB="${redb}"
