@@ -103,7 +103,7 @@ function existing_user {
                         echo Success
                         log "${USERNAME}: Returning user"
                         message "Welcome back!"
-                        sudo docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && exec sudo docker attach "${BASENAME}.${USERNAME}"
+                        docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && exec docker attach "${BASENAME}.${USERNAME}"
                         if [ $? -ne 0 ]; then
                                 echo "Launching container failed! Please report to admins"
                                 quit "Launching container failed!"
@@ -168,7 +168,7 @@ function try_again {
 
 function start_container {
         message "Enjoy yourself!"
-	exec sudo docker run --name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME -c $CPU -m $RAM --net $NETWORK --dns $DNS \
+	exec docker run --name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME -c $CPU -m $RAM --net $NETWORK --dns $DNS \
 		$MOUNT -i $IMAGE sudo -i -u $VIRTUSER 2>/dev/null
 }
 
