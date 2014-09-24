@@ -11,7 +11,11 @@ AVAILABLE_USER=1
 
 # Retrieve globals
 if [ -f $CONFIG ]; then
-	source $CONFIG
+        source $CONFIG
+        source $LIBZK
+else
+        echo "Error: ${CONFIG:-config} or ${LIBZK:-libzk} not found!"
+        exit 1
 fi
 
 # Override with per image configuration
@@ -24,26 +28,6 @@ if [ ! -r $DB ]; then
 	chmod 660 $DB
 fi
 
-function quit {
-        MESSAGE=$1
-        echo "Exiting session!"
-        log "$MESSAGE"
-        exit 1
-}
-
-function log {
-        MESSAGE=$1
-        logger -p local0.notice -t "zookeeper" "zookeeper_login.sh: $MESSAGE"
-}
-
-function message {
-MESSAGE=$1
-echo
-echo "$1"
-echo "$MOTD"
-echo
-}
-
 function identify {
         read -r -p "Are you a new or existing user? [new/existing]: " CHOICE
         echo
@@ -54,11 +38,6 @@ function identify {
         else
                 try_again
         fi
-}
-
-function sanitize {
-ITEM="$1"
-        echo ${ITEM//[^a-zA-Z0-9]/}
 }
 
 function new_user {

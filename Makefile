@@ -3,9 +3,10 @@
 PROG 		= zookeeper
 CONFIG_DIR 	= /etc/$(PROG)
 INSTALL_DIR 	= /opt/$(PROG)
-CRON 		= /etc/cron.d
+LIB_DIR		= $(INSTALL_DIR)/lib
 CRON_DIR 	= $(INSTALL_DIR)/cron
 BIN_DIR 	= $(INSTALL_DIR)/bin
+CRON 		= /etc/cron.d
 FUNCTIONS 	= ./functions.sh
 AUTOINSTALL 	= ./auto-install.sh
 REPO		= $(shell grep url .git/config)
@@ -42,6 +43,7 @@ install-files:
 	mkdir -m 755 -p $(CRON_DIR)
 	mkdir -m 755 -p $(BIN_DIR)
 	install -o root -g root -m 644 config/zookeeper.conf $(CONFIG_DIR)/$(PROG).conf
+	install -o root -g root -m 644 lib/libzk $(LIB_DIR)/libzk
 	install -o root -g root -m 755 bin/zookeeper_shell $(BIN_DIR)/$(PROG)_shell
 	install -o root -g root -m 755 bin/zookeeper_login $(BIN_DIR)/$(PROG)_login
 	install -o root -g root -m 644 cron/zookeeper.crontab $(CRON)/$(PROG)

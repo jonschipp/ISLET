@@ -1,0 +1,53 @@
+SPACER1="--------------------"
+SPACER2="                    "
+
+normal="$(tput sgr0)"
+bold=$(tput bold)
+underline=$(tput smul)
+redf="$(tput setaf 1)"
+redb="$(tput setab 1)"
+yellow="$(tput setaf 3)"
+bluef="$(tput setaf 4)"
+blueb="$(tput setab 4)"
+
+N="${normal}"
+B="${bold}"
+U="{underline}"
+Y="${yellow}"
+RF="${redf}"
+RB="${redb}"
+BF="${bluef}"
+BB="${blueb}"
+
+function alert {
+	echo "$(tput setaf 1)$*$(tput sgr0)"
+}
+
+function notice {
+	echo "$(tput setaf 3)$*$(tput sgr0)"
+}
+
+function quit {
+        MESSAGE="$1"
+        alert "Exiting session!"
+        log "$MESSAGE"
+        exit 1
+}
+
+function log {
+        MESSAGE="$1"
+        logger -p local0.notice -t "zookeeper" "zookeeper_login: $MESSAGE"
+}
+
+function message {
+MESSAGE="$1"
+echo
+echo "$1"
+notice "$MOTD"
+echo
+}
+
+function sanitize {
+ITEM="$1"
+        echo ${ITEM//[^a-zA-Z0-9]/}
+}

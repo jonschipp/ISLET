@@ -4,12 +4,21 @@ CONFIG=LOCATION
 COUNT=0
 if [ -f $CONFIG ]; then
 	source $CONFIG
+	source $LIBZK
 else
-	echo "$CONFIG not found! Exiting..."
+	echo "Error: ${CONFIG:-config} or ${LIBZK:-libzk} not found!"
 	exit 1
 fi
 
 clear
+
+if [ -d $CONFIG_DIR ]
+then
+        cd $CONFIG_DIR
+else
+        echo "Error: $CONFIG_DIR doesn't exist!"
+        exit 1
+fi
 
 
 cat <<"EOF"
@@ -42,8 +51,7 @@ do
         let COUNT++
 
         if [ $COUNT -ge $FAILURE_COUNT ]; then
-                echo "Too many failed attempts!"
-                exit 1
+                log "Too many failed attempts!"
         fi
 done
 
