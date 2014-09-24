@@ -92,7 +92,7 @@ user-config:
 	$(FUNCTIONS) user_configuration
 
 security-config:
-	$(FUNCTIONS) system_configuration
+	$(FUNCTIONS) security_configuration
 
 logo:
 	$(FUNCTIONS) logo
