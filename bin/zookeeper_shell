@@ -49,7 +49,9 @@ printf '\t\t\t%-30s %-7s %-30s\n' "${BF}$SPACER1${N}" "|" "${BF}$SPACER1${N}"
 for config in *.conf
 do
         source $config
-        printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config${N}" "|" "${U}$DESCRIPTION${N}"
+	if [[ "$VISIBLE" != "no" ]]; then
+                printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config${N}" "|" "${U}$DESCRIPTION${N}"
+        fi
 done
 
 while test $COUNT -lt $FAILURE_COUNT
