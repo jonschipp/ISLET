@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Global Variables
 CONFIG=LOCATION
+COUNT=0
 if [ -f $CONFIG ]; then
 	source $CONFIG
 else
@@ -10,9 +11,10 @@ fi
 
 clear
 
-echo "Welcome to Zookeeper!"
-echo "====================="
+
 cat <<"EOF"
+Welcome to Zookeeper!
+
 ==============================================
 
    Zoo Keeper: A Linux-based Training System
@@ -20,11 +22,31 @@ cat <<"EOF"
    Web: https://github.com/jonschipp/zookeeper
 
 ==============================================
+
+A place to try out Linux software.
+
 EOF
-echo
-echo "A place to try out Linux software."
+
+echo -e "Available images:\n"
+basename -a $CONFIG_DIR/*.conf
 echo
 
-#########################################
-exec timeout 1m $LAUNCH_CONTAINER $IMAGE
-#########################################
+while test $COUNT -lt $FAILURE_COUNT
+do
+        read -r -p "Choice: " CONFIGURATION
+        if [ -f "$CONFIG_DIR/$CONFIGURATION" ]; then
+                break
+        else
+                echo "Invalid choice!"
+        fi
+        let COUNT++
+
+        if [ $COUNT -ge $FAILURE_COUNT ]; then
+                echo "Too many failed attempts!"
+                exit 1
+        fi
+done
+
+####################################################
+exec timeout 1m "$LAUNCH_CONTAINER" "$CONFIGURATION"
+####################################################

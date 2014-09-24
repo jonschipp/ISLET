@@ -4,11 +4,9 @@
 CONFIG=LOCATION
 
 # Varables:
-FAILURE_COUNT=0
+COUNT=0
 TIME=$(date +"%s")
-DAYS=3 # Length of the event in days
 EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
-DB=/var/tmp/zookeeper_db
 AVAILABLE_USER=1
 
 # Retrieve globals
@@ -16,14 +14,9 @@ if [ -f $CONFIG ]; then
 	source $CONFIG
 fi
 
-## Other
-IMAGE="$1"           # Custom image name passed from zookeeper_shell as argument
-BASENAME="$IMAGE"    # Container prefix as $BASENAME.$USERNAME, used for re-attachment
-
 # Override with per image configuration
-if [ -f $CONFIG_DIR/${IMAGE}.conf ]; then
-	source $CONFIG_DIR/${IMAGE}.conf
-fi
+CONFIGURATION="$1"
+source "$CONFIG_DIR/$CONFIGURATION"
 
 if [ ! -r $DB ]; then
         touch $DB
@@ -90,7 +83,7 @@ function new_user {
 function existing_user {
         echo "Your previous account is only valid for the length of the event, after that you must create a new account"
         echo
-        while test $FAILURE_COUNT -lt 3
+        while test $COUNT -lt $FAILURE_COUNT
         do
                 read -r -p "Username: " USERNAME
                 USERNAME=$(sanitize $USERNAME)
@@ -111,10 +104,10 @@ function existing_user {
                 else
                         echo "Login Failed, try again."
                 fi
-                let FAILURE_COUNT++
+                let COUNT++
         done
         echo "Too many failed attempts!"
-        quit "$FAILURE_COUNT failed password verification attempts"
+        quit "$COUNT failed password verification attempts"
 }
 
 function verify_new_user {
@@ -130,7 +123,7 @@ function verify_new_user {
 function verify_new_password {
         while [ "$PASSWORD" != "$PASSWORD_VERIFY" ]
         do
-                if [ $FAILURE_COUNT -lt 3 ]
+                if [ $COUNT -lt $FAILURE_COUNT ]
                 then
                         echo "Passwords do not match! Try again."
                         read -r -s -p "Choose a password: " PASSWORD
@@ -139,9 +132,9 @@ function verify_new_password {
                         echo
                 else
                         echo "Too many failed attempts!"
-                        quit "$FAILURE_COUNT failed password verification attempts"
+                        quit "$COUNT failed password verification attempts"
                 fi
-        let FAILURE_COUNT++
+        let COUNT++
         done
 
         HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
