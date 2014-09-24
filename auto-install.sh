@@ -60,6 +60,9 @@ It will modify your system by:
 * Reconfiguring sshd to allow access for the demo user
 * ulimit and other security controls
 
+Customizations:
+* Edit the commented variables at the top of this script
+
 To continue type:
 $0 run
 EOF
