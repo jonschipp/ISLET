@@ -20,19 +20,18 @@ else
         exit 1
 fi
 
+cat <<EOF
+${B}Welcome to Zookeeper!${N}
 
-cat <<"EOF"
-Welcome to Zookeeper!
+${MF}==============================================${N}
 
-==============================================
+   ${BF}Zoo Keeper${N}${RF}:${N} ${Y}A Linux-based Training System${N}
 
-   Zoo Keeper: A Linux-based Training System
+   ${BF}Web${N}${RF}:${N} ${U}${Y}https://github.com/jonschipp/zookeeper${N}
 
-   Web: https://github.com/jonschipp/zookeeper
+${MF}==============================================${N}
 
-==============================================
-
-A place to try out Linux software.
+${B}A place to try out Linux software.${N}
 
 EOF
 
