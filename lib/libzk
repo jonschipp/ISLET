@@ -1,5 +1,5 @@
-SPACER1="--------------------"
-SPACER2="                    "
+SPACER1="---------------"
+SPACER2="               "
 
 normal="$(tput sgr0)"
 bold=$(tput bold)

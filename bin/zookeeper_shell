@@ -36,9 +36,13 @@ A place to try out Linux software.
 
 EOF
 
-echo -e "Available images:\n"
-basename -a $CONFIG_DIR/*.conf
-echo
+notice "\t\t\t\tAvailable configurations:\n"
+printf '\t\t\t%-30s %-7s %-30s\n' "${BF}$SPACER1${N}" "|" "${BF}$SPACER1${N}"
+for config in *.conf
+do
+        source $config
+        printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config${N}" "|" "${U}$DESCRIPTION${N}"
+done
 
 while test $COUNT -lt $FAILURE_COUNT
 do
