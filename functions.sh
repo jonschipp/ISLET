@@ -125,18 +125,16 @@ local ORDER=$1
 local RESTART_SSH=0
 hi "$ORDER Configuring the $USER user account!\n"
 
-if [ ! -e /etc/sudoers.d/zookeeper ]; then
-cat > /etc/sudoers.d/zookeeper <<EOF
-Cmnd_Alias SANDBOX = /usr/bin/docker
-$USER ALL=(root) NOPASSWD: SANDBOX
-EOF
-chmod 0440 /etc/sudoers.d/zookeeper && chown root:root /etc/sudoers.d/zookeeper
-fi
-
 if ! getent passwd $USER 1>/dev/null
 then
 	adduser --disabled-login --gecos "" --shell $SHELL $USER
 	echo "$USER:$PASS" | chpasswd
+fi
+
+if ! getent group docker 1>/dev/null
+then
+	groupadd docker
+	gpasswd -a $USER docker
 fi
 
 if ! grep -q "ClientAliveInterval 15" $SSH_CONFIG
