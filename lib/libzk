@@ -20,11 +20,11 @@ BF="${bluef}"
 BB="${blueb}"
 
 function alert {
-	echo "$(tput setaf 1)$*$(tput sgr0)"
+	echo -e "$(tput setaf 1)$*$(tput sgr0)"
 }
 
 function notice {
-	echo "$(tput setaf 3)$*$(tput sgr0)"
+	echo -e "$(tput setaf 3)$*$(tput sgr0)"
 }
 
 function quit {
