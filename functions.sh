@@ -11,34 +11,14 @@ LOGFILE=install.log
 EMAIL=user@company.com
 
 # System Configuration
-SSH_CONFIG=/etc/ssh/sshd_config
-DOCKER_FILE="Dockerfile" 			# Build image from specific Dockerfile. Defaults to latest stable release.
-CUSTOM_IMAGE="no"				# no to pull image from Docker hub, yes to build image from $DOCKER_FILE if it exists
-CONTAINER_DESTINATION= 				# Put containers on another volume e.g. /dev/sdb1 (optional). You must mkfs.$FS first!
-FS="ext4"					# Filesystem type for CONTAINER_DESTINATION, used for mounting
-IMAGE="ubuntu"			 		# Assign a different name to the image (optional)
 USER="demo" 					# User account to create for that people will ssh into to enter container
 PASS="demo" 					# Password for the account that users will ssh into
-DB=/var/tmp/zookeeper_db 			# Credentials database, must be readable by $USER
+SSH_CONFIG=/etc/ssh/sshd_config
+CONTAINER_DESTINATION= 				# Put containers on another volume e.g. /dev/sdb1 (optional). You must mkfs.$FS first!
+FS="ext4"					# Filesystem type for CONTAINER_DESTINATION, used for mounting
 INSTALL_DIR=/opt/zookeeper	 		# Zookeeper component directory
 BIN_DIR="$INSTALL_DIR/bin" 			# Directory to install zookeeper scripts
-CRON_DIR="$INSTALL_DIR/cron" 			# Directory to install cron scripts
-CONFIG_DIR=/etc/zookeeper 			# Directory to install configuration files
-CONFIG="$CONFIG_DIR/zookeeper.conf" 		# Global configuration file
 SHELL="$BIN_DIR/zookeeper_shell"		# $USER's shell: displays login banner then launches zookeeper_login
-LAUNCH_CONTAINER="$BIN_DIR/zookeeper_login"	# User management script and container launcher
-BASENAME="zk"					# Container prefix as $BASENAME.$USERNAME, used for re-attachment.
-MOTD="Training materials are in /exercises"	# Message of the day is displayed before container launch and reattachment
-
-## Container configuration (applies to each container)
-DAYS=3	       # Container lifetime specified in days, removed after x days
-VIRTUSER=demo  # Account used when container is entered (Must exist in container!)
-CPU=1          # Number of CPU's allocated to each container
-RAM=256m       # Amount of memory allocated to each container
-HOSTNAME=zk    # Cosmetic: Will end up as $USER@$HOSTNAME:~$ in shell
-NETWORK=none   # Disable networking by default: none; Enable networking: bridge
-DNS=127.0.0.1  # Use loopback when networking is disabled to prevent error messages
-MOUNT="-v /exercises:/exercises:ro" # Mount directory in container, src:dst:attributes
 
 # Logging
 #exec > >(tee -a "$LOGFILE") 2>&1
