@@ -6,11 +6,12 @@
 HOME=/root
 
 # Installation notification (not implemented yet)
+MAIL=$(which mail 2>/dev/null)
 COWSAY=/usr/games/cowsay
 IRCSAY=/usr/local/bin/ircsay
 IRC_CHAN="#replace_me"
 HOST=$(hostname -s)
-LOGFILE=/root/bro-zookeeper_install.log
+LOGFILE=/root/zookeeper_install.log
 EMAIL=user@company.com
 
 # System Configuration
@@ -42,6 +43,45 @@ NETWORK=none   # Disable networking by default: none; Enable networking: bridge
 DNS=127.0.0.1  # Use loopback when networking is disabled to prevent error messages
 MOUNT="-v /exercises:/exercises:ro" # Mount directory in container, src:dst:attributes
 
+help() {
+cat <<EOF
+This scripts provides the easiest way to get a usable Zookeeper system.
+It's recommended to use the zookeeper make system instead for easy updating
+and latest features and fixes but it's your choice. Run it and your system
+will be configured.
+
+Requirements:
+* Recent Ubuntu Linux
+* Internet connection
+
+It will modify your system by:
+* Installing Docker and Zookeeper
+* Creating a new user account with password demo
+* Reconfiguring sshd to allow access for the demo user
+* ulimit and other security controls
+
+To continue type:
+$0 run
+EOF
+exit 1
+}
+
+function is_ubuntu(){
+if ! lsb_release -s -d 2>/dev/null | grep -q Ubuntu
+then
+        echo -e "\n==> Ubuntu Linux is required for installation! <==\n"
+        exit 1
+fi
+}
+
+argcheck() {
+if [ $ARGC -lt $1 ] || [[ "$@" == "-h" ]] || [[ "$@" == "--help" ]]; then
+	help
+fi
+}
+
+argcheck
+
 # Get Ubuntu distribution information
 source /etc/lsb-release
 
@@ -61,12 +101,14 @@ function die {
     if [ -f ${COWSAY:-none} ]; then
         $COWSAY -d "$*"
     else
-        echo "$*"
+	echo -e "$(tput setaf 1)$*$(tput sgr0)"
     fi
     if [ -f $IRCSAY ]; then
         ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
     fi
-    echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+    if [ -f ${MAIL:-none} ]; then
+        echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+    fi
     exit 1
 }
 
@@ -74,12 +116,14 @@ function hi {
     if [ -f ${COWSAY:-none} ]; then
         $COWSAY "$*"
     else
-        echo "$*"
+	echo -e "$(tput setaf 3)$*$(tput sgr0)"
     fi
     if [ -f $IRCSAY ]; then
         ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
     fi
-    echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+    if [ -f ${MAIL:-none} ]; then
+        echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+    fi
 }
 
 function logo {
@@ -107,7 +151,7 @@ fi
 
 function install_docker() {
 local ORDER=$1
-echo -e "$ORDER Installing Docker!\n"
+hi "$ORDER Installing Docker!\n"
 
 # Check that HTTPS transport is available to APT
 if [ ! -e /usr/lib/apt/methods/https ]; then
@@ -138,7 +182,7 @@ function user_configuration() {
 local ORDER=$1
 local SSH_CONFIG=/etc/ssh/sshd_config
 local RESTART_SSH=0
-echo -e "$ORDER Configuring the $USER user account!\n"
+hi "$ORDER Configuring the $USER user account!\n"
 
 # Create scripts directory if it doesn't exist
 if [ ! -d $CONFIG_DIR ]; then
@@ -187,14 +231,14 @@ fi
 
 function system_configuration() {
 local ORDER=$1
-echo -e "$ORDER Installing Zookeeper!\n"
+hi "$ORDER Installing Zookeeper!\n"
 make install
 }
 
 function system_configuration() {
 local ORDER=$1
 local LIMITS=/etc/security/limits.d
-echo -e "$ORDER Configuring the system for use!\n"
+hi "$ORDER Configuring the system for use!\n"
 
 if [ ! -e $LIMITS/zookeeper.conf ]; then
 	echo "*                hard    fsize           1000000" > $LIMITS/zookeeper.conf
@@ -207,7 +251,7 @@ local ORDER=$1
 local DEFAULT=/etc/default/docker
 local UPSTART=/etc/init/docker.conf
 
-echo -e "$ORDER Installing the Bro Sandbox Docker image!\n"
+hi "$ORDER Installing the Bro Sandbox Docker image!\n"
 
 
 if ! grep -q "limit fsize" $UPSTART
@@ -251,6 +295,15 @@ then
 fi
 }
 
+function install_sample_configuration(){
+hi "$ORDER Installing sample training image for Bro!\n"
+make install-sample-config
+}
+
+if [[ "$1" != "run" ]; then
+	help
+fi
+
 logo
 
 is_ubuntu
@@ -260,5 +313,6 @@ install_docker "2.)"
 user_configuration "3.)"
 system_configuration "4.)"
 docker_configuration "5.)"
+install_sample_configuration "6.)"
 
 "Try it out: ssh $USER@<ip> -o UserKnownHostsFile=/dev/null"
