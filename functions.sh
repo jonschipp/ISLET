@@ -119,8 +119,8 @@ fi
 
 if ! getent group docker | grep -q $USER 1>/dev/null
 then
-	groupadd docker
-	gpasswd -a $USER docker
+	groupadd docker 2>/dev/null
+	gpasswd -a $USER docker 2>/dev/null
 fi
 }
 
