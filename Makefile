@@ -82,6 +82,7 @@ update: pull
 
 install-sample-config:
 	$(FUNCTIONS) install_sample_configuration
+	mkdir -m 755 -p $(CONFIG_DIR)
 	install -o root -g root -m 644 extra/brolive.conf $(CONFIG_DIR)/brolive.conf
 	$(Q)echo " $(yellow)Try it out: ssh demo@<ip>$(normal)"
 
