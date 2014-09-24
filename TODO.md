@@ -8,3 +8,4 @@ Items to complete (not ranked):
 * Figure out best Docker storage backend
 * Add X11 application support
 * Support for per-image banners
+* Add numbers to selection menu items
