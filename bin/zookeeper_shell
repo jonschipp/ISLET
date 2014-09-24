@@ -20,6 +20,7 @@ else
         exit 1
 fi
 
+# Zookeeper Banner
 cat <<EOF
 ${B}Welcome to Zookeeper!${N}
 
@@ -35,7 +36,15 @@ ${B}A place to try out Linux software.${N}
 
 EOF
 
+# Press key to continue
+echo -e "${Y}.${N}${RF}.${N}${BF}.${N}Press any key to continue or CTRL+C to exit${Y}.${N}${RF}.${N}${BF}.${N}\n"
+read -rs -n1 key
+clear
+echo
+
+# Configuration menu
 notice "\t\t\t\tAvailable configurations:\n"
+printf '\t\t\t%-29s %-7s %-30s\n' "${B}Configuration${N}" "|" "${B}Description${N}"
 printf '\t\t\t%-30s %-7s %-30s\n' "${BF}$SPACER1${N}" "|" "${BF}$SPACER1${N}"
 for config in *.conf
 do
