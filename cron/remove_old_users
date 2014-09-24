@@ -2,8 +2,8 @@
 # Destroy users which are older than x days
 CURRENT=$(date +"%s")
 ARGC=$#
-DAYS=3 		   # Overwritten by value in $CONFIG
-DB=/var/tmp/sandbox_db # Overwritten by value in $CONFIG
+DAYS=3 		         # Overwritten by value in $CONFIG
+DB=/var/tmp/zookeeper_db # Overwritten by value in $CONFIG
 CONFIG=LOCATION
 if [ -f $CONFIG ]; then
         source $CONFIG

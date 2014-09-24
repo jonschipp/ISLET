@@ -60,6 +60,7 @@ uninstall:
 	rm -rf $(CONFIG_DIR)
 	rm -rf $(INSTALL_DIR)
 	rm -f $(CRON)/$(PROG)
+	rm -f /var/tmp/$(PROG)_db
 
 mrproper:
 	$(Q)echo " $(yellow)Removing files not in source$(normal)"
