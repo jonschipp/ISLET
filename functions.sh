@@ -48,7 +48,7 @@ function die {
     if [ -f ${COWSAY:-none} ]; then
         $COWSAY -d "$*"
     else
-        echo "$*"
+        echo -e "$(tput setaf 1)$*$(tput sgr0)"
     fi
     if [ -f $IRCSAY ]; then
         ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
@@ -61,7 +61,7 @@ function hi {
     if [ -f ${COWSAY:-none} ]; then
         $COWSAY "$*"
     else
-        echo "$*"
+        echo -e "$(tput setaf 3)$*$(tput sgr0)"
     fi
     if [ -f $IRCSAY ]; then
         ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
@@ -93,7 +93,7 @@ fi
 function install_docker() {
 is_ubuntu
 local ORDER=$1
-echo -e "$ORDER Installing Docker!\n"
+hi "$ORDER Installing Docker!\n"
 
 # Check that HTTPS transport is available to APT
 if [ ! -e /usr/lib/apt/methods/https ]; then
@@ -123,7 +123,7 @@ fi
 function user_configuration() {
 local ORDER=$1
 local RESTART_SSH=0
-echo -e "$ORDER Configuring the $USER user account!\n"
+hi "$ORDER Configuring the $USER user account!\n"
 
 if [ ! -e /etc/sudoers.d/zookeeper ]; then
 cat > /etc/sudoers.d/zookeeper <<EOF
@@ -170,7 +170,7 @@ fi
 function system_configuration() {
 local ORDER=$1
 local LIMITS=/etc/security/limits.d
-echo -e "$ORDER Configuring the system for use!\n"
+hi "$ORDER Configuring the system for use!\n"
 
 if [ ! -e $LIMITS/zookeeper.conf ]; then
 	echo "*                hard    fsize           1000000" > $LIMITS/fsize.conf
@@ -184,7 +184,7 @@ local ORDER=$1
 local DEFAULT=/etc/default/docker
 local UPSTART=/etc/init/docker.conf
 
-echo -e "$ORDER Installing the Bro Sandbox Docker image!\n"
+hi "$ORDER Installing the Bro Sandbox Docker image!\n"
 
 
 if ! grep -q "limit fsize" $UPSTART
@@ -229,7 +229,7 @@ fi
 }
 
 function install_sample_configuration(){
-echo -e "$ORDER Installing sample training image for Bro!\n"
+hi "$ORDER Installing sample training image for Bro!\n"
 if ! docker images | grep -q brolive
 then
 	docker pull broplatform/brolive
