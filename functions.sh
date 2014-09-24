@@ -157,7 +157,10 @@ fi
 
 if [ $RESTART_SSH -eq 1 ]
 then
-	restart ssh
+
+	service sshd restart 2>/dev/null
+	service ssh restart 2>/dev/null
+
 	echo
 fi
 }
@@ -206,7 +209,7 @@ then
                 fi
 
 		mkdir -p /var/lib/docker/devicemapper/devicemapper
-		restart docker
+		service docker restart 2>/dev/null
 		sleep 5
 	fi
 fi
