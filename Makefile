@@ -31,7 +31,7 @@ help:
 	$(Q)echo " $(red)user-config$(normal)               	- Configure demo user for zookeeper"
 	$(Q)echo " $(red)system-config$(normal)               	- Configure system controls for zookeeper"
 	$(Q)echo "$(bold)Miscellaneous targets:$(normal)"
-	$(Q)echo " $(red)install-sample-config$(normal)        	- Install working image and config
+	$(Q)echo " $(red)install-sample-config$(normal)        	- Install working image and config"
 	$(Q)echo " $(red)logo$(normal)                         	- Print logo to stdout"
 
 install: install-files configuration
