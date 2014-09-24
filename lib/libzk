@@ -9,6 +9,8 @@ redb="$(tput setab 1)"
 yellow="$(tput setaf 3)"
 bluef="$(tput setaf 4)"
 blueb="$(tput setab 4)"
+whitef="$(tput setaf 7)"
+whiteb="$(tput setab 7)"
 
 N="${normal}"
 B="${bold}"
@@ -18,6 +20,8 @@ RF="${redf}"
 RB="${redb}"
 BF="${bluef}"
 BB="${blueb}"
+WF="${whitef}"
+WB="${whiteb}"
 
 function alert {
 	echo -e "$(tput setaf 1)$*$(tput sgr0)"
