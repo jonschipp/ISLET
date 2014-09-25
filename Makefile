@@ -8,7 +8,6 @@ CRON_DIR 	= $(INSTALL_DIR)/cron
 BIN_DIR 	= $(INSTALL_DIR)/bin
 CRON 		= /etc/cron.d
 FUNCTIONS 	= ./functions.sh
-AUTOINSTALL 	= ./auto-install.sh
 REPO		= $(shell grep url .git/config)
 Q 		= @
 bold   		= $(shell tput bold)
