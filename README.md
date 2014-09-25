@@ -60,14 +60,19 @@ groupadd docker
 gpasswd -a training docker
 ```
 
-* Other recommendations (optional):
+* Other recommendations:
 
 SSH:
 ```shell
-echo -e "\nClientAliveInterval 15\nClientAliveCountMax 10\n" >> /etc/ssh/sshd_config
-echo -e "\nMatch User training\n\tPasswordAuthentication yes\n" >> /etc/ssh/sshd_config
-sed -i '/^Subsystem sftp/s/^/#/' /etc/ssh/sshd_config
-service sshd restart
+#Subsystem       sftp    /usr/libexec/openssh/sftp-server
+
+ClientAliveInterval 15
+ClientAliveCountMax 10
+
+Match User
+        ForceCommand /opt/zookeeper/bin/zookeeper_shell
+        X11Forwarding no
+        AllowTcpForwarding no
 ```
 
 Separate storage for containers:

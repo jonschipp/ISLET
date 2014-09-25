@@ -136,22 +136,23 @@ fi
 
 if ! grep -q "ClientAliveInterval 15" $SSH_CONFIG
 then
-	echo -e "\nClientAliveInterval 15\nClientAliveCountMax 10\n" >> $SSH_CONFIG
-	RESTART_SSH=1
+       echo -e "\nClientAliveInterval 15\nClientAliveCountMax 10\n" >> $SSH_CONFIG
+       RESTART_SSH=1
 fi
 
-if grep -q "PasswordAuthentication no" $SSH_CONFIG
-then
-	if ! grep -q "Match User $USER" $SSH_CONFIG
-	then
-		echo -e "\nMatch User $USER\n\tPasswordAuthentication yes\n" >> $SSH_CONFIG
-		RESTART_SSH=1
-	fi
+if ! grep -q "Match User $USER" $SSH_CONFIG
+cat <<EOF >> $SSH_CONFIG
+Match User $USER
+	ForceCommand $SHELL
+	X11Forwarding no
+	AllowTcpForwarding no
+EOF
+RESTART_SSH=1
 fi
 
-if ! grep -q '^#Subsystem sftp' $SSH_CONFIG
+if grep -q '^Subsystem sftp' $SSH_CONFIG
 then
-	sed -i '/^Subsystem sftp/s/^/#/' $SSH_CONFIG
+	sed -i '/Subsystem.*sftp/s/^/#/' $SSH_CONFIG
 	RESTART_SSH=1
 fi
 
