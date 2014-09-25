@@ -22,9 +22,4 @@ RUN echo "PATH=$PATH:/usr/local/bro/bin/" > /etc/profile.d/bro.sh && chmod 555 /
 RUN echo "export TMOUT=1800; readonly TMOUT" > /etc/profile.d/timeout.sh && chmod 555 /etc/profile.d/timeout.sh
 RUN su -l -c 'ln -s /exercises exercises' $VIRTUSER
 RUN ln -s $DST /usr/local/bro
-
-RUN echo "$VIRTUSER ALL=(root) NOPASSWD:/usr/local/bro/bin/bro" > /etc/sudoers.d/bro
-RUN echo "$VIRTUSER ALL=(root) NOPASSWD:/usr/local/bro/bin/broctl" >> /etc/sudoers.d/bro
-RUN echo "alias bro='sudo $DST/bin/bro'" >> /etc/profile.d/bro.sh
-RUN echo "alias broctl='sudo $DST/bin/broctl'" >> /etc/profile.d/bro.sh
-RUN chmod 0440 /etc/sudoers.d/bro && chown root:root /etc/sudoers.d/bro
+RUN setcap cap_net_raw,cap_net_admin=eip $DST/bin/bro
