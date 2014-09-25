@@ -140,7 +140,7 @@ then
        RESTART_SSH=1
 fi
 
-if ! grep -q "Match User $USER" $SSH_CONFIG
+if ! grep -q "Match User $USER" $SSH_CONFIG; then
 cat <<EOF >> $SSH_CONFIG
 Match User $USER
 	ForceCommand $SHELL
