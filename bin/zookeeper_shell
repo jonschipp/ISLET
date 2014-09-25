@@ -65,7 +65,8 @@ do
         let COUNT++
 
         if [ $COUNT -ge $FAILURE_COUNT ]; then
-                log "Too many failed attempts!"
+                alert "Too many failed attempts!"
+		exit 1
         fi
 done
 
