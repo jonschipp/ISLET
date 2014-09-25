@@ -146,6 +146,12 @@ Match User $USER
 	ForceCommand $SHELL
 	X11Forwarding no
 	AllowTcpForwarding no
+	PermitOpen none
+	PermitTunnel no
+	MaxAuthTries 3
+	MaxSessions 2
+	AllowAgentForwarding no
+	PermitEmptyPasswords no
 EOF
 RESTART_SSH=1
 fi

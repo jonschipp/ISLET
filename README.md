@@ -64,15 +64,22 @@ gpasswd -a training docker
 
 SSH:
 ```shell
-#Subsystem       sftp    /usr/libexec/openssh/sftp-server
-
+LoginGraceTime 30s
 ClientAliveInterval 15
 ClientAliveCountMax 10
 
-Match User
+#Subsystem       sftp    /usr/libexec/openssh/sftp-server
+
+Match User training
         ForceCommand /opt/zookeeper/bin/zookeeper_shell
         X11Forwarding no
         AllowTcpForwarding no
+	PermitTunnel no
+	PermitOpen none
+	MaxAuthTries 3
+	MaxSessions 2
+	AllowAgentForwarding no
+	PermitEmptyPasswords no
 ```
 
 Separate storage for containers:
