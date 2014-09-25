@@ -26,12 +26,12 @@ help:
 	$(Q)echo " $(red)configuration$(normal)                  - Initializes CONFIG variable across scripts"
 	$(Q)echo " $(red)update$(normal)               		- Update code and reinstall zookeeper"
 	$(Q)echo " $(red)mrproper$(normal)                     	- Remove all files not in source distribution"
-	$(Q)echo "$(bold)System installation targets ($(normal)$(yellow)Ubuntu only$(normal))$(bold):$(normal)"
-	$(Q)echo " $(red)install-docker$(normal)               	- Install docker"
+	$(Q)echo "$(bold)System installation targets$(bold):$(normal)"
+	$(Q)echo " $(red)install-docker$(normal)               	- Install docker ($(normal)$(yellow)Ubuntu only$(normal))"
 	$(Q)echo " $(red)user-config$(normal)               	- Configure demo user for zookeeper"
 	$(Q)echo " $(red)security-config$(normal)               	- Configure security controls (ulimit, sshd_config)"
 	$(Q)echo "$(bold)Miscellaneous targets:$(normal)"
-	$(Q)echo " $(red)install-sample-config$(normal)        	- Install working image and config"
+	$(Q)echo " $(red)install-sample-config$(normal)        	- Install working image and config of Bro"
 	$(Q)echo " $(red)logo$(normal)                         	- Print logo to stdout"
 
 install: install-files configuration
@@ -76,8 +76,6 @@ pull:
 update: pull
 	$(Q)echo " $(yellow)Installing latest code$(normal)"
 	make install
-
-#function docker_configuration() {
 
 install-sample-config:
 	$(FUNCTIONS) install_sample_configuration
