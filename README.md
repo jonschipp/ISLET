@@ -15,17 +15,17 @@ make install
 Target:         |    Description:
 ----------------|----------------
 install         | Install Zookeeper: install-files + configuration
-update		| Updates and install new code: pull + install 
+update		| Updates and install new code: pull + install
 uninstall       | Uninstall Zookeeper (Recommended to backup your stuff first)
 mrproper 	| Removes files that did not come with the source
 install-files   | Copies the zookeeper config and scripts files
 configuration   | Configures the newly copied config and script files. Sets CONFIG variable for operation
 pull  	        | Checkout master branch and run git pull
 install-docker  | Installs latest Docker from Docker repo (Ubuntu only)
-user-config     | Configures a demo user account, sudoer file, and sshd with security in mind
-system-config   | Configures ulimit for the system
+user-config     | Configures a user account called demo
+security-config | Configures sshd with security in mind
 
-### Dependencies 
+### Dependencies
 
 * Linux, Bash, OpenSSH, and Docker
 
@@ -45,6 +45,40 @@ make system-config 	# Configure ulimit security settings for the system
 #### Manual
 
 Manually install and configure all dependencies to your liking.
+
+* Install Docker:
+```shell
+apt-get install docker
+yum install docker
+```
+
+* Configure user account for training (this is given to students to login):
+```shell
+useradd --create-home --shell /opt/zookeeper/bin/sandbox_shell training
+echo "training:training | chpasswd
+groupadd docker
+gpasswd -a training docker
+```
+
+* Other recommendations (optional):
+
+SSH:
+```shell
+echo -e "\nClientAliveInterval 15\nClientAliveCountMax 10\n" >> /etc/ssh/sshd_config
+echo -e "\nMatch User training\n\tPasswordAuthentication yes\n" >> /etc/ssh/sshd_config
+sed -i '/^Subsystem sftp/s/^/#/' /etc/ssh/sshd_config
+service sshd restart
+```
+
+Separate storage for containers:
+```
+service docker stop
+rm -rf /var/lib/docker/*
+mkfs.ext2 /dev/sdb1
+mount -o defaults,noatime,nodiratime /dev/sdb1 /var/lib/docker
+echo -e "/dev/sdb1\t/var/lib/docker\text2}\tdefaults,noatime,nodiratime,nobootwait\t0\t1" >> /etc/fstab
+service docker start
+```
 
 # Demo
 
@@ -73,22 +107,22 @@ Here's a brief demonstration:
           \     <====// /
             -----------
 
-        A place to try out Bro. 
+        A place to try out Bro.
 
         Are you a new or existing user? [new/existing]: new
-        
+
         A temporary account will be created so that you can resume your session. Account is valid for the length of the event.
-        
+
         Choose a username [a-zA-Z0-9]: jon
         Your username is jon
-        Choose a password: 
-        Verify your password: 
+        Choose a password:
+        Verify your password:
         Your account will expire on Fri 29 Aug 2014 07:40:11 PM UTC
-        
+
         Enjoy yourself!
         Training materials are located in /exercises.
         e.g. $ bro -r /exercises/beginner/http.pcap
-        
+
         demo@bro:~$ pwd
         /home/demo
         demo@bro:~$ which bro
