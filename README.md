@@ -62,7 +62,8 @@ gpasswd -a training docker
 
 * Other recommendations:
 
-SSH:
+SSH: _/etc/ssh/sshd_config_
+
 ```shell
 LoginGraceTime 30s
 ClientAliveInterval 15
@@ -83,6 +84,7 @@ Match User training
 ```
 
 Separate storage for containers:
+
 ```
 service docker stop
 rm -rf /var/lib/docker/*
