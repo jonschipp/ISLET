@@ -141,7 +141,7 @@ function try_again {
 function start_container {
         message "Enjoy yourself!"
 	exec docker run --name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME -c $CPU -m $RAM --net $NETWORK --dns $DNS \
-		$MOUNT -i $IMAGE sudo -i -u $VIRTUSER 2>/dev/null
+		$OPTIONS $MOUNT -i $IMAGE sudo -i -u $VIRTUSER 2>/dev/null
 }
 
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
