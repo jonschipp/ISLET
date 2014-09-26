@@ -78,9 +78,9 @@ ClientAliveCountMax 10
 #Subsystem       sftp    /usr/libexec/openssh/sftp-server
 
 Match User training
-        ForceCommand /opt/zookeeper/bin/zookeeper_shell
-        X11Forwarding no
-        AllowTcpForwarding no
+	ForceCommand /opt/zookeeper/bin/zookeeper_shell
+	X11Forwarding no
+	AllowTcpForwarding no
 	PermitTunnel no
 	PermitOpen none
 	MaxAuthTries 3
