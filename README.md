@@ -4,6 +4,8 @@ zookeeper
 A container system for teaching Linux based software with minimal participation effort. <br>
 Students only need an SSH client.
 
+*Note*: The name is still tentative, not to be confused with the Apache Foundation Zookeeper project.
+
 ## Installation
 
 Installation of Zookeeper is very simple.
