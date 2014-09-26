@@ -116,7 +116,7 @@ restart docker
 sleep 5
 ```
 
-Note: There's currently a bug in devicemapper that may cause docker to fail run containers after a reboot (my experience anyway).
+**Note:** There's currently a bug in devicemapper that may cause docker to fail run containers after a reboot (my experience anyway).
 Not recommended for production at the moment, [more info](https://github.com/docker/docker/issues/4036).
 
 # Demo
