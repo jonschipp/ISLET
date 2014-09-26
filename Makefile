@@ -83,13 +83,17 @@ install-sample-config:
 	install -o root -g root -m 644 extra/brolive.conf $(CONFIG_DIR)/brolive.conf
 	$(Q)echo " $(yellow)Try it out: ssh demo@<ip>$(normal)"
 
-install-samples-nsm:
+install-sample-nsm:
 	$(FUNCTIONS) install_nsm_configurations
 	mkdir -m 755 -p $(CONFIG_DIR)
 	install -o root -g root -m 644 extra/brolive.conf $(CONFIG_DIR)/brolive.conf
 	install -o root -g root -m 644 extra/ids.conf $(CONFIG_DIR)/ids.conf
 	install -o root -g root -m 644 extra/argus.conf $(CONFIG_DIR)/argus.conf
 	$(Q)echo " $(yellow)Try it out: ssh demo@<ip>$(normal)"
+
+install-sample-distros:
+	$(FUNCTIONS) install_sample_distributions
+	mkdir -m 755 -p $(CONFIG_DIR)
 
 install-docker:
 	$(FUNCTIONS) install_docker

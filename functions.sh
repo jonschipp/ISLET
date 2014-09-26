@@ -247,4 +247,16 @@ do
 done
 }
 
+function install_sample_distributions() {
+DISTRO="ubuntu debian fedora centos"
+for image in $DISTRO
+do
+	if ! docker images | grep -q $image
+	then
+		hi "$ORDER Installing distribution image for ${image}\n"
+		docker pull $image
+	fi
+done
+}
+
 $@
