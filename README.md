@@ -54,7 +54,7 @@ yum install docker
 
 * Configure user account for training (this is given to students to login):
 ```shell
-useradd --create-home --shell /opt/zookeeper/bin/sandbox_shell training
+useradd --create-home --shell /opt/zookeeper/bin/zookeeper_shell training
 echo "training:training | chpasswd
 groupadd docker
 gpasswd -a training docker
@@ -118,6 +118,109 @@ sleep 5
 
 **Note:** There's currently a bug in devicemapper that may cause docker to fail run containers after a reboot (my experience anyway).
 Not recommended for production at the moment, [more info](https://github.com/docker/docker/issues/4036).
+
+# Administration
+
+* Global configuration file: */etc/zookeeper/zookeeper.conf*
+* Per-image configuration file: */etc/zookeeper/$IMAGE.conf*
+
+Per-image configs overwrite the global variables specified in the global config file.
+For each Docker image you want available for use by zookeeper, create an image file with a .conf extension and place it in the /etc/zookeeper/ directory.
+These images will be selectable from the zookeeper menu after a student authenticates via SSH as the demo user (default).
+
+Common Tasks:
+
+* Change the password of the demo user to help prevent unauthorized access
+
+```
+        $ passwd demo
+```
+
+* Change the password of a container user (Not a system account). Place an SHA-1 hash of the password of choice in the second field of desired user in /var/tmp/zookeeper_db.
+
+```
+        $ PASS=$(echo "newpassword" | sha1sum | sed 's/ .*//)
+        $ USER=testuser
+        $ sed -i "/^$USER:/ s/:[^:]*/:$PASS/" /var/tmp/zookeeper_db
+        $ grep testuser /var/tmp/zookeeper_db
+        testuser:dd76770fc59bcb08cfe7951e5839ac2cb007b9e5:1410247448
+
+```
+
+* Configure container and user lifetime (e.g. conference duration)
+
+  1. Specify the number of days for user account and container lifetime in:
+
+```
+        $ grep ^DAYS /etc/zookeeper/brolive.conf
+        DAYS=3 # Length of the event in days
+```
+
+  Removal scripts are cron jobs that are scheduled in /etc/cron.d/zookeeper
+
+* Allocate more or less resources for containers, and control other container settings.
+  These changes will take effect for each newly created container.
+  - System and use case dependent
+
+```
+        $ grep -A 5 "Container config /etc/zookeeper/brolive.conf
+	# Container Configuration
+	VIRTUSER="demo"                                         # Account used when container is entered (Must exist in container!)
+	CPU="1"                                                 # Number of CPU's allocated to each container
+	RAM="256m"                                              # Amount of memory allocated to each container
+	HOSTNAME="bro"	                                      	# Set hostname in container. PS1 will end up as $VIRTUSER@$HOSTNAME:~$ in shell
+	NETWORK="none"                                          # Disable networking by default: none; Enable networking: bridge
+	DNS="127.0.0.1"                                         # Use loopback when networking is disabled to prevent error messages from resolver
+	MOUNT="-v /exercises:/exercises:ro"			# Mount point(s), sep. by -v: /src:/dst:attributes, ro = readonly (avoid rw)
+	OPTIONS="--cap-add=NET_RAW --cap-add=NET_ADMIN"		# Apply any other options you want passed to Docker run here
+	MOTD="Training materials are in /exercises"             # Message of the day is displayed before container launch and reattachment
+```
+
+* Adding, removing, or modifying exercises
+
+  1. Make changes in /exercises on the host's filesystem
+
+  *  Changes are immediately available for new and existing containers
+
+# Branding
+
+* Custom greeting upon initial system login
+
+  1. Edit /opt/zookeeper/bin/zookeeper_shell with the text of your liking
+
+```
+	...
+
+	# Zookeeper Banner
+        echo "Welcome to Bro Live!"
+        echo "===================="
+        cat <<"EOF"
+          -----------
+          /             \
+         |  (   (0)   )  |
+         |            // |
+          \     <====// /
+            -----------
+        EOF
+        echo
+        echo "A place to try out Bro."
+        echo
+
+	....
+```
+
+* Custom login message for each user
+
+  1. Edit the MOTD variable in /etc/zookeeper/brolive.conf with the text of your liking.
+     'echo -e' escape sequences work here.
+
+```
+        $ grep -A 2 MOTD /etc/zookeeper/brolive.conf 
+        MOTD="
+        Training materials are located in /exercises
+        \te.g. $ bro -r /exercises/BroCon14/beginner/http.pcap\n"
+
+```
 
 # Demo
 
