@@ -238,7 +238,7 @@ install_sample_configuration
 for file in $(git ls-files extra/*.conf)
 do
 	F=$(basename $file .conf)
-	if ! docker images | grep -q $i
+	if ! docker images | grep -q $F
 	then
 		hi "$ORDER Installing sample training image for ${F}\n"
 		docker pull jonschipp/${F}-sandbox
