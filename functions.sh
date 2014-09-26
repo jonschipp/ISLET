@@ -231,4 +231,20 @@ then
 fi
 }
 
+function install_nsm_configurations(){
+
+install_sample_configuration
+
+for file in $(git ls-files extra/*.conf)
+do
+	F=$(basename $file .conf)
+	if ! docker images | grep -q $i
+	then
+		hi "$ORDER Installing sample training image for ${F}\n"
+		docker pull jonschipp/${F}-sandbox
+		docker tag jonschipp/${F}-sandbox $F
+	fi
+done
+}
+
 $@
