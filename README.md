@@ -60,9 +60,15 @@ groupadd docker
 gpasswd -a training docker
 ```
 
-* Other recommendations:
+### Security Recommendations
 
-SSH: _/etc/ssh/sshd_config_
+* SSH: _/etc/ssh/sshd_config_
+
+The following command will configure sshd_config to match the example after with the exception of modifying LoginGraceTime.
+
+```shell
+make security-config
+```
 
 ```shell
 LoginGraceTime 30s
@@ -83,16 +89,35 @@ Match User training
 	PermitEmptyPasswords no
 ```
 
-Separate storage for containers:
+* Separate storage for containers:
 
 ```
 service docker stop
 rm -rf /var/lib/docker/*
 mkfs.ext2 /dev/sdb1
 mount -o defaults,noatime,nodiratime /dev/sdb1 /var/lib/docker
-echo -e "/dev/sdb1\t/var/lib/docker\text2}\tdefaults,noatime,nodiratime,nobootwait\t0\t1" >> /etc/fstab
+tail -1 /etc/fstab
+	/dev/sdb1	/var/lib/docker	    ext2     defaults,noatime,nodiratime,nobootwait 0 1
 service docker start
 ```
+
+* Limit container storage size to prevent DoS or resource abuse
+
+Switching storage backends to devicemapper allows for disk quotas.
+Set dm.basesize to the maximum size the container can grow to, 10G is the default.
+
+```
+service docker stop
+rm -rf /var/lib/docker/*
+tail -1 /etc/default/docker
+	DOCKER_OPTS="--storage-driver=devicemapper --storage-opt dm.basesize=3G"
+mkdir -p /var/lib/docker/devicemapper/devicemapper
+restart docker
+sleep 5
+```
+
+Note: There's currently a bug in devicemapper that may cause docker to fail run containers after a reboot (my experience anyway).
+Not recommended for production at the moment, [more info](https://github.com/docker/docker/issues/4036).
 
 # Demo
 
