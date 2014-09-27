@@ -4,7 +4,7 @@ zookeeper
 A container system for teaching Linux based software with minimal participation effort. <br>
 Students only need an SSH client.
 
-*Note*: The name is still tentative, not to be confused with the Apache Foundation Zookeeper project.
+**Note**: The name is still tentative, not to be confused with the Apache Foundation Zookeeper project.
 
 ## Installation
 
@@ -186,43 +186,53 @@ Common Tasks:
 
 # Branding
 
-* Custom greeting upon initial system login
+* Per-image banners
 
-  1. Edit /opt/zookeeper/bin/zookeeper_shell with the text of your liking
+  1. Add BANNER variable to the image file config in /etc/zookeeper/. Color codes from libzk work here.
 
 ```
 	...
 
-	# Zookeeper Banner
-        echo "Welcome to Bro Live!"
-        echo "===================="
-        cat <<"EOF"
-          -----------
-          /             \
-         |  (   (0)   )  |
-         |            // |
-          \     <====// /
-            -----------
-        EOF
-        echo
-        echo "A place to try out Bro."
-        echo
+	BANNER="
+	${B}Welcome to Zookeeper!${N}
 
-	....
+	${MF}==============================================${N}
+
+	${BF}Zoo Keeper${N}${RF}:${N} ${Y}A Linux-based Training System${N}
+
+	${BF}Web${N}${RF}:${N} ${U}${Y}https://github.com/jonschipp/zookeeper${N}
+
+	${MF}==============================================${N}
+
+	${B}A place to try out Linux software.${N}
+	"
+
 ```
 
 * Custom login message for each user
 
-  1. Edit the MOTD variable in /etc/zookeeper/brolive.conf with the text of your liking.
+  1. Edit the MOTD variable in the image file config in /etc/zookeeper/ with the text of your liking.
      'echo -e' escape sequences work here.
 
 ```
-        $ grep -A 2 MOTD /etc/zookeeper/brolive.conf 
+        $ grep -A 2 MOTD /etc/zookeeper/brolive.conf
         MOTD="
         Training materials are located in /exercises
         \te.g. $ bro -r /exercises/BroCon14/beginner/http.pcap\n"
 
 ```
+
+# Adding Images
+
+See Docker's [image documentation](http://docs.docker.com/userguide/dockerimages)
+
+ 1. Build or pull in a new image
+
+ 2. Create a Zookeeper config file for that image. It's best to copy and modify an existing one.
+
+ 3. Place it in /etc/zookeeper with a .conf extension
+
+ It should now be available from the selection menu upon login.
 
 # Demo
 
