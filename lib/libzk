@@ -39,6 +39,23 @@ CB="${cyanb}"
 WF="${whitef}"
 WB="${whiteb}"
 
+function zookeeper_banner {
+cat <<EOF
+${B}Welcome to Zookeeper!${N}
+
+${MF}==============================================${N}
+
+   ${BF}Zoo Keeper${N}${RF}:${N} ${Y}A Linux-based Training System${N}
+
+   ${BF}Web${N}${RF}:${N} ${U}${Y}https://github.com/jonschipp/zookeeper${N}
+
+${MF}==============================================${N}
+
+${B}A place to try out Linux software.${N}
+
+EOF
+}
+
 function alert {
 	echo -e "$(tput setaf 1)$*$(tput sgr0)"
 }
