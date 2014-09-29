@@ -58,7 +58,7 @@ EOF
 }
 
 alert(){
-	echo -e "$(tput setaf 1)$*$(tput sgr0)"
+	>&2 echo -e "$(tput setaf 1)$*$(tput sgr0)"
 }
 
 notice(){
@@ -67,7 +67,7 @@ notice(){
 
 quit(){
         MESSAGE="$1"
-        alert "Exiting session!"
+        >&2 alert "${1:-Exiting session!}"
         log "$MESSAGE"
         exit 1
 }

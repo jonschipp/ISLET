@@ -13,7 +13,7 @@ if [ -f $CONFIG ]; then
         source $CONFIG
         source $LIBZK
 else
-        echo "Error: ${CONFIG:-config} or ${LIBZK:-libzk} not found!"
+        >&2 echo "Error: ${CONFIG:-config} or ${LIBZK:-libzk} not found!"
         exit 1
 fi
 
@@ -76,22 +76,22 @@ existing_user(){
                         message "Welcome back!"
                         docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && exec docker attach "${BASENAME}.${USERNAME}"
                         if [ $? -ne 0 ]; then
-                                echo "Launching container failed! Please report to admins"
+                                alert "Launching container failed! Please report to admins"
                                 quit "Launching container failed!"
                         fi
                 else
-                        echo "Login Failed, try again."
+                        notice "Login Failed, try again."
                 fi
                 let COUNT++
         done
-        echo "Too many failed attempts!"
+        alert "Too many failed attempts!"
         quit "$COUNT failed password verification attempts"
 }
 
 verify_new_user(){
         grep -w -q "$USERNAME" $DB 2>/dev/null
         if [ $? -eq 0 ]; then
-                echo "User already exists! Try a different one."
+                notice "User already exists! Try a different one."
                 AVAILABLE_USER=1
         else
                 AVAILABLE_USER=0
@@ -109,7 +109,7 @@ verify_new_password(){
                         read -r -s -p "Verify your password: " PASSWORD_VERIFY
                         echo
                 else
-                        echo "Too many failed attempts!"
+                        alert "Too many failed attempts!"
                         quit "$COUNT failed password verification attempts"
                 fi
         let COUNT++
