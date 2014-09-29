@@ -58,7 +58,7 @@ EOF
 }
 
 alert(){
-	>&2 echo -e "$(tput setaf 1)$*$(tput sgr0)"
+	echo -e "$(tput setaf 1)$*$(tput sgr0)" >>/dev/stderr
 }
 
 notice(){
@@ -67,7 +67,7 @@ notice(){
 
 quit(){
         MESSAGE="$1"
-        >&2 alert "${1:-Exiting session!}"
+        alert "${1:-Exiting session!}"
         log "$MESSAGE"
         exit 1
 }

@@ -8,12 +8,18 @@ TIME=$(date +"%s")
 EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
 AVAILABLE_USER=1
 
+err(){
+        MESSAGE="$1"
+        logger -s -p local0.notice -t "zookeeper" "zookeeper_login: $MESSAGE"
+        exit 1
+}
+
 # Retrieve globals
 if [ -f $CONFIG ]; then
         source $CONFIG
         source $LIBZK
 else
-        >&2 echo "Error: ${CONFIG:-config} or ${LIBZK:-libzk} not found!"
+        err "Error: ${CONFIG:-config} or ${LIBZK:-libzk} not found!"
         exit 1
 fi
 

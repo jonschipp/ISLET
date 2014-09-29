@@ -5,7 +5,7 @@ COUNT=0
 
 err(){
         MESSAGE="$1"
-        logger -s -p local0.notice -t "zookeeper" "zookeeper_login: $MESSAGE"
+        logger -s -p local0.notice -t "zookeeper" "zookeeper_shell: $MESSAGE"
 	exit 1
 }
 
