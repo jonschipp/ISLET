@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 # Global Variables
 CONFIG=LOCATION
 
