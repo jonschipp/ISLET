@@ -25,7 +25,7 @@ SHELL="$BIN_DIR/zookeeper_shell"		# $USER's shell: displays login banner then la
 #exec > >(tee -a "$LOGFILE") 2>&1
 #echo -e "\n --> Logging stdout & stderr to $LOGFILE"
 
-die() {
+die(){
     if [ -f ${COWSAY:-none} ]; then
         $COWSAY -d "$*"
     else
@@ -41,7 +41,7 @@ die() {
     exit 1
 }
 
-hi() {
+hi(){
     if [ -f ${COWSAY:-none} ]; then
         $COWSAY "$*"
     else
@@ -55,7 +55,7 @@ hi() {
     fi
 }
 
-logo() {
+logo(){
 cat <<"EOF"
 ==============================================
 
@@ -68,7 +68,7 @@ cat <<"EOF"
 EOF
 }
 
-is_ubuntu() {
+is_ubuntu(){
 if ! lsb_release -s -d 2>/dev/null | grep -q Ubuntu
 then
 	echo -e "\n==> Ubuntu Linux is required for installation! <==\n"
@@ -76,7 +76,7 @@ then
 fi
 }
 
-install_docker() {
+install_docker(){
 is_ubuntu
 local ORDER=$1
 hi "$ORDER Installing Docker!\n"
@@ -106,7 +106,7 @@ then
 fi
 }
 
-user_configuration() {
+user_configuration(){
 local ORDER=$1
 local RESTART_SSH=0
 hi "$ORDER Configuring the $USER user account!\n"
@@ -124,7 +124,7 @@ then
 fi
 }
 
-security_configuration() {
+security_configuration(){
 local ORDER=$1
 local LIMITS=/etc/security/limits.d
 hi "$ORDER Configuring the system with security in mind!\n"
@@ -172,7 +172,7 @@ then
 fi
 }
 
-docker_configuration() {
+docker_configuration(){
 is_ubuntu
 local ORDER=$1
 local DEFAULT=/etc/default/docker
@@ -222,7 +222,7 @@ then
 fi
 }
 
-install_sample_configuration() {
+install_sample_configuration(){
 hi "$ORDER Installing sample training image for Bro!\n"
 if ! docker images | grep -q brolive
 then
@@ -231,7 +231,7 @@ then
 fi
 }
 
-install_nsm_configurations() {
+install_nsm_configurations(){
 
 install_sample_configuration
 
@@ -247,7 +247,7 @@ do
 done
 }
 
-install_sample_distributions() {
+install_sample_distributions(){
 DISTRO="ubuntu debian fedora centos"
 for image in $DISTRO
 do

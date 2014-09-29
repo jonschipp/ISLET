@@ -27,7 +27,7 @@ if [ ! -r $DB ]; then
 	chmod 660 $DB
 fi
 
-identify() {
+identify(){
         read -r -p "Are you a new or existing user? [new/existing]: " CHOICE
         echo
 
@@ -39,7 +39,7 @@ identify() {
         fi
 }
 
-new_user() {
+new_user(){
         echo "A temporary account will be created so that you can resume your session. Account is valid for the length of the event."
         echo
 
@@ -58,7 +58,7 @@ new_user() {
         verify_new_password
 }
 
-existing_user() {
+existing_user(){
         echo "Your previous account is only valid for the length of the event, after that you must create a new account"
         echo
         while test $COUNT -lt $FAILURE_COUNT
@@ -88,7 +88,7 @@ existing_user() {
         quit "$COUNT failed password verification attempts"
 }
 
-verify_new_user() {
+verify_new_user(){
         grep -w -q "$USERNAME" $DB 2>/dev/null
         if [ $? -eq 0 ]; then
                 echo "User already exists! Try a different one."
@@ -98,7 +98,7 @@ verify_new_user() {
         fi
 }
 
-verify_new_password() {
+verify_new_password(){
         while [ "$PASSWORD" != "$PASSWORD_VERIFY" ]
         do
                 if [ $COUNT -lt $FAILURE_COUNT ]
@@ -127,7 +127,7 @@ verify_new_password() {
         start_container
 }
 
-try_again() {
+try_again(){
         read -r -p "I didn't understand your response. Would you like to try again? [Y/N]: " TRY
         if [[ "$TRY" = [YyNn] ]] || [[ "$TRY" = "[yY][eE]sS]" ]] || [[ "$TRY" = "[nN][oO]" ]]; then
                 [[ "$TRY" = [Yy] ]] || [[ "$TRY" = "[yY][eE][sS]" ]] && clear && identify
@@ -137,7 +137,7 @@ try_again() {
         fi
 }
 
-start_container() {
+start_container(){
         message "Enjoy yourself!"
 	exec docker run --name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME -c $CPU -m $RAM --net $NETWORK --dns $DNS \
 		$OPTIONS $MOUNT -i $IMAGE sudo -i -u $VIRTUSER 2>/dev/null

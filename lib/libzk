@@ -40,7 +40,7 @@ CB="${cyanb}"
 WF="${whitef}"
 WB="${whiteb}"
 
-zookeeper_banner() {
+zookeeper_banner(){
 cat <<EOF
 ${B}Welcome to Zookeeper!${N}
 
@@ -57,27 +57,27 @@ ${B}A place to try out Linux software.${N}
 EOF
 }
 
-alert() {
+alert(){
 	echo -e "$(tput setaf 1)$*$(tput sgr0)"
 }
 
-notice() {
+notice(){
 	echo -e "$(tput setaf 3)$*$(tput sgr0)"
 }
 
-quit() {
+quit(){
         MESSAGE="$1"
         alert "Exiting session!"
         log "$MESSAGE"
         exit 1
 }
 
-log() {
+log(){
         MESSAGE="$1"
         logger -p local0.notice -t "zookeeper" "zookeeper_login: $MESSAGE"
 }
 
-message() {
+message(){
 MESSAGE="$1"
 echo
 echo "$1"
@@ -85,7 +85,7 @@ notice "$MOTD"
 echo
 }
 
-sanitize() {
+sanitize(){
 ITEM="$1"
         echo ${ITEM//[^a-zA-Z0-9]/}
 }
