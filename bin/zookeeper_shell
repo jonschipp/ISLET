@@ -2,12 +2,19 @@
 # Global Variables
 CONFIG=LOCATION
 COUNT=0
+
+err(){
+        MESSAGE="$1"
+	>&2 echo -e "$(tput setaf 1)$*$(tput sgr0)"
+        logger -p local0.notice -t "zookeeper" "zookeeper_login: $MESSAGE"
+	exit 1
+}
+
 if [ -f $CONFIG ]; then
 	source $CONFIG
 	source $LIBZK
 else
-	echo "Error: ${CONFIG:-config} or ${LIBZK:-libzk} not found!"
-	exit 1
+	err "Error: ${CONFIG:-config} or ${LIBZK:-libzk} not found!"
 fi
 
 clear
@@ -16,8 +23,7 @@ if [ -d $CONFIG_DIR ]
 then
         cd $CONFIG_DIR
 else
-        echo "Error: $CONFIG_DIR doesn't exist!"
-        exit 1
+        err "Error: $CONFIG_DIR doesn't exist or non-executable!"
 fi
 
 # Display Zookeeper Banner
