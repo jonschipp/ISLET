@@ -5,8 +5,7 @@ COUNT=0
 
 err(){
         MESSAGE="$1"
-	>&2 echo -e "$(tput setaf 1)$*$(tput sgr0)"
-        logger -p local0.notice -t "zookeeper" "zookeeper_login: $MESSAGE"
+        logger -s -p local0.notice -t "zookeeper" "zookeeper_login: $MESSAGE"
 	exit 1
 }
 
