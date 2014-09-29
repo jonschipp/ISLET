@@ -39,7 +39,7 @@ CB="${cyanb}"
 WF="${whitef}"
 WB="${whiteb}"
 
-function zookeeper_banner {
+zookeeper_banner() {
 cat <<EOF
 ${B}Welcome to Zookeeper!${N}
 
@@ -56,27 +56,27 @@ ${B}A place to try out Linux software.${N}
 EOF
 }
 
-function alert {
+alert() {
 	echo -e "$(tput setaf 1)$*$(tput sgr0)"
 }
 
-function notice {
+notice() {
 	echo -e "$(tput setaf 3)$*$(tput sgr0)"
 }
 
-function quit {
+quit() {
         MESSAGE="$1"
         alert "Exiting session!"
         log "$MESSAGE"
         exit 1
 }
 
-function log {
+log() {
         MESSAGE="$1"
         logger -p local0.notice -t "zookeeper" "zookeeper_login: $MESSAGE"
 }
 
-function message {
+message() {
 MESSAGE="$1"
 echo
 echo "$1"
@@ -84,7 +84,7 @@ notice "$MOTD"
 echo
 }
 
-function sanitize {
+sanitize() {
 ITEM="$1"
         echo ${ITEM//[^a-zA-Z0-9]/}
 }
