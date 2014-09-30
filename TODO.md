@@ -10,3 +10,4 @@ Items to complete (not ranked):
 * Security testing of bash scripts
 * make config variables lowercase (safer)
 * quote everything when possible (safer)
+* Try live sniffing in containers
