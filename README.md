@@ -1,8 +1,8 @@
-ISLET
+Isolated, Scalable, & Lightweight Environment for Training 
 =========
 
 A container system for teaching Linux based software with minimal participation effort. <br>
-Students only need an SSH client.
+The participation barrier is set very low, students only need an SSH client.
 
 ## Installation
 
