@@ -19,7 +19,7 @@ if [ -f $CONFIG ]; then
         source $CONFIG
         source $LIBZK
 else
-        err "Error: ${CONFIG:-config} or ${LIBZK:-libzk} not found!"
+        err "Error: ${CONFIG:-config} or ${LIBZK:-libislet} not found!"
         exit 1
 fi
 

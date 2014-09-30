@@ -186,7 +186,7 @@ Common Tasks:
 
 * Per-image banners
 
-  1. Add BANNER variable to the image file config in /etc/islet/. Color codes from libzk work here.
+  1. Add BANNER variable to the image file config in /etc/islet/. Color codes from libislet work here.
 
 ```
 	...
