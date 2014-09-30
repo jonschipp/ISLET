@@ -1,6 +1,6 @@
 .PHONY: default help install uninstall pull update logo mrproper
 
-PROG 		= zookeeper
+PROG 		= islet
 CONFIG_DIR 	= /etc/$(PROG)
 INSTALL_DIR 	= /opt/$(PROG)
 LIB_DIR		= $(INSTALL_DIR)/lib
@@ -19,16 +19,16 @@ yellow	 	= $(shell tput setaf 3)
 default: help
 
 help:
-	$(Q)echo "$(bold)Zookeeper installation targets:$(normal)"
-	$(Q)echo " $(red)install$(normal)                  	- Installs and configures zookeeper"
-	$(Q)echo " $(red)uninstall$(normal) 	                - Uninstalls zookeeper ($(yellow)Backup first!$(normal))"
-	$(Q)echo " $(red)install-files$(normal)                  - Installs zookeeper files"
+	$(Q)echo "$(bold)ISLET installation targets:$(normal)"
+	$(Q)echo " $(red)install$(normal)                  	- Installs and configures islet"
+	$(Q)echo " $(red)uninstall$(normal) 	                - Uninstalls islet ($(yellow)Backup first!$(normal))"
+	$(Q)echo " $(red)install-files$(normal)                  - Installs islet files"
 	$(Q)echo " $(red)configuration$(normal)                  - Initializes CONFIG variable across scripts"
-	$(Q)echo " $(red)update$(normal)               		- Update code and reinstall zookeeper"
+	$(Q)echo " $(red)update$(normal)               		- Update code and reinstall islet"
 	$(Q)echo " $(red)mrproper$(normal)                     	- Remove all files not in source distribution"
 	$(Q)echo "$(bold)System installation targets$(bold):$(normal)"
 	$(Q)echo " $(red)install-docker$(normal)               	- Install docker ($(normal)$(yellow)Ubuntu only$(normal))"
-	$(Q)echo " $(red)user-config$(normal)               	- Configure demo user for zookeeper"
+	$(Q)echo " $(red)user-config$(normal)               	- Configure demo user for islet"
 	$(Q)echo " $(red)security-config$(normal)               	- Configure security controls (ulimit, sshd_config)"
 	$(Q)echo "$(bold)Miscellaneous targets:$(normal)"
 	$(Q)echo " $(red)install-brolive-config$(normal)        	- Install and configure Brolive image"
@@ -42,11 +42,11 @@ install-files:
 	mkdir -m 755 -p $(LIB_DIR)
 	mkdir -m 755 -p $(CRON_DIR)
 	mkdir -m 755 -p $(BIN_DIR)
-	install -o root -g root -m 644 config/zookeeper.conf $(CONFIG_DIR)/$(PROG).conf
+	install -o root -g root -m 644 config/islet.conf $(CONFIG_DIR)/$(PROG).conf
 	install -o root -g root -m 644 lib/libzk $(LIB_DIR)/libzk
-	install -o root -g root -m 755 bin/zookeeper_shell $(BIN_DIR)/$(PROG)_shell
-	install -o root -g root -m 755 bin/zookeeper_login $(BIN_DIR)/$(PROG)_login
-	install -o root -g root -m 644 cron/zookeeper.crontab $(CRON)/$(PROG)
+	install -o root -g root -m 755 bin/islet_shell $(BIN_DIR)/$(PROG)_shell
+	install -o root -g root -m 755 bin/islet_login $(BIN_DIR)/$(PROG)_login
+	install -o root -g root -m 644 cron/islet.crontab $(CRON)/$(PROG)
 	install -o root -g root -m 750 cron/remove_old_containers $(CRON_DIR)/remove_old_containers
 	install -o root -g root -m 750 cron/remove_old_users $(CRON_DIR)/remove_old_users
 	$(Q)echo " $(bold)--> Configuration directory is$(normal) $(underline)$(CONFIG_DIR)$(normal)"

@@ -10,7 +10,7 @@ AVAILABLE_USER=1
 
 err(){
         MESSAGE="$1"
-        logger -s -p local0.notice -t "zookeeper" "zookeeper_login: $MESSAGE"
+        logger -s -p local0.notice -t "islet" "islet_login: $MESSAGE"
         exit 1
 }
 
@@ -126,7 +126,7 @@ verify_new_password(){
         (
         flock --timeout 10 100 || quit "Couldn't obtain lock on file, try again later"
         echo "${USERNAME}:${HASH}:${TIME}" >> $DB
-        ) 100>~/zookeeper.lock
+        ) 100>~/islet.lock
 
         log "${USERNAME}: Account created"
         echo "Your account will expire on $EXPIRATION"

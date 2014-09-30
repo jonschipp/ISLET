@@ -1,14 +1,12 @@
-zookeeper
+ISLET
 =========
 
 A container system for teaching Linux based software with minimal participation effort. <br>
 Students only need an SSH client.
 
-**Note**: The name is still tentative, not to be confused with the Apache Foundation Zookeeper project.
-
 ## Installation
 
-Installation of Zookeeper is very simple.
+Installation of ISLET is very simple.
 
 ```shell
 make install
@@ -16,11 +14,11 @@ make install
 
 Target:         |    Description:
 ----------------|----------------
-install         | Install Zookeeper: install-files + configuration
+install         | Install ISLET: install-files + configuration
 update		| Updates and install new code: pull + install
-uninstall       | Uninstall Zookeeper (Recommended to backup your stuff first)
+uninstall       | Uninstall ISLET (Recommended to backup your stuff first)
 mrproper 	| Removes files that did not come with the source
-install-files   | Copies the zookeeper config and scripts files
+install-files   | Copies the islet config and scripts files
 configuration   | Configures the newly copied config and script files. Sets CONFIG variable for operation
 pull  	        | Checkout master branch and run git pull
 install-docker  | Installs latest Docker from Docker repo (Ubuntu only)
@@ -56,7 +54,7 @@ yum install docker
 
 * Configure user account for training (this is given to students to login):
 ```shell
-useradd --create-home --shell /opt/zookeeper/bin/zookeeper_shell training
+useradd --create-home --shell /opt/islet/bin/islet_shell training
 echo "training:training | chpasswd
 groupadd docker
 gpasswd -a training docker
@@ -80,7 +78,7 @@ ClientAliveCountMax 10
 #Subsystem       sftp    /usr/libexec/openssh/sftp-server
 
 Match User training
-	ForceCommand /opt/zookeeper/bin/zookeeper_shell
+	ForceCommand /opt/islet/bin/islet_shell
 	X11Forwarding no
 	AllowTcpForwarding no
 	PermitTunnel no
@@ -123,12 +121,12 @@ Not recommended for production at the moment, [more info](https://github.com/doc
 
 # Administration
 
-* Global configuration file: */etc/zookeeper/zookeeper.conf*
-* Per-image configuration file: */etc/zookeeper/$IMAGE.conf*
+* Global configuration file: */etc/islet/islet.conf*
+* Per-image configuration file: */etc/islet/$IMAGE.conf*
 
 Per-image configs overwrite the global variables specified in the global config file.
-For each Docker image you want available for use by zookeeper, create an image file with a .conf extension and place it in the /etc/zookeeper/ directory.
-These images will be selectable from the zookeeper menu after a student authenticates via SSH as the demo user (default).
+For each Docker image you want available for use by islet, create an image file with a .conf extension and place it in the /etc/islet/ directory.
+These images will be selectable from the islet menu after a student authenticates via SSH as the demo user (default).
 
 Common Tasks:
 
@@ -138,13 +136,13 @@ Common Tasks:
         $ passwd demo
 ```
 
-* Change the password of a container user (Not a system account). Place an SHA-1 hash of the password of choice in the second field of desired user in /var/tmp/zookeeper_db.
+* Change the password of a container user (Not a system account). Place an SHA-1 hash of the password of choice in the second field of desired user in /var/tmp/islet_db.
 
 ```
         $ PASS=$(echo "newpassword" | sha1sum | sed 's/ .*//)
         $ USER=testuser
-        $ sed -i "/^$USER:/ s/:[^:]*/:$PASS/" /var/tmp/zookeeper_db
-        $ grep testuser /var/tmp/zookeeper_db
+        $ sed -i "/^$USER:/ s/:[^:]*/:$PASS/" /var/tmp/islet_db
+        $ grep testuser /var/tmp/islet_db
         testuser:dd76770fc59bcb08cfe7951e5839ac2cb007b9e5:1410247448
 
 ```
@@ -154,18 +152,18 @@ Common Tasks:
   1. Specify the number of days for user account and container lifetime in:
 
 ```
-        $ grep ^DAYS /etc/zookeeper/brolive.conf
+        $ grep ^DAYS /etc/islet/brolive.conf
         DAYS=3 # Length of the event in days
 ```
 
-  Removal scripts are cron jobs that are scheduled in /etc/cron.d/zookeeper
+  Removal scripts are cron jobs that are scheduled in /etc/cron.d/islet
 
 * Allocate more or less resources for containers, and control other container settings.
   These changes will take effect for each newly created container.
   - System and use case dependent
 
 ```
-        $ grep -A 5 "Container config /etc/zookeeper/brolive.conf
+        $ grep -A 5 "Container config /etc/islet/brolive.conf
 	# Container Configuration
 	VIRTUSER="demo"                                         # Account used when container is entered (Must exist in container!)
 	CPU="1"                                                 # Number of CPU's allocated to each container
@@ -188,19 +186,19 @@ Common Tasks:
 
 * Per-image banners
 
-  1. Add BANNER variable to the image file config in /etc/zookeeper/. Color codes from libzk work here.
+  1. Add BANNER variable to the image file config in /etc/islet/. Color codes from libzk work here.
 
 ```
 	...
 
 	BANNER="
-	${B}Welcome to Zookeeper!${N}
+	${B}Welcome to ISLET!${N}
 
 	${MF}==============================================${N}
 
 	${BF}Zoo Keeper${N}${RF}:${N} ${Y}A Linux-based Training System${N}
 
-	${BF}Web${N}${RF}:${N} ${U}${Y}https://github.com/jonschipp/zookeeper${N}
+	${BF}Web${N}${RF}:${N} ${U}${Y}https://github.com/jonschipp/islet${N}
 
 	${MF}==============================================${N}
 
@@ -211,11 +209,11 @@ Common Tasks:
 
 * Custom login message for each user
 
-  1. Edit the MOTD variable in the image file config in /etc/zookeeper/ with the text of your liking.
+  1. Edit the MOTD variable in the image file config in /etc/islet/ with the text of your liking.
      'echo -e' escape sequences work here.
 
 ```
-        $ grep -A 2 MOTD /etc/zookeeper/brolive.conf
+        $ grep -A 2 MOTD /etc/islet/brolive.conf
         MOTD="
         Training materials are located in /exercises
         \te.g. $ bro -r /exercises/BroCon14/beginner/http.pcap\n"
@@ -228,21 +226,21 @@ See Docker's [image documentation](http://docs.docker.com/userguide/dockerimages
 
  1. Build or pull in a new image
 
- 2. Create a Zookeeper config file for that image. It's best to copy and modify an existing one.
+ 2. Create a ISLET config file for that image. It's best to copy and modify an existing one.
 
- 3. Place it in /etc/zookeeper with a .conf extension
+ 3. Place it in /etc/islet with a .conf extension
 
  It should now be available from the selection menu upon login.
 
 # Demo
 
-I used Zookeeper to teach the Bro platform at BroCon14.
+I used ISLET to teach the Bro platform at BroCon14.
 
 Steps:
-* Install Zookeeper and dependencies
+* Install ISLET and dependencies
 * Build Docker image containing Bro
-* Write a Zookeeper config file for the Bro image
-* Edit the zookeeper_shell script to do some light branding (logo)
+* Write a ISLET config file for the Bro image
+* Edit the islet_shell script to do some light branding (logo)
 * Hand out the demo account credentials to your students so they can SSH in
 * Instruct them on the software
 

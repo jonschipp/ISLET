@@ -6,7 +6,7 @@ export TMOUT=60
 
 err(){
         MESSAGE="$1"
-        logger -s -p local0.notice -t "zookeeper" "zookeeper_shell: $MESSAGE"
+        logger -s -p local0.notice -t "islet" "islet_shell: $MESSAGE"
 	exit 1
 }
 
@@ -26,8 +26,8 @@ else
         err "Error: $CONFIG_DIR doesn't exist or non-executable!"
 fi
 
-# Display Zookeeper Banner
-zookeeper_banner
+# Display ISLET Banner
+islet_banner
 
 # Press key to continue
 echo -e "${Y}.${N}${RF}.${N}${BF}.${N}Press any key to continue or CTRL+C to exit${Y}.${N}${RF}.${N}${BF}.${N}\n"

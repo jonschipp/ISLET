@@ -40,15 +40,15 @@ CB="${cyanb}"
 WF="${whitef}"
 WB="${whiteb}"
 
-zookeeper_banner(){
+islet_banner(){
 cat <<EOF
-${B}Welcome to Zookeeper!${N}
+${B}Welcome to ISLET!${N}
 
 ${MF}==============================================${N}
 
    ${BF}Zoo Keeper${N}${RF}:${N} ${Y}A Linux-based Training System${N}
 
-   ${BF}Web${N}${RF}:${N} ${U}${Y}https://github.com/jonschipp/zookeeper${N}
+   ${BF}Web${N}${RF}:${N} ${U}${Y}https://github.com/jonschipp/islet${N}
 
 ${MF}==============================================${N}
 
@@ -74,7 +74,7 @@ quit(){
 
 log(){
         MESSAGE="$1"
-        logger -p local0.notice -t "zookeeper" "zookeeper_login: $MESSAGE"
+        logger -p local0.notice -t "islet" "islet_login: $MESSAGE"
 }
 
 message(){

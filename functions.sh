@@ -17,9 +17,9 @@ PASS="demo" 					# Password for the account that users will ssh into
 SSH_CONFIG=/etc/ssh/sshd_config
 CONTAINER_DESTINATION= 				# Put containers on another volume e.g. /dev/sdb1 (optional). You must mkfs.$FS first!
 FS="ext4"					# Filesystem type for CONTAINER_DESTINATION, used for mounting
-INSTALL_DIR=/opt/zookeeper	 		# Zookeeper component directory
-BIN_DIR="$INSTALL_DIR/bin" 			# Directory to install zookeeper scripts
-SHELL="$BIN_DIR/zookeeper_shell"		# $USER's shell: displays login banner then launches zookeeper_login
+INSTALL_DIR=/opt/islet	 		# ISLET component directory
+BIN_DIR="$INSTALL_DIR/bin" 			# Directory to install islet scripts
+SHELL="$BIN_DIR/islet_shell"		# $USER's shell: displays login banner then launches islet_login
 
 # Logging
 #exec > >(tee -a "$LOGFILE") 2>&1
@@ -61,7 +61,7 @@ cat <<"EOF"
 
    Zoo Keeper: A Linux-based Training System
 
-   Web: https://github.com/jonschipp/zookeeper
+   Web: https://github.com/jonschipp/islet
 
 ==============================================
 
@@ -129,7 +129,7 @@ local ORDER=$1
 local LIMITS=/etc/security/limits.d
 hi "$ORDER Configuring the system with security in mind!\n"
 
-if [ ! -e $LIMITS/zookeeper.conf ]; then
+if [ ! -e $LIMITS/islet.conf ]; then
 	echo "*                hard    fsize           1000000" > $LIMITS/fsize.conf
 	echo "*                hard    nproc           10000" >> $LIMITS/nproc.conf
 fi
