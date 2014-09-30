@@ -31,7 +31,7 @@ help:
 	$(Q)echo " $(red)user-config$(normal)               	- Configure demo user for zookeeper"
 	$(Q)echo " $(red)security-config$(normal)               	- Configure security controls (ulimit, sshd_config)"
 	$(Q)echo "$(bold)Miscellaneous targets:$(normal)"
-	$(Q)echo " $(red)install-sample-config$(normal)        	- Install working image and config of Bro"
+	$(Q)echo " $(red)install-brolive-config$(normal)        	- Install and configure Brolive image"
 	$(Q)echo " $(red)logo$(normal)                         	- Print logo to stdout"
 
 install: install-files configuration
@@ -77,7 +77,7 @@ update: pull
 	$(Q)echo " $(yellow)Installing latest code$(normal)"
 	make install
 
-install-sample-config:
+install-brolive-config:
 	$(FUNCTIONS) install_sample_configuration
 	mkdir -m 755 -p $(CONFIG_DIR)
 	install -o root -g root -m 644 extra/brolive.conf $(CONFIG_DIR)/brolive.conf
