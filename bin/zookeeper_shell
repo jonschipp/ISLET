@@ -2,6 +2,7 @@
 # Global Variables
 CONFIG=LOCATION
 COUNT=0
+export TMOUT=60
 
 err(){
         MESSAGE="$1"
@@ -69,5 +70,5 @@ if ! [ -z "$BANNER" ]; then
 fi
 
 ####################################################
-exec timeout 1m "$LAUNCH_CONTAINER" "$CONFIGURATION"
+exec "$LAUNCH_CONTAINER" "$CONFIGURATION"
 ####################################################
