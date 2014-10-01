@@ -17,9 +17,9 @@ PASS="demo" 					# Password for the account that users will ssh into
 SSH_CONFIG=/etc/ssh/sshd_config
 CONTAINER_DESTINATION= 				# Put containers on another volume e.g. /dev/sdb1 (optional). You must mkfs.$FS first!
 FS="ext4"					# Filesystem type for CONTAINER_DESTINATION, used for mounting
-INSTALL_DIR=/opt/islet	 		# ISLET component directory
+INSTALL_DIR=/opt/islet	 			# ISLET component directory
 BIN_DIR="$INSTALL_DIR/bin" 			# Directory to install islet scripts
-SHELL="$BIN_DIR/islet_shell"		# $USER's shell: displays login banner then launches islet_login
+SHELL="$BIN_DIR/islet_shell"			# $USER's shell: displays login banner then launches islet_login
 
 # Logging
 #exec > >(tee -a "$LOGFILE") 2>&1
