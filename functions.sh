@@ -148,6 +148,7 @@ if ! grep -q "Match User $USER" $SSH_CONFIG; then
 cat <<EOF >> $SSH_CONFIG
 Match User $USER
 	ForceCommand $SHELL
+	PasswordAuthentication yes
 	X11Forwarding no
 	AllowTcpForwarding no
 	PermitOpen none
