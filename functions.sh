@@ -57,14 +57,18 @@ hi(){
 
 logo(){
 cat <<"EOF"
-==============================================
+===============================================================
 
-   Zoo Keeper: A Linux-based Training System
+   ISLET: A Linux-based Training System
+
+(I)solated,
+	  (S)calable,
+		     & (L)ightweight (E)nvironment
+						 for (T)raining
 
    Web: https://github.com/jonschipp/islet
 
-==============================================
-
+===============================================================
 EOF
 }
 

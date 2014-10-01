@@ -42,18 +42,18 @@ WB="${whiteb}"
 
 islet_banner(){
 cat <<EOF
-${B}Welcome to ISLET!${N}
+${MF}===============================================================${N}
 
-${MF}==============================================${N}
+   ${BF}ISLET${N}${RF}:${N} ${Y}A Linux-based Training System${N}
 
-   ${BF}Zoo Keeper${N}${RF}:${N} ${Y}A Linux-based Training System${N}
+${Y}(${N}${RF}I${N}${Y})${N}solated,
+          ${Y}(${N}${RF}S${N}${Y})${N}calable,
+                    & ${Y}(${N}${RF}L${N}${Y})${N}ightweight ${Y}(${N}${RF}E${N}${Y})${N}nvironment
+						for ${Y}(${N}${RF}T${N}${Y})${N}raining
 
    ${BF}Web${N}${RF}:${N} ${U}${Y}https://github.com/jonschipp/islet${N}
 
-${MF}==============================================${N}
-
-${B}A place to try out Linux software.${N}
-
+${MF}===============================================================${N}
 EOF
 }
 

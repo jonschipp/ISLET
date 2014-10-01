@@ -1,4 +1,4 @@
-Isolated, Scalable, & Lightweight Environment for Training 
+Isolated, Scalable, & Lightweight Environment for Training
 =========
 
 A container system for teaching Linux based software with minimal participation effort. <br>
@@ -192,17 +192,13 @@ Common Tasks:
 	...
 
 	BANNER="
-	${B}Welcome to ISLET!${N}
+	${MF}===============================================================${N}
 
-	${MF}==============================================${N}
+	${BF}ISLET${N}${RF}:${N} ${Y}A Linux-based Training System${N}
 
-	${BF}Zoo Keeper${N}${RF}:${N} ${Y}A Linux-based Training System${N}
+   	${BF}Web${N}${RF}:${N} ${U}${Y}https://github.com/jonschipp/islet${N}
 
-	${BF}Web${N}${RF}:${N} ${U}${Y}https://github.com/jonschipp/islet${N}
-
-	${MF}==============================================${N}
-
-	${B}A place to try out Linux software.${N}
+	${MF}===============================================================${N}
 	"
 
 ```
