@@ -27,7 +27,12 @@ security-config | Configures sshd with security in mind
 
 ### Dependencies
 
-* Linux, Bash, OpenSSH, and Docker
+* Linux, Bash, Make, OpenSSH, and Docker
+
+Typicall all you need is this:
+```shell
+apt-get install make
+```
 
 The included installation scripts are designed to work with Ubuntu.
 
