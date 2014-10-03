@@ -93,8 +93,8 @@ ITEM="$1"
 is_debug(){
 if [[ "$DEBUG" == "yes" ]];
 then
-	INFO=""
+	INFOLEVEL=""
 else
-	INFO="1>/dev/null 2>/dev/null"
+	INFOLEVEL="1>/dev/null 2>/dev/null"
 fi
 }
