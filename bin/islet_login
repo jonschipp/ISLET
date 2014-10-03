@@ -33,6 +33,9 @@ if [ ! -r $DB ]; then
 	chmod 660 $DB
 fi
 
+# Check if debugging is enabled
+is_debug
+
 identify(){
         read -r -p "Are you a new or existing user? [new/existing]: " CHOICE
         echo
@@ -80,7 +83,7 @@ existing_user(){
                         echo Success
                         log "${USERNAME}: Returning user"
                         message "Welcome back!"
-                        docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && exec docker attach "${BASENAME}.${USERNAME}"
+                        docker start "${BASENAME}.${USERNAME}" $INFOLEVEL && exec docker attach "${BASENAME}.${USERNAME}"
                         if [ $? -ne 0 ]; then
                                 alert "Launching container failed! Please report to admins"
                                 quit "Launching container failed!"
@@ -95,7 +98,7 @@ existing_user(){
 }
 
 verify_new_user(){
-        grep -w -q "$USERNAME" $DB 2>/dev/null
+        grep -w -q "$USERNAME" $DB $INFOLEVEL
         if [ $? -eq 0 ]; then
                 notice "User already exists! Try a different one."
                 AVAILABLE_USER=1
@@ -145,8 +148,13 @@ try_again(){
 
 start_container(){
         message "Enjoy yourself!"
+
+	# If debugging is on
+	echo "docker run --name=\"${BASENAME}.${USERNAME}\ -t -h $HOSTNAME -c $CPU -m $RAM --net $NETWORK --dns $DNS \
+                $OPTIONS $MOUNT -i $IMAGE sudo -i -u $VIRTUSER" $INFOLEVEL
+
 	exec docker run --name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME -c $CPU -m $RAM --net $NETWORK --dns $DNS \
-		$OPTIONS $MOUNT -i $IMAGE sudo -i -u $VIRTUSER 2>/dev/null
+		$OPTIONS $MOUNT -i $IMAGE sudo -i -u $VIRTUSER $INFOLEVEL
 }
 
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20

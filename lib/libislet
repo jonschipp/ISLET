@@ -89,3 +89,12 @@ sanitize(){
 ITEM="$1"
         echo ${ITEM//[^a-zA-Z0-9]/}
 }
+
+is_debug(){
+if [[ "$DEBUG" == "yes" ]];
+then
+	INFO=""
+else
+	INFO="1>/dev/null 2>/dev/null"
+fi
+}
