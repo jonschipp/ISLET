@@ -89,6 +89,7 @@ install-sample-nsm:
 	install -o root -g root -m 644 extra/argus.conf $(CONFIG_DIR)/argus.conf
 	install -o root -g root -m 644 extra/tcpdump.conf $(CONFIG_DIR)/tcpdump.conf
 	install -o root -g root -m 644 extra/netsniff-ng.conf $(CONFIG_DIR)/netsniff-ng.conf
+	install -o root -g root -m 644 extra/sniffer.conf $(CONFIG_DIR)/sniffer.conf
 	$(Q)echo " $(yellow)Try it out: ssh demo@<ip>$(normal)"
 
 install-sample-distros:
