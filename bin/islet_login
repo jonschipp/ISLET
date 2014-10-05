@@ -33,9 +33,6 @@ if [ ! -r $DB ]; then
 	chmod 660 $DB
 fi
 
-# Check if debugging is enabled
-is_debug
-
 identify(){
         read -r -p "Are you a new or existing user? [new/existing]: " CHOICE
         echo
@@ -83,6 +80,7 @@ existing_user(){
                         echo Success
                         log "${USERNAME}: Returning user"
                         message "Welcome back!"
+			is_debug "opt: start/attach ${BASENAME}.${USERNAME}"
                         docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && exec docker attach "${BASENAME}.${USERNAME}"
                         if [ $? -ne 0 ]; then
                                 alert "Launching container failed! Please report to admins"
@@ -149,8 +147,18 @@ try_again(){
 start_container(){
         message "Enjoy yourself!"
 
-	exec docker run --name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME -c $CPU -m $RAM --net $NETWORK --dns $DNS \
-		$OPTIONS $MOUNT -i $IMAGE sudo -i -u $VIRTUSER 2>/dev/null
+	NAME_OPT="--name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME"
+	RES_OPT="-c $CPU -m $RAM"
+	NET_OPT="--net $NETWORK --dns $DNS"
+	OTH_OPT="$OPTIONS"
+	MNT_OPT="$MOUNT"
+	IMG_OPT="-i $IMAGE"
+	ENV_OPT="sudo -i -u $VIRTUSER"
+
+	# If debugging is yes
+	is_debug "opt: run $NAME_OPT $RES_OPT $NET_OPT $OTH_OPT \n\t$MNT_OPT $IMG_OPT $ENV_OPT"
+
+	eval exec docker run "$NAME_OPT $RES_OPT $NET_OPT $OTH_OPT $MNT_OPT $IMG_OPT $ENV_OPT" $INFOLEVEL
 }
 
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
