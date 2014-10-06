@@ -135,6 +135,7 @@ hi "$ORDER Configuring the system with security in mind!\n"
 
 if [ ! -e $LIMITS/islet.conf ]; then
 	echo "demo             hard    maxlogins       500" 	>  $LIMITS/islet.conf
+	echo "demo             hard    cpu             180" 	>> $LIMITS/islet.conf
 	echo "@docker          hard    fsize           1000000" >> $LIMITS/islet.conf
 	echo "@docker          hard    nproc           10000" 	>> $LIMITS/islet.conf
 fi
