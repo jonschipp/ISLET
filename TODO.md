@@ -10,4 +10,6 @@ Items to complete (not ranked):
 * Security testing of bash scripts
 * make config variables lowercase (safer)
 * quote everything when possible (safer)
-* Try live sniffing in containers
+* Try live sniffing in containers (create host bridge)
+* SQL database for account management
+* Ability to use one account for all configs
