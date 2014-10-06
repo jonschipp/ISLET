@@ -61,6 +61,7 @@ uninstall:
 	rm -rf $(INSTALL_DIR)
 	rm -f $(CRON)/$(PROG)
 	rm -f /var/tmp/$(PROG)_db
+	rm -f /etc/security/limits.d/islet.conf
 
 mrproper:
 	$(Q)echo " $(yellow)Removing files not in source$(normal)"
