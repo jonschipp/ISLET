@@ -51,6 +51,7 @@ while test $COUNT -lt $FAILURE_COUNT
 do
         read -r -p "Choice: " CONFIGURATION
         if [ -f "$CONFIG_DIR/$CONFIGURATION" ]; then
+		source "$CONFIG_DIR/$CONFIGURATION"
                 break
         else
                 echo "Invalid choice!"
