@@ -134,8 +134,9 @@ local LIMITS=/etc/security/limits.d
 hi "$ORDER Configuring the system with security in mind!\n"
 
 if [ ! -e $LIMITS/islet.conf ]; then
-	echo "*                hard    fsize           1000000" > $LIMITS/fsize.conf
-	echo "*                hard    nproc           10000" >> $LIMITS/nproc.conf
+	echo "demo             hard    maxlogins       500" 	>  $LIMITS/islet.conf
+	echo "@docker          hard    fsize           1000000" >> $LIMITS/islet.conf
+	echo "@docker          hard    nproc           10000" 	>> $LIMITS/islet.conf
 fi
 
 if ! grep -q "ClientAliveInterval 15" $SSH_CONFIG
