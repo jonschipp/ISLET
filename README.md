@@ -15,15 +15,12 @@ make install
 Target:         |    Description:
 ----------------|----------------
 install         | Install ISLET: install-files + configuration
-update		| Updates and install new code: pull + install
+update		| Downloads and install new code (custom changes to default files will be overwritten)
 uninstall       | Uninstall ISLET (Recommended to backup your stuff first)
 mrproper 	| Removes files that did not come with the source
-install-files   | Copies the islet config and scripts files
-configuration   | Configures the newly copied config and script files. Sets CONFIG variable for operation
-pull  	        | Checkout master branch and run git pull
 install-docker  | Installs latest Docker from Docker repo (Ubuntu only)
-user-config     | Configures a user account called demo
-security-config | Configures sshd with security in mind
+user-config     | Configures a user account called demo w/ password dem
+security-config | Configures sshd and pam_limits with islet relevant security in mind
 
 ### Dependencies
 
@@ -44,7 +41,6 @@ It is designed to be a quick way to get a working system with a good configurati
 ```shell
 make install-docker	# Installs latest Docker
 make user-config	# Configures demo user account, sudo access, and SSH security controls
-make system-config 	# Configure ulimit security settings for the system
 ```
 
 #### Manual
@@ -235,13 +231,13 @@ See Docker's [image documentation](http://docs.docker.com/userguide/dockerimages
 
 # Demo
 
-I used ISLET to teach the Bro platform at BroCon14.
+I used ISLET to aid the instructers in teaching the Bro platform at BroCon14.
 
 Steps:
 * Install ISLET and dependencies
-* Build Docker image containing Bro
+* Build Docker image containing Bro (docker pull broplatform/brolive)
 * Write a ISLET config file for the Bro image
-* Edit the islet_shell script to do some light branding (logo)
+* Set a banner in the ISLET config file for light branding (logo)
 * Hand out the demo account credentials to your students so they can SSH in
 * Instruct them on the software
 
