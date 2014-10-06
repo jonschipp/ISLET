@@ -13,3 +13,4 @@ Items to complete (not ranked):
 * Try live sniffing in containers (create host bridge)
 * SQL database for account management
 * Ability to use one account for all configs
+* Mount man page directory from host
