@@ -242,7 +242,7 @@ install_nsm_configurations(){
 
 install_sample_configuration
 
-for file in $(git ls-files extra/*.conf)
+for file in $(git ls-files extra/*.conf | grep -v brolive.conf)
 do
 	F=$(basename $file .conf)
 	if ! docker images | grep -q $F
