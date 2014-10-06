@@ -59,7 +59,7 @@ logo(){
 cat <<"EOF"
 ===============================================================
 
-   ISLET: A Linux-based Training System
+   ISLET: A Linux-based Software Training System
 
 (I)solated,
 	  (S)calable,

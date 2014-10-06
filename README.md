@@ -199,7 +199,7 @@ Common Tasks:
 	BANNER="
 	${MF}===============================================================${N}
 
-	${BF}ISLET${N}${RF}:${N} ${Y}A Linux-based Training System${N}
+	${BF}ISLET${N}${RF}:${N} ${Y}A Linux-based Software Training System${N}
 
    	${BF}Web${N}${RF}:${N} ${U}${Y}https://github.com/jonschipp/islet${N}
 
