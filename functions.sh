@@ -171,10 +171,13 @@ fi
 
 if [ $RESTART_SSH -eq 1 ]
 then
-
-	service sshd restart 2>/dev/null
-	service ssh restart 2>/dev/null
-
+	if sshd -t 2>/dev/null
+	then
+		service sshd restart 2>/dev/null
+		service ssh restart 2>/dev/null
+	else
+		echo "Syntax error in ${SSH_CONFIG}."
+	fi
 	echo
 fi
 }
