@@ -40,7 +40,8 @@ It is designed to be a quick way to get a working system with a good configurati
 
 ```shell
 make install-docker	# Installs latest Docker
-make user-config	# Configures demo user account, sudo access, and SSH security controls
+make user-config	# Configures demo user account
+make security-config    # Configure islet relevant security with sshd and pam_limits
 ```
 
 #### Manual
