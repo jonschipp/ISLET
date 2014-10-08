@@ -21,6 +21,12 @@ INSTALL_DIR=/opt/islet	 			# ISLET component directory
 BIN_DIR="$INSTALL_DIR/bin" 			# Directory to install islet scripts
 SHELL="$BIN_DIR/islet_shell"			# $USER's shell: displays login banner then launches islet_login
 
+# Other Declarations
+RESTART_SSH=0
+LIMITS=/etc/security/limits.d
+DEFAULT=/etc/default/docker
+UPSTART=/etc/init/docker.conf
+
 # Logging
 #exec > >(tee -a "$LOGFILE") 2>&1
 #echo -e "\n --> Logging stdout & stderr to $LOGFILE"
@@ -112,7 +118,6 @@ fi
 user_configuration(){
 local USER="${1:-$USER}"
 local SHELL="${2:-$SHELL}"
-local RESTART_SSH=0
 hi "  Configuring the $USER user account!\n"
 
 if ! getent passwd $USER 1>/dev/null
@@ -131,7 +136,6 @@ fi
 security_configuration(){
 local USER="${1:-$USER}"
 local SHELL="${2:-$SHELL}"
-local LIMITS=/etc/security/limits.d
 hi "  Configuring the system with security in mind!\n"
 
 if [ ! -e $LIMITS/islet.conf ]; then
@@ -185,9 +189,6 @@ fi
 
 docker_configuration(){
 is_ubuntu
-local DEFAULT=/etc/default/docker
-local UPSTART=/etc/init/docker.conf
-
 hi "  Installing the Bro Sandbox Docker image!\n"
 
 
