@@ -14,7 +14,6 @@ Items to complete (not ranked):
 * SQL database for account management
 * Ability to use one account for all configs
 * Mount man page directory from host
-* Write hackish configure script or use autoconf/automake for specifying options like PREFIX
 * Figure out a way to store and analyze container logs
 * Firewall rate limiting or bruteforcing rule make target
 * Document use of grsecurity kernel for container security
