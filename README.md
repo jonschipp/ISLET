@@ -22,9 +22,12 @@ install-docker  | Installs latest Docker from Docker repo (Ubuntu only)
 user-config     | Configures a user account called demo w/ password dem
 security-config | Configures sshd and pam_limits with islet relevant security in mind
 
-You can pass arguments to make to customize your installation:
+make accepts arguments if you want a customize installation (not recommended):
 ```shell
 make install INSTALL_DIR=/usr/local/islet USER=training
+make user-config INSTALL_DIR=/usr/local/islet USER=training
+make security-config INSTALL_DIR=/usr/local/islet USER=training
+make uninstall INSTALL_DIR=/usr/local/islet USER=training
 ```
 
 Variable:       |    Description:
