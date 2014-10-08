@@ -16,3 +16,6 @@ Items to complete (not ranked):
 * Mount man page directory from host
 * Write hackish configure script or use autoconf/automake for specifying options like PREFIX
 * Figure out a way to store and analyze container logs
+* Test sshd config (-t) after security-config
+* Firewall rate limiting or bruteforcing rule make target
+* Document use of grsecurity kernel for container security
