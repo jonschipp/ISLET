@@ -43,9 +43,10 @@ The configure script will check dependencies (it doesn't create a makefile):
 ./configure
 ```
 
-Typically all you need is this:
+Typically all you need is make and docker (for Ubuntu):
 ```shell
 apt-get install make
+make install-docker
 ```
 
 The included installation scripts are designed to work with Ubuntu.
