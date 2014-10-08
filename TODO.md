@@ -17,3 +17,4 @@ Items to complete (not ranked):
 * Figure out a way to store and analyze container logs
 * Firewall rate limiting or bruteforcing rule make target
 * Document use of grsecurity kernel for container security
+* Debian package
