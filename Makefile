@@ -9,6 +9,7 @@ BIN_DIR 	= $(INSTALL_DIR)/bin
 CRON 		= /etc/cron.d
 FUNCTIONS 	= ./functions.sh
 USER		= demo
+NAGIOS		= /usr/local/nagios/libexec
 REPO		= $(shell grep url .git/config)
 Q 		= @
 bold   		= $(shell tput bold)
@@ -31,6 +32,7 @@ help:
 	$(Q)echo " $(red)security-config$(normal)               	- Configure security controls (ulimit, sshd_config)"
 	$(Q)echo "$(bold)Miscellaneous targets:$(normal)"
 	$(Q)echo " $(red)install-brolive-config$(normal)        	- Install and configure Brolive image"
+	$(Q)echo " $(red)install-nagios-plugin$(normal)        	- Install ISLET Nagios plugin (def: /usr/local/nagios/libexec)"
 	$(Q)echo " $(red)logo$(normal)                         	- Print logo to stdout"
 
 install: install-files configuration
@@ -107,5 +109,8 @@ user-config:
 security-config:
 	$(FUNCTIONS) security_configuration $(USER) $(BIN_DIR)/$(PROG)_shell
 
+install-nagios-plugin:
+	install -o root -g nagios -m 550 extra/check_islet.sh $(NAGIOS)/check_islet.sh
+	
 logo:
 	$(FUNCTIONS) logo
