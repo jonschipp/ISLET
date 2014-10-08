@@ -8,6 +8,7 @@ CRON_DIR 	= $(INSTALL_DIR)/cron
 BIN_DIR 	= $(INSTALL_DIR)/bin
 CRON 		= /etc/cron.d
 FUNCTIONS 	= ./functions.sh
+USER		= demo
 REPO		= $(shell grep url .git/config)
 Q 		= @
 bold   		= $(shell tput bold)
@@ -101,10 +102,10 @@ install-docker:
 	$(FUNCTIONS) install_docker
 
 user-config:
-	$(FUNCTIONS) user_configuration
+	$(FUNCTIONS) user_configuration $USER
 
 security-config:
-	$(FUNCTIONS) security_configuration
+	$(FUNCTIONS) security_configuration $USER
 
 logo:
 	$(FUNCTIONS) logo

@@ -22,11 +22,28 @@ install-docker  | Installs latest Docker from Docker repo (Ubuntu only)
 user-config     | Configures a user account called demo w/ password dem
 security-config | Configures sshd and pam_limits with islet relevant security in mind
 
+You can pass arguments to make to customize your installation:
+```shell
+make install INSTALL_DIR=/usr/local/islet USER=training
+```
+
+Variable:       |    Description:
+----------------|----------------
+CONFIG_DIR      | islet config files directory (def: /etc/islet)
+INSTALL_DIR     | islet installation directory (def: /opt/islet)
+CRON		| directory to place islet crontab file (def: /etc/cron.d)
+USER		| user account created with user-config targert (def: demo)
+
 ### Dependencies
 
 * Linux, Bash, Make, OpenSSH, and Docker
 
-Typicall all you need is this:
+The configure script will check dependencies:
+```shell
+./configure
+```
+
+Typically all you need is this:
 ```shell
 apt-get install make
 ```

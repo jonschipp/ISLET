@@ -82,8 +82,7 @@ fi
 
 install_docker(){
 is_ubuntu
-local ORDER=$1
-hi "$ORDER Installing Docker!\n"
+hi "  Installing Docker!\n"
 
 # Check that HTTPS transport is available to APT
 if [ ! -e /usr/lib/apt/methods/https ]; then
@@ -111,9 +110,9 @@ fi
 }
 
 user_configuration(){
-local ORDER=$1
+USER="$1"
 local RESTART_SSH=0
-hi "$ORDER Configuring the $USER user account!\n"
+hi "  Configuring the $USER user account!\n"
 
 if ! getent passwd $USER 1>/dev/null
 then
@@ -129,9 +128,9 @@ fi
 }
 
 security_configuration(){
-local ORDER=$1
+USER="$1"
 local LIMITS=/etc/security/limits.d
-hi "$ORDER Configuring the system with security in mind!\n"
+hi "  Configuring the system with security in mind!\n"
 
 if [ ! -e $LIMITS/islet.conf ]; then
 	echo "demo             hard    maxlogins       500" 	>  $LIMITS/islet.conf
@@ -184,11 +183,10 @@ fi
 
 docker_configuration(){
 is_ubuntu
-local ORDER=$1
 local DEFAULT=/etc/default/docker
 local UPSTART=/etc/init/docker.conf
 
-hi "$ORDER Installing the Bro Sandbox Docker image!\n"
+hi "  Installing the Bro Sandbox Docker image!\n"
 
 
 if ! grep -q "limit fsize" $UPSTART
@@ -233,7 +231,7 @@ fi
 }
 
 install_sample_configuration(){
-hi "$ORDER Installing sample training image for Bro!\n"
+hi "  Installing sample training image for Bro!\n"
 if ! docker images | grep -q brolive
 then
 	docker pull broplatform/brolive
@@ -250,7 +248,7 @@ do
 	F=$(basename $file .conf)
 	if ! docker images | grep -q $F
 	then
-		hi "$ORDER Installing sample training image for ${F}\n"
+		hi "  Installing sample training image for ${F}\n"
 		docker pull jonschipp/${F}-sandbox
 		docker tag jonschipp/${F}-sandbox $F
 	fi
@@ -263,7 +261,7 @@ for image in $DISTRO
 do
 	if ! docker images | grep -q $image
 	then
-		hi "$ORDER Installing distribution image for ${image}\n"
+		hi "  Installing distribution image for ${image}\n"
 		docker pull $image
 	fi
 done
