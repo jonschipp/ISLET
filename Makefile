@@ -102,10 +102,10 @@ install-docker:
 	$(FUNCTIONS) install_docker
 
 user-config:
-	$(FUNCTIONS) user_configuration $USER
+	$(FUNCTIONS) user_configuration $(USER) $(BIN_DIR)/$(PROG)_shell
 
 security-config:
-	$(FUNCTIONS) security_configuration $USER
+	$(FUNCTIONS) security_configuration $(USER) $(BIN_DIR)/$(PROG)_shell
 
 logo:
 	$(FUNCTIONS) logo

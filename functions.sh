@@ -110,7 +110,8 @@ fi
 }
 
 user_configuration(){
-USER="$1"
+local USER="${1:-$USER}"
+local SHELL="${2:-$SHELL}"
 local RESTART_SSH=0
 hi "  Configuring the $USER user account!\n"
 
@@ -128,7 +129,8 @@ fi
 }
 
 security_configuration(){
-USER="$1"
+local USER="${1:-$USER}"
+local SHELL="${2:-$SHELL}"
 local LIMITS=/etc/security/limits.d
 hi "  Configuring the system with security in mind!\n"
 

@@ -32,13 +32,13 @@ Variable:       |    Description:
 CONFIG_DIR      | islet config files directory (def: /etc/islet)
 INSTALL_DIR     | islet installation directory (def: /opt/islet)
 CRON		| directory to place islet crontab file (def: /etc/cron.d)
-USER		| user account created with user-config targert (def: demo)
+USER		| user account created with user-config target (def: demo)
 
 ### Dependencies
 
 * Linux, Bash, Make, OpenSSH, and Docker
 
-The configure script will check dependencies:
+The configure script will check dependencies (it doesn't create a makefile):
 ```shell
 ./configure
 ```
