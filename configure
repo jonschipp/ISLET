@@ -10,21 +10,6 @@ CRITICAL=1
 DEPENDS="bash make sshd docker"
 MISSING=()
 
-# set default values for the thresholds
-usage()
-{
-cat <<EOF
-
-Configure ISLET
-
-     Options:
-     -p|--prefix <path>		Installation directory (def: /opt/islet)
-     -h|--help			Print this help message
-
-Usage: $0 --prefix /opt/islet
-EOF
-}
-
 check_linux()
 {
         echo -n "[*] Checking Linux ... "
@@ -50,18 +35,6 @@ check_dependencies()
         fi
 }
 
-
-#if [ "$#" -gt 0 ]
-#then
-#	while true
-#	do
-#        	case $1 in
-#			-p|--prefix) shift; PREFIX="$1";;
-#                	-h|--help) usage; exit;;
-#        	esac
-#	done
-#fi
-
 check_linux
 
 for i in $DEPENDS
@@ -69,7 +42,7 @@ do
 	check_dependencies $i
 done
 
-if [ ${#MISSING[@]} -gt 2 ];
+if [ ${#MISSING[@]} -gt 0 ];
 then
 	count=$(echo ${#MISSING[@]})
 	echo -n "[!] Missing dependencies: "
