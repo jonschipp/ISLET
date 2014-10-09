@@ -18,4 +18,3 @@ Items to complete (not ranked):
 * Firewall rate limiting or bruteforcing rule make target
 * Document use of grsecurity kernel for container security
 * Debian package
-* Write Nagios plugin for islet
