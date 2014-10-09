@@ -265,6 +265,11 @@ fi
 
 if [ $SIZE_CHECK -eq 1 ]; then
 
+	if [ ! -d $STORAGE_BACKEND ]; then
+                echo "$STORAGE_BACKEND doesn't exist or is inaccessible, check or modify variable in $0"
+                exit $UNKNOWN
+        fi
+
         IFS=$'\n'
         for fs in $(find $STORAGE_BACKEND/* -maxdepth 0 -type d -exec du -b -s '{}' \;);
         do
