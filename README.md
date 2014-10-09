@@ -25,6 +25,7 @@ mrproper 	| Removes files that did not come with the source
 install-docker  | Installs latest Docker from Docker repo (Ubuntu only)
 user-config     | Configures a user account called demo w/ password dem
 security-config | Configures sshd and pam_limits with islet relevant security in mind
+iptables-config | Installs iptables ruleset
 
 make accepts arguments if you want a customize installation (not recommended):
 ```shell
