@@ -1,13 +1,36 @@
 #!/usr/bin/env bash
-# Kill containers which grow to 1GB our more
-CONTAINERS=$(docker ps -s | awk 'BEGIN { FS="[ ]{3,}" } $7 ~ / [GT]B/ { print $1 }')
+# Kill containers which grows to CRIT our more
+# Location of Docker containers
 
-if [ ! -z "$CONTAINERS" ]
-then
-        for ID in $CONTAINERS
-        do
-                echo 'echo "Warning: Max. disk space reached. Destroying container..."' | docker attach $ID
-                docker stop $ID
-                logger -t "docker" "disk_limit.sh: Container $ID was greater than 1GB. Stopped"
-        done
+# Superseded by declarations in $CONFIG
+CONTAINER_PATH=/var/lib/docker/devicemapper/mnt
+MAX_MAX_SIZE=1073741824
+
+CONFIG=LOCATION
+if [ -f $CONFIG ]; then
+        source $CONFIG
+	source $LIBISLET
+else
+        echo "$0: Warning: CONFIG not found"
+        logger -p local0.notice -t "islet" "$0: $CONFIG not found!"
 fi
+
+if [ ! -d $CONTAINER_PATH ]; then
+	echo "$CONTAINER_PATH doesn't exist or is inaccessible, check or modify variable in $0"
+	exit 1
+fi
+
+IFS=$'\n'
+for fs in $(find $CONTAINER_PATH/* -maxdepth 0 -type d -exec du -b -s '{}' \;);
+do
+	MAX_SIZE=$(echo "$fs" | awk '{ print $1 }')
+	APATH=$(echo "$fs" | awk '{ print $2 }')
+	CONTAINER=$(basename "$APATH" | awk '{ print substr($0,0,12) }')
+
+	if [ $MAX_SIZE -ge $CRIT ]; then
+                echo 'echo "Warning: Max. disk space reached. Destroying container..."' | docker attach $CONTAINER
+                docker stop --time=3 $CONTAINER 1>/dev/null
+		docker rm -f $CONTAINER 1>/dev/null
+                logger -p local0.notice -t "islet" "$0: Container $CONTAINER size $MAX_SIZE is  greater than $CRIT. Removed."
+	fi
+done
