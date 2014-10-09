@@ -15,6 +15,5 @@ Items to complete (not ranked):
 * Ability to use one account for all configs
 * Mount man page directory from host
 * Figure out a way to store and analyze container logs
-* Firewall rate limiting or bruteforcing rule make target
 * Document use of grsecurity kernel for container security
 * Debian package
