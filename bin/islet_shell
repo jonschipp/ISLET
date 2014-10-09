@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
-# Global Variables
+# Global Declarations
 CONFIG=LOCATION
 COUNT=0
+LIST=()
 export TMOUT=60
 
 err(){
         MESSAGE="$1"
         logger -s -p local0.notice -t "islet" "islet_shell: $MESSAGE"
-	exit 1
+        exit 1
 }
 
 if [ -f $CONFIG ]; then
-	source $CONFIG
-	source $LIBZK
+        source $CONFIG
+        source $LIBZK
 else
-	err "Error: ${CONFIG:-config} or ${LIBZK:-libislet} not found!"
+        err "Error: ${CONFIG:-config} or ${LIBZK:-libislet} not found!"
 fi
 
 clear
@@ -39,29 +40,36 @@ echo
 notice "\t\t\t\tAvailable configurations:\n"
 printf '\t\t\t%-29s %-7s %-30s\n' "${B}Configuration${N}" "|" "${B}Description${N}"
 printf '\t\t\t%-30s %-7s %-30s\n' "${BF}$SPACER1${N}" "|" "${BF}$SPACER1${N}"
+
 for config in *.conf
 do
         source $config
-	if [[ "$VISIBLE" != "no" ]]; then
+        if [[ "$VISIBLE" != "no" ]]; then
                 printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config${N}" "|" "${U}$DESCRIPTION${N}"
+                LIST+=("$config")
         fi
 done
 
-while test $COUNT -lt $FAILURE_COUNT
+echo
+notice "Choose a number to load the configuration:"
+echo
+
+PS3="${Y}[${N}${BF}Choice${N}${Y}]${N}: "
+select CONFIGURATION in ${LIST[@]}
 do
-        read -r -p "Choice: " CONFIGURATION
         if [ -f "$CONFIG_DIR/$CONFIGURATION" ]; then
-		source "$CONFIG_DIR/$CONFIGURATION"
+                source "$CONFIG_DIR/$CONFIGURATION"
                 break
         else
                 echo "Invalid choice!"
         fi
-        let COUNT++
 
+        let COUNT++
         if [ $COUNT -ge $FAILURE_COUNT ]; then
                 alert "Too many failed attempts!"
-		exit 1
+                exit 1
         fi
+
 done
 
 # Per image banner
