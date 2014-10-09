@@ -10,16 +10,16 @@ AVAILABLE_USER=1
 
 err(){
         MESSAGE="$1"
-        logger -s -p local0.notice -t "islet" "islet_login: $MESSAGE"
+        logger -s -p local0.notice -t "islet" "$0: $MESSAGE"
         exit 1
 }
 
 # Retrieve globals
 if [ -f $CONFIG ]; then
         source $CONFIG
-        source $LIBZK
+        source $LIBISLET
 else
-        err "Error: ${CONFIG:-config} or ${LIBZK:-libislet} not found!"
+        err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
         exit 1
 fi
 

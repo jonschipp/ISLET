@@ -12,7 +12,10 @@
 # $ ./check_islet.sh -T available -s islet.conf,test.conf
 
 # 3.) Count configurations marked invisible
-# $./check_islet.sh -T unavailable -c 0
+# $ ./check_islet.sh -T unavailable -c 0
+
+# 4.) Check container sizes in bytes
+# $ ./check_islet.sh -T size -w 536870912 -c 1073741824
 
 # NRPE
 
@@ -37,6 +40,9 @@ INSTALL_DIR=/opt/islet
 # Set this to the proper user if yours differs
 USER=demo
 
+# Location of Docker containers
+STORAGE_BACKEND=/var/lib/docker/devicemapper/mnt
+
 usage()
 {
 cat <<EOF
@@ -49,6 +55,7 @@ Check status of ISLET configuration.
                                 status           - Checks status of islet by verifying configuration 
 				available  	 - Check available configurations for images
 				unavailable 	 - Check configurations marked as invisible
+				size             - Check container sizes (\`\`-w|c <bytes>'')
 	-s <item>		Item(s) to skip (sep:,) "islet.conf,test.conf"
         -c <int>                Critical value
         -w <int>                Warning value
@@ -84,6 +91,7 @@ CRIT=0
 WARN=0
 
 LIST_CHECK=0
+SIZE_CHECK=0
 AVAILABLE_CHECK=0
 UNAVAILABLE_CHECK=0
 VARIABLE_CHECK=0
@@ -123,6 +131,8 @@ do
          T)
              if [[ "$OPTARG" == status ]]; then
                         STATUS_CHECK=1 
+	     elif [[ "$OPTARG" == size ]]; then
+                        SIZE_CHECK=1
              elif [[ "$OPTARG" == available ]]; then
 			LIST_CHECK=1
                         AVAILABLE_CHECK=1
@@ -229,7 +239,7 @@ if [ $STATUS_CHECK -eq 1 ]; then
 		fi
 	done
 
-	for file in $LIBZK $SHELL $LAUNCH_CONTAINER $DB
+	for file in $LIBISLET $SHELL $LAUNCH_CONTAINER $DB
 	do
 		if [ ! -f $file ]
 		then
@@ -251,4 +261,37 @@ if [ $STATUS_CHECK -eq 1 ]; then
 	fi
 
 	check_values
+fi
+
+if [ $SIZE_CHECK -eq 1 ]; then
+
+	if [ ! -d $STORAGE_BACKEND ]; then
+                echo "$STORAGE_BACKEND doesn't exist or is inaccessible, check or modify variable in $0"
+                exit $UNKNOWN
+        fi
+
+        IFS=$'\n'
+        for fs in $(find $STORAGE_BACKEND/* -maxdepth 0 -type d -exec du -b -s '{}' \;);
+        do
+                SIZE=$(echo "$fs" | awk '{ print $1 }')
+                APATH=$(echo "$fs" | awk '{ print $2 }')
+                CONTAINER=$(basename "$APATH" | awk '{ print substr($0,0,12) }')
+
+                if [ $SIZE -ge $CRIT ]; then
+                        echo "CRITICAL: $CONTAINER size greater than $CRIT bytes"
+                        let MISSING++
+                elif [ $SIZE -ge $WARN ]; then
+                        echo "WARNING: $CONTAINER size is greater than $WARN bytes"
+                else
+                        :
+                fi
+        done
+
+        if [ $MISSING -ne 0 ]
+        then
+                exit $CRITICAL
+        else
+                echo "OK: Container sizes are looking good"
+                exit $OK
+        fi
 fi

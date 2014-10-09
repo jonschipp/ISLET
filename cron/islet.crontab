@@ -2,9 +2,8 @@ SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 # m h dom mon dow user  command
-# No longer necessary when using devicemapper to limit container size
-#* * * * *   root    LOCATION
 
 # Don't run at the same time, causes problems
 @daily   	 root    LOCATION/remove_old_containers
 * * * * *        root    LOCATION/remove_old_users
+@hourly   	 root    LOCATION/disk_limit

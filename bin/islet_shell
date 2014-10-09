@@ -7,15 +7,15 @@ export TMOUT=60
 
 err(){
         MESSAGE="$1"
-        logger -s -p local0.notice -t "islet" "islet_shell: $MESSAGE"
+        logger -s -p local0.notice -t "islet" "$0: $MESSAGE"
         exit 1
 }
 
 if [ -f $CONFIG ]; then
         source $CONFIG
-        source $LIBZK
+        source $LIBISLET
 else
-        err "Error: ${CONFIG:-config} or ${LIBZK:-libislet} not found!"
+        err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
 fi
 
 clear
