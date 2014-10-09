@@ -51,6 +51,8 @@ The configure script will check dependencies (it doesn't create a makefile):
 ./configure
 ```
 
+![ISLET Configure Screenshot](http://jonschipp.com/islet/islet_configure.png)
+
 Typically all you need is make and docker (for Ubuntu):
 ```shell
 apt-get install make
