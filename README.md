@@ -27,7 +27,7 @@ user-config     | Configures a user account called demo w/ password dem
 security-config | Configures sshd and pam_limits with islet relevant security in mind
 iptables-config | Installs iptables ruleset
 
-make accepts arguments if you want a customize installation (not recommended):
+GNU make accepts arguments if you want a customized installation (*not recommended*):
 ```shell
 make install INSTALL_DIR=/usr/local/islet USER=training
 make user-config INSTALL_DIR=/usr/local/islet USER=training
@@ -246,17 +246,19 @@ Common Tasks:
 
 ```
 
-# Adding Images
+# Adding Training Environments
 
 See Docker's [image documentation](http://docs.docker.com/userguide/dockerimages)
 
- 1. Build or pull in a new image
+ 1. Build or pull in a new Docker image
 
  2. Create a ISLET config file for that image. It's best to copy and modify an existing one.
 
  3. Place it in /etc/islet with a .conf extension
 
  It should now be available from the selection menu upon login.
+
+![ISLET Configs Screenshot](http://jonschipp.com/islet/islet_configs.png)
 
 # Demo
 
