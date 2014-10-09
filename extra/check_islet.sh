@@ -239,7 +239,7 @@ if [ $STATUS_CHECK -eq 1 ]; then
 		fi
 	done
 
-	for file in $LIBZK $SHELL $LAUNCH_CONTAINER $DB
+	for file in $LIBISLET $SHELL $LAUNCH_CONTAINER $DB
 	do
 		if [ ! -f $file ]
 		then
