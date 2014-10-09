@@ -4,6 +4,8 @@ Isolated, Scalable, & Lightweight Environment for Training
 A container system for teaching Linux based software with minimal participation effort. <br>
 The participation barrier is set very low, students only need an SSH client.
 
+![ISLET Screenshot](http://jonschipp.com/islet/islet.png)
+
 ## Installation
 
 Installation of ISLET is very simple.
@@ -11,6 +13,8 @@ Installation of ISLET is very simple.
 ```shell
 make install
 ```
+
+![ISLET Make Screenshot](http://jonschipp.com/islet/islet_make.png)
 
 Target:         |    Description:
 ----------------|----------------
