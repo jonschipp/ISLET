@@ -4,34 +4,39 @@
 # Copyright 2014 Jon Schipp <jonschipp@gmail.com>
 # Subject to the GNU GPL
 
+# Get colors from libislet
+source lib/libislet
+
 # Global Declarations
 OK=0
 CRITICAL=1
 DEPENDS="bash make sshd docker"
 MISSING=()
+NO="${Y}[${N}${RF}NO${N}${Y}]${N}"
+YES="${Y}[${N}${BF}YES${N}${Y}]${N}"
 
 check_linux()
 {
-        echo -n "[*] Checking Linux ... "
+        echo -n "${Y}[${N}${BF}*${N}${Y}]${N} Checking Linux ... "
 
         if [[ "$(uname)" != "Linux" ]] ; then
-                echo "[NO] Linux not found"
+                echo "$NO Linux not found"
 		MISSING+=('Linux')
         else
-                echo "[YES] Linux found"
+                echo "$YES Linux found"
         fi
 }
 
 check_dependencies()
 {
 	local depends=$1
-        echo -n "[*] Checking $depends ... "
+        echo -n "${Y}[${N}${BF}*${N}${Y}]${N} Checking $depends ... "
 
         if [[ "x$(which $depends 2>/dev/null)" == "x" ]] ; then
-                echo "[NO] $depends not found"
+                echo "$NO $depends not found"
 		MISSING+=("$depends")
         else
-                echo "[YES] $depends found"
+                echo "$YES $depends found"
         fi
 }
 
@@ -45,12 +50,12 @@ done
 if [ ${#MISSING[@]} -gt 0 ];
 then
 	count=$(echo ${#MISSING[@]})
-	echo -n "[!] Missing dependencies: "
+	echo -n "${Y}[${N}${RF}!${N}${Y}]${N} Missing dependencies: "
 	for (( i=0; i<${count}; i++ ));
 	do
   		echo -n "${MISSING[$i]} "
 	done
 	exit $CRITICAL
 else
-	echo "[=] All dependencies found, now you can run \`\`make install''"
+	echo "${Y}[${N}${BF}*${N}${Y}]${N} All dependencies found, now you can run \`\`make install''"
 fi
