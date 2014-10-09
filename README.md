@@ -4,6 +4,8 @@ Isolated, Scalable, & Lightweight Environment for Training
 A container system for teaching Linux based software with minimal participation effort. <br>
 The participation barrier is set very low, students only need an SSH client.
 
+![ISLET Screenshot](http://jonschipp.com/islet/islet.png)
+
 ## Installation
 
 Installation of ISLET is very simple.
@@ -11,6 +13,8 @@ Installation of ISLET is very simple.
 ```shell
 make install
 ```
+
+![ISLET Make Screenshot](http://jonschipp.com/islet/islet_make.png)
 
 Target:         |    Description:
 ----------------|----------------
@@ -21,6 +25,7 @@ mrproper 	| Removes files that did not come with the source
 install-docker  | Installs latest Docker from Docker repo (Ubuntu only)
 user-config     | Configures a user account called demo w/ password dem
 security-config | Configures sshd and pam_limits with islet relevant security in mind
+iptables-config | Installs iptables ruleset
 
 make accepts arguments if you want a customize installation (not recommended):
 ```shell
@@ -45,6 +50,8 @@ The configure script will check dependencies (it doesn't create a makefile):
 ```shell
 ./configure
 ```
+
+![ISLET Configure Screenshot](http://jonschipp.com/islet/islet_configure.png)
 
 Typically all you need is make and docker (for Ubuntu):
 ```shell

@@ -10,6 +10,7 @@ CRON 		= /etc/cron.d
 FUNCTIONS 	= ./functions.sh
 USER		= demo
 NAGIOS		= /usr/local/nagios/libexec
+IPTABLES	= /etc/network/if-pre-up.d/iptables-rules
 REPO		= $(shell grep url .git/config)
 Q 		= @
 bold   		= $(shell tput bold)
@@ -30,6 +31,7 @@ help:
 	$(Q)echo " $(red)install-docker$(normal)               	- Install docker ($(normal)$(yellow)Ubuntu only$(normal))"
 	$(Q)echo " $(red)user-config$(normal)               	- Configure demo user for islet"
 	$(Q)echo " $(red)security-config$(normal)               	- Configure security controls (ulimit, sshd_config)"
+	$(Q)echo " $(red)iptables-config$(normal)               	- Install iptables rules (def: /etc/network/if-pre-up.d/)"
 	$(Q)echo "$(bold)Miscellaneous targets:$(normal)"
 	$(Q)echo " $(red)install-brolive-config$(normal)        	- Install and configure Brolive image"
 	$(Q)echo " $(red)install-nagios-plugin$(normal)        	- Install ISLET Nagios plugin (def: /usr/local/nagios/libexec)"
@@ -109,8 +111,12 @@ user-config:
 security-config:
 	$(FUNCTIONS) security_configuration $(USER) $(BIN_DIR)/$(PROG)_shell
 
+iptables-config:
+	install -o root -g root -m 750 extra/iptables-rules $(IPTABLES)
+	$(IPTABLES)
+
 install-nagios-plugin:
 	install -o root -g nagios -m 550 extra/check_islet.sh $(NAGIOS)/check_islet.sh
-	
+
 logo:
 	$(FUNCTIONS) logo
