@@ -5,7 +5,7 @@ iptables -X
 
 # Setting default filter policy
 iptables -P INPUT DROP
-iptables -P OUTPUT DROP
+iptables -P OUTPUT ACCEPT
 iptables -P FORWARD ACCEPT
 
 # Allow traffic on loopback
