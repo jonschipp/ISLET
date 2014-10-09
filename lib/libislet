@@ -74,7 +74,7 @@ quit(){
 
 log(){
         MESSAGE="$1"
-        logger -p local0.notice -t "islet" "islet_login: $MESSAGE"
+        logger -p local0.notice -t "islet" "$0: $MESSAGE"
 }
 
 message(){

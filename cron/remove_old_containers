@@ -5,8 +5,10 @@ DAYS=3             # Overwritten by value in $CONFIG
 CONFIG=LOCATION
 if [ -f $CONFIG ]; then
         source $CONFIG
+	source $LIBISLET
 else
 	echo "$0: Warning: CONFIG not found"
+	logger -p local0.notice -t "islet" "$0: $CONFIG not found!"
 fi
 
 CONTAINERS=$(docker ps -a | \
@@ -24,6 +26,6 @@ then
         do
                 #echo 'echo "Warning: Container lifetime limit reached. Destroying container..."' | docker attach $ID
                 docker rm $ID
-                logger -t "docker" "remove_old_containers.sh: Container $ID was older than $DAYS day. Stopped"
+                logger -t "docker" "$0: Container $ID was older than $DAYS day. Stopped"
         done
 fi

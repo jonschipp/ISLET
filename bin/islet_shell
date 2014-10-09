@@ -7,7 +7,7 @@ export TMOUT=60
 
 err(){
         MESSAGE="$1"
-        logger -s -p local0.notice -t "islet" "islet_shell: $MESSAGE"
+        logger -s -p local0.notice -t "islet" "$0: $MESSAGE"
         exit 1
 }
 

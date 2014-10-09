@@ -3,12 +3,14 @@
 CURRENT=$(date +"%s")
 ARGC=$#
 DAYS=3 		         # Overwritten by value in $CONFIG
-DB=/var/tmp/islet_db # Overwritten by value in $CONFIG
+DB=/var/tmp/islet_db 	 # Overwritten by value in $CONFIG
 CONFIG=LOCATION
 if [ -f $CONFIG ]; then
         source $CONFIG
+	source $LIBISLET
 else
 	echo "$0: Warning: CONFIG not found"
+	logger -p local0.notice -t "islet" "$0: $CONFIG not found!"
 fi
 
 KEEP=$(($DAYS*86400))
@@ -21,7 +23,7 @@ do
         if [ $ANSWER -ge $KEEP ]
         then
                 echo "Warning: User account $USER lifetime reached. Removing user..."
-                logger -t "docker" "remove_old_users.sh: User account $USER was older than $DAYS day. Removed"
+                logger -t "docker" "$0: User account $USER was older than $DAYS day. Removed"
                 sed -i "/^$USER:/d" $DB
         fi
 done < $DB
