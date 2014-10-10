@@ -174,7 +174,7 @@ start_container(){
 	OTH_OPT="$LOCAL_OPTIONS"
 	MNT_OPT="$MOUNT"
 	IMG_OPT="-i $IMAGE"
-	ENV_OPT="sudo -i -u $VIRTUSER"
+	ENV_OPT="sudo -i -u $VIRTUSER $GLOBAL_ENV $LOCAL_ENV"
 
 	# If debugging is yes
 	is_debug "opt: run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT \n\t$MNT_OPT $IMG_OPT $ENV_OPT"
