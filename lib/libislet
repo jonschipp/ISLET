@@ -3,8 +3,8 @@ SPACER1="---------------"
 SPACER2="               "
 
 normal="$(tput sgr0)"
-bold=$(tput bold)
-underline=$(tput smul)
+bold="$(tput bold)"
+underline="$(tput smul)"
 yellow="$(tput setaf 3)"
 blackf="$(tput setaf 0)"
 blackb="$(tput setab 0)"
