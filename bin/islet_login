@@ -4,8 +4,6 @@ CONFIG=LOCATION
 
 # Varables:
 COUNT=0
-TIME=$(date +"%s")
-EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
 AVAILABLE_USER=1
 
 err(){
@@ -26,6 +24,9 @@ fi
 # Override with per image configuration
 CONFIGURATION="$1"
 source "$CONFIG_DIR/$CONFIGURATION"
+
+TIME=$(date +"%s")
+EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
 
 if [ ! -r $DB ]; then
         touch $DB
