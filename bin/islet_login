@@ -34,7 +34,7 @@ if [ ! -r $DB ]; then
 fi
 
 identify(){
-        read -r -p "Are you a new or existing user? [new/existing]: " CHOICE
+	read -r -p "${WF}Are you a new or existing user?${N} ${Y}[${N}${BF}new${N}${Y}/${N}${BF}existing${N}${Y}]${N}: " CHOICE
         echo
 
         if [[ "$CHOICE" = "new" ]] || [[ "$CHOICE" = "existing" ]]; then
@@ -46,38 +46,38 @@ identify(){
 }
 
 new_user(){
-        echo "A temporary account will be created so that you can resume your session. Account is valid for the length of the event."
+        notice "A temporary account will be created so that you can resume your session. Account is valid for the length of the event."
         echo
 
         until test $AVAILABLE_USER -ne 1
         do
-                read -r -p "Choose a username [a-zA-Z0-9]: " USERNAME
+                read -r -p "${WF}Choose a username${N} ${Y}[${N}${BF}a-zA-Z0-9${N}${Y}]${N}: " USERNAME
                 USERNAME=$(sanitize $USERNAME)
-                echo "Your username is $USERNAME"
+                echo "Your username is ${MF}$USERNAME${N}"
                 verify_new_user
         done
 
-        read -r -s -p "Choose a password: " PASSWORD
+        read -r -s -p "${WF}Choose a password:${N} " PASSWORD
         echo
-        read -r -s -p "Verify your password: " PASSWORD_VERIFY
+        read -r -s -p "${WF}Verify your password${N}: " PASSWORD_VERIFY
         echo
         verify_new_password
 }
 
 existing_user(){
-        echo "Your previous account is only valid for the length of the event, after that you must create a new account"
+        notice "Your previous account is only valid for the length of the event, after that you must create a new account"
         echo
         while test $COUNT -lt $FAILURE_COUNT
         do
-                read -r -p "Username: " USERNAME
+                read -r -p "${WF}Username:${N} " USERNAME
                 USERNAME=$(sanitize $USERNAME)
-                read -r -s -p "Password: " PASSWORD
+                read -r -s -p "${WF}Password:${N} " PASSWORD
                 echo
                 USER_SUPPLIED_PASSWORD=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
                 HASH=$(awk -F : -v user=$USERNAME '$1 == user { print $2 }' $DB)
                 if [ "$USER_SUPPLIED_PASSWORD" = "$HASH" ]
                 then
-                        echo Success
+                        echo "${MF}Success${N}"
                         log "${USERNAME}: Returning user"
                         message "Welcome back!"
 			is_debug "opt: start/attach ${BASENAME}.${USERNAME}"
@@ -110,10 +110,10 @@ verify_new_password(){
         do
                 if [ $COUNT -lt $FAILURE_COUNT ]
                 then
-                        echo "Passwords do not match! Try again."
-                        read -r -s -p "Choose a password: " PASSWORD
+                        notice "Passwords do not match! Try again."
+                        read -r -s -p "${WF}Choose a password:${N} " PASSWORD
                         echo
-                        read -r -s -p "Verify your password: " PASSWORD_VERIFY
+                        read -r -s -p "${WF}Verify your password:${N} " PASSWORD_VERIFY
                         echo
                 else
                         alert "Too many failed attempts!"
@@ -130,12 +130,12 @@ verify_new_password(){
         ) 100>~/islet.lock
 
         log "${USERNAME}: Account created"
-        echo "Your account will expire on $EXPIRATION"
+        echo "Your account will expire on ${MF}$EXPIRATION${N}"
         start_container
 }
 
 try_again(){
-        read -r -p "I didn't understand your response. Would you like to try again? [Y/N]: " TRY
+        read -r -p "${WF}I didn't understand your response. Would you like to try again?${N} ${Y}[${N}${BF}Y${N}${Y}/${N}${BF}N${N}${Y}]${N}: " TRY
         if [[ "$TRY" = [YyNn] ]] || [[ "$TRY" = "[yY][eE]sS]" ]] || [[ "$TRY" = "[nN][oO]" ]]; then
                 [[ "$TRY" = [Yy] ]] || [[ "$TRY" = "[yY][eE][sS]" ]] && clear && identify
                 [[ "$TRY" = [Nn] ]] || [[ "$TRY" = "[nN][oO]" ]] && quit "User chose to exit from try_again"
