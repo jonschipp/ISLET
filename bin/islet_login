@@ -78,9 +78,25 @@ existing_user(){
                 if [ "$USER_SUPPLIED_PASSWORD" = "$HASH" ]
                 then
                         echo "${MF}Success${N}"
+
+			# This is how we handle using the same account for multiple images
+			if ! awk -F : -v user="$USERNAME" -v basename="$BASENAME" '$1 == user \
+			{
+				for (i=4;i<=NF;i++)
+					if ($i == basename ) {
+						exit 0
+					}
+					exit 1
+			}' $DB
+			then
+				start_container
+			fi
+
+			# User is re-attaching to previous image
                         log "${USERNAME}: Returning user"
                         message "Welcome back!"
 			is_debug "opt: start/attach ${BASENAME}.${USERNAME}"
+
                         docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && exec docker attach "${BASENAME}.${USERNAME}"
                         if [ $? -ne 0 ]; then
                                 alert "Launching container failed! Please report to admins"
@@ -145,6 +161,10 @@ try_again(){
 }
 
 start_container(){
+
+	# Keep track of the user's images for re-attachment
+	sed -i "/$USERNAME/s/$/:$BASENAME/" $DB
+
         message "Enjoy yourself!"
 
 	NAME_OPT="--name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME"
