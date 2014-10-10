@@ -9,7 +9,6 @@ Items to complete (not ranked):
 * Security testing of bash scripts
 * make config variables lowercase (safer)
 * quote everything when possible (safer)
-* Try live sniffing in containers (create host bridge)
 * SQL database for account management
 * Figure out a way to store and analyze container logs
 * Document use of grsecurity kernel for container security

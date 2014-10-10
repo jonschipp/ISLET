@@ -170,15 +170,16 @@ start_container(){
 	NAME_OPT="--name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME"
 	RES_OPT="-c $CPU -m $RAM"
 	NET_OPT="--net $NETWORK --dns $DNS"
-	OTH_OPT="$OPTIONS"
+	GLB_OPT="$GLOBAL_OPTIONS"
+	OTH_OPT="$LOCAL_OPTIONS"
 	MNT_OPT="$MOUNT"
 	IMG_OPT="-i $IMAGE"
 	ENV_OPT="sudo -i -u $VIRTUSER"
 
 	# If debugging is yes
-	is_debug "opt: run $NAME_OPT $RES_OPT $NET_OPT $OTH_OPT \n\t$MNT_OPT $IMG_OPT $ENV_OPT"
+	is_debug "opt: run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT \n\t$MNT_OPT $IMG_OPT $ENV_OPT"
 
-	eval exec docker run "$NAME_OPT $RES_OPT $NET_OPT $OTH_OPT $MNT_OPT $IMG_OPT $ENV_OPT" $INFOLEVEL
+	eval exec docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $IMG_OPT $ENV_OPT" $INFOLEVEL
 }
 
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
