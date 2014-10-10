@@ -7,6 +7,7 @@ Items to complete (not ranked):
 * Figure out best Docker storage backend for purpose
 * Add X11 application support
 * Find solution for users viewing web interfaces in containers
+* Command logging
 * Security testing of bash scripts
 * make config variables lowercase (safer)
 * quote everything when possible (safer)
