@@ -15,3 +15,4 @@ Items to complete (not ranked):
 * Figure out a way to store and analyze container logs
 * Document use of grsecurity kernel for container security
 * Debian package
+* Test for account expiration in islet_login and list expiration date or countdown
