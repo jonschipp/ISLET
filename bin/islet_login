@@ -94,7 +94,7 @@ existing_user(){
 			fi
 
 			# User is re-attaching to previous image
-                        log "${USERNAME}: Returning user"
+                        log "${USERNAME}: Returning user from $CLIENT"
                         message "Welcome back!"
 			is_debug "opt: start/attach ${BASENAME}.${USERNAME}"
 
@@ -146,7 +146,7 @@ verify_new_password(){
         echo "${USERNAME}:${HASH}:${TIME}" >> $DB
         ) 100>~/islet.lock
 
-        log "${USERNAME}: Account created"
+        log "${USERNAME}: Account created from $CLIENT"
         echo "Your account will expire on ${MF}$EXPIRATION${N}"
         start_container
 }
@@ -178,6 +178,7 @@ start_container(){
 	ENV_OPT="sudo -i -u $VIRTUSER $GLOBAL_ENV $LOCAL_ENV"
 
 	# If debugging is yes
+	is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"
 	is_debug "opt: run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT \n\t$MNT_OPT $IMG_OPT $ENV_OPT"
 
 	eval exec docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $IMG_OPT $ENV_OPT" $INFOLEVEL

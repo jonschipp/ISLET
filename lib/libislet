@@ -73,7 +73,7 @@ quit(){
 }
 
 log(){
-        MESSAGE="$1"
+	MESSAGE=$(echo "$1" | sed -e 's/\\n/ /g' -e 's/\\t/ /g' -e 's/\\r/ /g')
         logger -p local0.notice -t "islet" "$0: $MESSAGE"
 }
 
