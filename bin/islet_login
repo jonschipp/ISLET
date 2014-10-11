@@ -35,7 +35,9 @@ if [ ! -r $DB ]; then
 fi
 
 identify(){
-	read -r -p "${WF}Are you a new or existing user?${N} ${Y}[${N}${BF}new${N}${Y}/${N}${BF}existing${N}${Y}]${N}: " CHOICE
+	ask "Are you a new or existing user? "
+        option "new" "existing"
+        read -r CHOICE
         echo
 
         if [[ "$CHOICE" = "new" ]] || [[ "$CHOICE" = "existing" ]]; then
@@ -52,16 +54,22 @@ new_user(){
 
         until test $AVAILABLE_USER -ne 1
         do
-                read -r -p "${WF}Choose a username${N} ${Y}[${N}${BF}a-zA-Z0-9${N}${Y}]${N}: " USERNAME
+		ask "Choose a username: "
+                option "a-zA-Z0-9"
+                read -r USERNAME
+
                 USERNAME=$(sanitize $USERNAME)
                 echo "Your username is ${MF}$USERNAME${N}"
                 verify_new_user
         done
 
-        read -r -s -p "${WF}Choose a password:${N} " PASSWORD
+	ask "Choose a password: "
+        read -r -s PASSWORD
         echo
-        read -r -s -p "${WF}Verify your password${N}: " PASSWORD_VERIFY
+        ask "Verify your password: "
+        read -r -s PASSWORD_VERIFY
         echo
+
         verify_new_password
 }
 
@@ -70,9 +78,11 @@ existing_user(){
         echo
         while test $COUNT -lt $FAILURE_COUNT
         do
-                read -r -p "${WF}Username:${N} " USERNAME
+		ask "Username: "
+                read -r USERNAME
                 USERNAME=$(sanitize $USERNAME)
-                read -r -s -p "${WF}Password:${N} " PASSWORD
+		ask "Password: "
+                read -r -s PASSWORD
                 echo
                 USER_SUPPLIED_PASSWORD=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
                 HASH=$(awk -F : -v user=$USERNAME '$1 == user { print $2 }' $DB)
@@ -128,9 +138,11 @@ verify_new_password(){
                 if [ $COUNT -lt $FAILURE_COUNT ]
                 then
                         notice "Passwords do not match! Try again."
-                        read -r -s -p "${WF}Choose a password:${N} " PASSWORD
+			ask "Choose a password: "
+                        read -r -s PASSWORD
                         echo
-                        read -r -s -p "${WF}Verify your password:${N} " PASSWORD_VERIFY
+                        ask "Verify your password: "
+                        read -r -s PASSWORD_VERIFY
                         echo
                 else
                         alert "Too many failed attempts!"
@@ -152,7 +164,9 @@ verify_new_password(){
 }
 
 try_again(){
-        read -r -p "${WF}I didn't understand your response. Would you like to try again?${N} ${Y}[${N}${BF}Y${N}${Y}/${N}${BF}N${N}${Y}]${N}: " TRY
+	ask "I didn't understand your response. Would you like to try again? "
+        option "Y" "N"
+        read -r TRY
         if [[ "$TRY" = [YyNn] ]] || [[ "$TRY" = "[yY][eE]sS]" ]] || [[ "$TRY" = "[nN][oO]" ]]; then
                 [[ "$TRY" = [Yy] ]] || [[ "$TRY" = "[yY][eE][sS]" ]] && clear && identify
                 [[ "$TRY" = [Nn] ]] || [[ "$TRY" = "[nN][oO]" ]] && quit "User chose to exit from try_again"
