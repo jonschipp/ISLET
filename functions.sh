@@ -238,7 +238,6 @@ hi "  Installing sample training image for Bro!\n"
 if ! docker images | grep -q brolive
 then
 	docker pull broplatform/brolive
-	docker tag broplatform/brolive brolive
 fi
 }
 
@@ -253,7 +252,6 @@ do
 	then
 		hi "  Installing sample training image for ${F}\n"
 		docker pull jonschipp/${F}-sandbox
-		docker tag jonschipp/${F}-sandbox $F
 	fi
 done
 }
