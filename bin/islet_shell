@@ -3,7 +3,14 @@
 CONFIG=LOCATION
 COUNT=0
 LIST=()
+
+# Store some stuff, these can be referenced from config files
 export TMOUT=60
+export CLIENT=${SSH_CLIENT%% *}
+export DISPLAY=${CLIENT}:0
+export TERM
+export SSH_TTY
+export PPID
 
 err(){
         MESSAGE="$1"
