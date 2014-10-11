@@ -88,8 +88,11 @@ install-brolive-config:
 	install -o root -g root -m 644 extra/brolive.conf $(CONFIG_DIR)/brolive.conf
 	$(Q)echo " $(yellow)Try it out: ssh demo@<ip>$(normal)"
 
-install-sample-nsm:
+install-sample-nsm: install-sample-nsm-configs
 	$(FUNCTIONS) install_nsm_configurations
+	$(Q)echo " $(yellow)Try it out: ssh demo@<ip>$(normal)"
+
+install-sample-nsm-configs:
 	mkdir -m 755 -p $(CONFIG_DIR)
 	install -o root -g root -m 644 extra/brolive.conf $(CONFIG_DIR)/brolive.conf
 	install -o root -g root -m 644 extra/ids.conf $(CONFIG_DIR)/ids.conf
@@ -97,7 +100,6 @@ install-sample-nsm:
 	install -o root -g root -m 644 extra/tcpdump.conf $(CONFIG_DIR)/tcpdump.conf
 	install -o root -g root -m 644 extra/netsniff-ng.conf $(CONFIG_DIR)/netsniff-ng.conf
 	install -o root -g root -m 644 extra/sniffer.conf $(CONFIG_DIR)/sniffer.conf
-	$(Q)echo " $(yellow)Try it out: ssh demo@<ip>$(normal)"
 
 install-sample-distros:
 	$(FUNCTIONS) install_sample_distributions
