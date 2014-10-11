@@ -158,6 +158,7 @@ Match User $USER
 	PasswordAuthentication yes
 	X11Forwarding no
 	AllowTcpForwarding no
+	GatewayPorts no
 	PermitOpen none
 	PermitTunnel no
 	MaxAuthTries 3
