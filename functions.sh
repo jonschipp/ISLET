@@ -93,7 +93,7 @@ hi "  Installing Docker!\n"
 # Check that HTTPS transport is available to APT
 if [ ! -e /usr/lib/apt/methods/https ]; then
 	apt-get update -qq
-	apt-get install -y apt-transport-https
+	apt-get install -qy apt-transport-https
 	echo
 fi
 
@@ -110,7 +110,7 @@ fi
 if ! command -v docker >/dev/null 2>&1
 then
 	apt-get update -qq
-	apt-get install -y lxc-docker
+	apt-get install -qy lxc-docker
 	echo
 fi
 }
