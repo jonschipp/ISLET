@@ -161,12 +161,24 @@ try_again(){
         fi
 }
 
+removal_setup(){
+
+        if [[ "$REMOVE" == "yes" ]]
+        then
+                echo
+                notice "This container is set to be terminated upon exit, work will not be saved."
+                REMOVE="--rm"
+        else
+                # Don't remove, instead keep track of the user's container for re-attachment
+                sed -i "/$USERNAME/s/$/:$BASENAME/" $DB
+                REMOVE=""
+        fi
+
+}
+
 start_container(){
 
-	# Keep track of the user's images for re-attachment
-	sed -i "/$USERNAME/s/$/:$BASENAME/" $DB
-
-        message "Enjoy yourself!"
+	removal_setup
 
 	NAME_OPT="--name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME"
 	RES_OPT="-c $CPU -m $RAM"
@@ -174,12 +186,14 @@ start_container(){
 	GLB_OPT="$GLOBAL_OPTIONS"
 	OTH_OPT="$LOCAL_OPTIONS"
 	MNT_OPT="$MOUNT"
-	IMG_OPT="-i $IMAGE"
+	IMG_OPT="$REMOVE -i $IMAGE"
 	ENV_OPT="sudo -i -u $VIRTUSER $GLOBAL_ENV $LOCAL_ENV"
 
 	# If debugging is yes
 	is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"
 	is_debug "opt: run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT \n\t$MNT_OPT $IMG_OPT $ENV_OPT"
+
+        message "Enjoy yourself!"
 
 	eval exec docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $IMG_OPT $ENV_OPT" $INFOLEVEL
 }
