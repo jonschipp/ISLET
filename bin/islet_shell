@@ -57,7 +57,8 @@ do
         fi
 done
 
-echo
+
+echo && unset BANNER && echo
 notice "Choose a number to load the configuration:"
 echo
 
