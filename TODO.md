@@ -9,8 +9,8 @@ Items to complete (not ranked):
 * Find solution for users viewing web interfaces in containers
 * Command logging
 * Security testing of bash scripts
-* make config variables lowercase (safer)
-* quote everything when possible (safer)
+* Make config variables lowercase (safer)
+* Quote everything when possible (safer)
 * SQL database for account management
 * Figure out a way to store and analyze container logs
 * Document use of grsecurity kernel for container security
