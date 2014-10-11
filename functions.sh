@@ -188,52 +188,6 @@ then
 fi
 }
 
-docker_configuration(){
-is_ubuntu
-hi "  Installing the Bro Sandbox Docker image!\n"
-
-
-if ! grep -q "limit fsize" $UPSTART
-then
-	sed -i '/limit nproc/a limit fsize 500000000 500000000' $UPSTART
-fi
-
-if ! grep -q "limit nproc 524288 524288" $UPSTART
-then
-	sed -i '/limit nproc/s/[0-9]\{1,8\}/524288/g' $UPSTART
-fi
-
-if [[ "$DISTRIB_CODENAME" == "saucy" || "$DISTRIB_CODENAME" == "trusty" ]]
-then
-	# Devicemapper allows us to limit container sizes for security
-	# https://github.com/docker/docker/tree/master/daemon/graphdriver/devmapper
-	if ! grep -q devicemapper $DEFAULT
-	then
-		echo -e " --> Using devicemapper as storage backend\n"
-		install -o root -g root -m 644 $HOME/etc.default.docker $DEFAULT
-
-		if [ -d /var/lib/docker ]; then
-			rm -rf /var/lib/docker/*
-		fi
-
-		if [ ! -z $CONTAINER_DESTINATION ]; then
-
-			if ! mount | grep -q $CONTAINER_DESTINATION ; then
-				mount -o defaults,noatime,nodiratime $CONTAINER_DESTINATION /var/lib/docker
-			fi
-
-			if ! grep -q $CONTAINER_DESTINATION /etc/fstab 2>/dev/null; then
-				echo -e "${CONTAINER_DESTINATION}\t/var/lib/docker\t${FS}\tdefaults,noatime,nodiratime,nobootwait\t0\t1" >> /etc/fstab
-			fi
-                fi
-
-		mkdir -p /var/lib/docker/devicemapper/devicemapper
-		service docker restart 2>/dev/null
-		sleep 5
-	fi
-fi
-}
-
 install_sample_configuration(){
 hi "  Installing sample training image for Bro!\n"
 if ! docker images | grep -q brolive
