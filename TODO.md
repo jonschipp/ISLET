@@ -16,3 +16,5 @@ Items to complete (not ranked):
 * Document use of grsecurity kernel for container security
 * Debian package
 * Test for account expiration in islet_login and list expiration date or countdown
+* Container removal --rm option
+* Cleanup configs
