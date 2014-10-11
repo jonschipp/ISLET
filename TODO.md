@@ -17,4 +17,3 @@ Items to complete (not ranked):
 * Debian package
 * Test for account expiration in islet_login and list expiration date or countdown
 * Container removal --rm option
-* Cleanup configs
