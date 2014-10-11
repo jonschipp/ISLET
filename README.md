@@ -114,7 +114,7 @@ Match User training
 	PermitTunnel no
 	PermitOpen none
 	MaxAuthTries 3
-	MaxSessions 2
+	MaxSessions 1
 	AllowAgentForwarding no
 	PermitEmptyPasswords no
 ```

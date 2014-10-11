@@ -162,7 +162,7 @@ Match User $USER
 	PermitOpen none
 	PermitTunnel no
 	MaxAuthTries 3
-	MaxSessions 2
+	MaxSessions 1
 	AllowAgentForwarding no
 	PermitEmptyPasswords no
 EOF
