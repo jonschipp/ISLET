@@ -57,6 +57,7 @@ do
                 printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config${N}" "|" "${U}$DESCRIPTION${N}"
                 LIST+=("$config")
         fi
+	unset BANNER
 done
 
 
