@@ -180,8 +180,27 @@ try_again(){
         fi
 }
 
-removal_setup(){
+port_forwarding_setup() {
+        # Use PPID and CLIENT as a way to associate the user with a container
+        if [ $PORT ] && [ $PORT -gt 1023 ]; then
 
+                # Re-attachment is impractical if we're keeping track with PPID
+                removal_setup REMOVE=yes
+
+                PUBLISH="--publish $BIND:$PPID:$PORT"
+
+                if [[ "$BIND" == "127.0.0.1" ]]; then
+                        sudo sysctl -w net.ipv4.conf.${INTERFACE}.route_localnet=1 2>/dev/null
+                        did_it_work "sysctl command failed to execute, check ${USER}'s permissions"
+                fi
+                # Client will be able to connect to an exposed container port via $SERVER:$PPID
+                sudo iptables -t nat -I PREROUTING -i $INTERFACE -p tcp --source $CLIENT --dport $PPID -j DNAT --to ${BIND}:${PPID} 2>/dev/null
+                did_it_work "iptables command failed to execute, check ${USER}'s permissions"
+        fi
+        # Cron job to remove old rules if the PPID doesn't exist any longer
+}
+
+removal_setup(){
         if [[ "$REMOVE" == "yes" ]]
         then
                 echo
@@ -192,7 +211,6 @@ removal_setup(){
                 sed -i "/$USERNAME/s/$/:$BASENAME/" $DB
                 REMOVE=""
         fi
-
 }
 
 start_container(){

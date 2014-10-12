@@ -53,6 +53,7 @@ install-files:
 	install -o root -g root -m 750 cron/remove_old_containers $(CRON_DIR)/remove_old_containers
 	install -o root -g root -m 750 cron/remove_old_users $(CRON_DIR)/remove_old_users
 	install -o root -g root -m 750 cron/disk_limit $(CRON_DIR)/disk_limit
+	install -o root -g root -m 750 cron/port_forward $(CRON_DIR)/port_forward
 	$(Q)echo " $(bold)--> Configuration directory is$(normal) $(underline)$(CONFIG_DIR)$(normal)"
 	$(Q)echo " $(bold)--> Install directory is$(normal) $(underline)$(INSTALL_DIR)$(normal)"
 

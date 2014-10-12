@@ -6,4 +6,5 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 # Don't run at the same time, causes problems
 @daily   	 root    LOCATION/remove_old_containers
 * * * * *        root    LOCATION/remove_old_users
+* * * * *        root    LOCATION/port_forward
 @hourly   	 root    LOCATION/disk_limit
