@@ -185,7 +185,7 @@ port_forwarding_setup() {
         if [ $PORT ] && [ $PORT -gt 1023 ]; then
 
                 # Re-attachment is impractical if we're keeping track with PPID
-                removal_setup REMOVE=yes
+                REMOVE=yes
 
                 PUBLISH="--publish $BIND:$PPID:$PORT"
 
@@ -215,8 +215,8 @@ removal_setup(){
 
 start_container(){
 
-	removal_setup
 	port_forwarding_setup
+	removal_setup
 
 	NAME_OPT="--name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME"
 	RES_OPT="-c $CPU -m $RAM"
