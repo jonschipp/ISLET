@@ -23,7 +23,12 @@ fi
 
 # Override with per image configuration
 CONFIGURATION="$1"
-source "$CONFIG_DIR/$CONFIGURATION"
+if [ -f "$CONFIG_DIR/$CONFIGURATION" ]
+then
+	source "$CONFIG_DIR/$CONFIGURATION"
+else
+	quit "Timeout occurred, config not selected!"
+fi
 
 TIME=$(date +"%s")
 EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
