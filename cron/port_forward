@@ -4,6 +4,8 @@ CONFIG=LOCATION
 if [ -f $CONFIG ]; then
         source $CONFIG
 	source $LIBISLET
+	readonly CONFIG LIBISLET USER INT BIND
+
 else
 	echo "$0: Warning: CONFIG not found"
 	logger -p local0.notice -t "islet" "$0: $CONFIG not found!"

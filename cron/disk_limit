@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
-# Kill containers which grows to CRIT our more
+# Kill containers which grows to MAX_SIZE our more
 # Location of Docker containers
 
 # Superseded by declarations in $CONFIG
 CONTAINER_PATH=/var/lib/docker/devicemapper/mnt
-MAX_MAX_SIZE=1073741824
+MAX_SIZE=1073741824
 
 CONFIG=LOCATION
 if [ -f $CONFIG ]; then
         source $CONFIG
 	source $LIBISLET
+	readonly CONFIG LIBISLET CONTAINER_PATH MAX_SIZE
+
 else
         echo "$0: Warning: CONFIG not found"
         logger -p local0.notice -t "islet" "$0: $CONFIG not found!"
@@ -23,14 +25,14 @@ fi
 IFS=$'\n'
 for fs in $(find $CONTAINER_PATH/* -maxdepth 0 -type d -exec du -b -s '{}' \;);
 do
-	MAX_SIZE=$(echo "$fs" | awk '{ print $1 }')
-	APATH=$(echo "$fs" | awk '{ print $2 }')
-	CONTAINER=$(basename "$APATH" | awk '{ print substr($0,0,12) }')
+	size=$(echo "$fs" | awk '{ print $1 }')
+	apath=$(echo "$fs" | awk '{ print $2 }')
+	container=$(basename "$apath" | awk '{ print substr($0,0,12) }')
 
-	if [ $MAX_SIZE -ge $CRIT ]; then
-                echo 'echo "Warning: Max. disk space reached. Destroying container..."' | docker attach $CONTAINER
-                docker stop --time=3 $CONTAINER 1>/dev/null
-		docker rm -f $CONTAINER 1>/dev/null
-                logger -p local0.notice -t "islet" "$0: Container $CONTAINER size $MAX_SIZE is  greater than $CRIT. Removed."
+	if [ $size -ge $MAX_SIZE ]; then
+                echo 'echo "Warning: Max. disk space reached. Destroying container..."' | docker attach $container
+                docker stop --time=3 $container 1>/dev/null
+		docker rm -f $container 1>/dev/null
+                logger -p local0.notice -t "islet" "$0: Container $container size $size is greater than $MAX_SIZE. Removed."
 	fi
 done

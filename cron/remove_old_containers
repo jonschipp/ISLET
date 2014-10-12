@@ -6,26 +6,27 @@ CONFIG=LOCATION
 if [ -f $CONFIG ]; then
         source $CONFIG
 	source $LIBISLET
+	readonly CONFIG LIBISLET DAYS
 else
 	echo "$0: Warning: CONFIG not found"
 	logger -p local0.notice -t "islet" "$0: $CONFIG not found!"
 fi
 
-CONTAINERS=$(docker ps -a | \
+containers=$(docker ps -a | \
  awk -v remove=$DAYS 'BEGIN { FS="[ ]{3,}" } \
         $4 ~ /[0-9]+ day|week|month|year/ && count=substr($4,1,2) \
-                { 
-                        if ( strtonum(count) > remove ) { 
-                                printf("%s ", $1) 
+                {
+                        if ( strtonum(count) > remove ) {
+                                printf("%s ", $1)
                         }
                 }')
 
-if [ ! -z "$CONTAINERS" ]
+if [ ! -z "$containers" ]
 then
-        for ID in $CONTAINERS
+        for id in $containers
         do
-                #echo 'echo "Warning: Container lifetime limit reached. Destroying container..."' | docker attach $ID
-                docker rm $ID
-                logger -t "docker" "$0: Container $ID was older than $DAYS day. Stopped"
+                #echo 'echo "Warning: Container lifetime limit reached. Destroying container..."' | docker attach $id
+                docker rm $id
+                logger -t "docker" "$0: Container $id was older than $DAYS day. Stopped"
         done
 fi

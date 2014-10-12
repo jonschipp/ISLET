@@ -51,9 +51,9 @@ info()    { echo -e "${magentf}$*${normal}"; }
 ask()     { echo -n -e "${whitef}$*${normal}"; }
 option()  { echo -n -e "${Y}[${N}${BF}$1${N}${Y}/${N}${BF}$2${N}${Y}]${N}: " ;}
 
-quit(){ MESSAGE="$1"; alert "${MESSAGE:-Exiting session!}"; log "$MESSAGE"; exit 1; }
-message(){ echo; echo "$1"; notice "$MOTD"; echo; }
-sanitize(){ ITEM="$1"; echo ${ITEM//[^a-zA-Z0-9]/}; }
+quit(){ local message="$1"; alert "${message:-Exiting session!}"; log "$message"; exit 1; }
+message(){ local message="$1"; echo; echo "$message"; notice "$MOTD"; echo; }
+sanitize(){ local item="$1"; echo ${item//[^a-zA-Z0-9]/}; }
 did_it_work() { test $? -ne 0 && quit "$1"; }
 
 islet_banner(){
@@ -74,17 +74,17 @@ EOF
 }
 
 log(){
-	MESSAGE=$(echo "$1" | sed -e 's/\\n/ /g' -e 's/\\t/ /g' -e 's/\\r/ /g')
-        logger -p local0.notice -t "islet" "$0: $MESSAGE"
+	local message=$(echo "$1" | sed -e 's/\\n/ /g' -e 's/\\t/ /g' -e 's/\\r/ /g')
+        logger -p local0.notice -t "islet" "$0: $message"
 }
 
 is_debug(){
-MESSAGE="$1"
+local message="$1"
 if [[ "$DEBUG" == "yes" ]];
 then
         INFOLEVEL=""
-        alert "$MESSAGE"
-        log "$MESSAGE"
+        alert "$message"
+        log "$message"
 else
         INFOLEVEL="2>/dev/null"
 fi

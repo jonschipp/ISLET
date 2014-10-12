@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 # Global Variables
 CONFIG=LOCATION
-
-# Varables:
-COUNT=0
 AVAILABLE_USER=1
 
 err(){
@@ -16,13 +13,15 @@ err(){
 if [ -f $CONFIG ]; then
         source $CONFIG
         source $LIBISLET
+	readonly CONFIG
+	readonly LIBISLET
 else
         err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
         exit 1
 fi
 
 # Override with per image configuration
-CONFIGURATION="$1"
+readonly CONFIGURATION="$1"
 if [ -f "$CONFIG_DIR/$CONFIGURATION" ]
 then
 	source "$CONFIG_DIR/$CONFIGURATION"
@@ -30,8 +29,13 @@ else
 	quit "Timeout occurred, config not selected!"
 fi
 
-TIME=$(date +"%s")
-EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
+readonly TIME=$(date +"%s")
+readonly EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
+readonly DB
+readonly USER
+readonly PORT
+readonly BIND
+readonly INTERFACE
 
 if [ ! -r $DB ]; then
         touch $DB
@@ -40,6 +44,7 @@ if [ ! -r $DB ]; then
 fi
 
 identify(){
+	local CHOICE
 	ask "Are you a new or existing user? "
         option "new" "existing"
         read -r CHOICE
@@ -54,7 +59,7 @@ identify(){
 }
 
 new_user(){
-        notice "A temporary account will be created so that you can resume your session. Account is valid for the length of the event."
+        notice "A temporary account will be created so that you can resume your session."
         echo
 
         until test $AVAILABLE_USER -ne 1
@@ -79,6 +84,11 @@ new_user(){
 }
 
 existing_user(){
+	local USERNAME
+	local PASSWORD
+	local USER_SUPPLIED_PASSWORD
+	local HASH
+	local COUNT=0
         notice "Your previous account is only valid for the length of the event, after that you must create a new account"
         echo
         while test $COUNT -lt $FAILURE_COUNT
@@ -128,8 +138,8 @@ existing_user(){
 }
 
 verify_new_user(){
-        grep -w -q "$USERNAME" $DB 2>/dev/null
-        if [ $? -eq 0 ]; then
+        if grep -w -q "$USERNAME" $DB 2>/dev/null
+	then
                 notice "User already exists! Try a different one."
                 AVAILABLE_USER=1
         else
@@ -138,6 +148,8 @@ verify_new_user(){
 }
 
 verify_new_password(){
+	local COUNT=0
+	local HASH
         while [ "$PASSWORD" != "$PASSWORD_VERIFY" ]
         do
                 if [ $COUNT -lt $FAILURE_COUNT ]
@@ -156,7 +168,7 @@ verify_new_password(){
         let COUNT++
         done
 
-        HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
+        readonly HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
 
         (
         flock --timeout 10 100 || quit "Couldn't obtain lock on file, try again later"
@@ -169,6 +181,7 @@ verify_new_password(){
 }
 
 try_again(){
+	local TRY
 	ask "I didn't understand your response. Would you like to try again? "
         option "Y" "N"
         read -r TRY
@@ -185,9 +198,9 @@ port_forwarding_setup() {
         if [ $PORT ] && [ $PORT -gt 1023 ]; then
 
                 # Re-attachment is impractical if we're keeping track with PPID
-                REMOVE=yes
+                removal_setup REMOVE=yes
 
-                PUBLISH="--publish $BIND:$PPID:$PORT"
+                readonly PUBLISH="--publish $BIND:$PPID:$PORT"
 
                 if [[ "$BIND" == "127.0.0.1" ]]; then
                         sudo sysctl -w net.ipv4.conf.${INTERFACE}.route_localnet=1 2>/dev/null
@@ -215,17 +228,17 @@ removal_setup(){
 
 start_container(){
 
-	port_forwarding_setup
 	removal_setup
+	port_forwarding_setup
 
-	NAME_OPT="--name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME"
-	RES_OPT="-c $CPU -m $RAM"
-	NET_OPT="--net $NETWORK --dns $DNS"
-	GLB_OPT="$GLOBAL_OPTIONS"
-	OTH_OPT="$LOCAL_OPTIONS"
-	MNT_OPT="$MOUNT"
-	IMG_OPT="$REMOVE -i $IMAGE"
-	ENV_OPT="sudo -i -u $VIRTUSER $GLOBAL_ENV $LOCAL_ENV"
+	local NAME_OPT="--name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME"
+	local RES_OPT="-c $CPU -m $RAM"
+	local NET_OPT="--net $NETWORK --dns $DNS"
+	local GLB_OPT="$GLOBAL_OPTIONS"
+	local OTH_OPT="$LOCAL_OPTIONS"
+	local MNT_OPT="$MOUNT"
+	local IMG_OPT="$REMOVE -i $IMAGE"
+	local ENV_OPT="sudo -i -u $VIRTUSER $GLOBAL_ENV $LOCAL_ENV"
 
 	# If debugging is yes
 	is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"

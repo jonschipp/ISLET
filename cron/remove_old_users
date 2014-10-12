@@ -8,22 +8,23 @@ CONFIG=LOCATION
 if [ -f $CONFIG ]; then
         source $CONFIG
 	source $LIBISLET
+	readonly CONFIG LIBISLET CURRENT DAYS DB
 else
 	echo "$0: Warning: CONFIG not found"
 	logger -p local0.notice -t "islet" "$0: $CONFIG not found!"
 fi
 
-KEEP=$(($DAYS*86400))
+keep=$(($DAYS*86400))
 
 while read line
 do
-        USER=$(echo "$line" | awk -F : '{ print $1 }')
-        TIME=$(echo "$line" | awk -F : '{ print $3 }')
-        ANSWER=$(echo $((CURRENT-TIME)))
-        if [ $ANSWER -ge $KEEP ]
+        user=$(echo "$line" | awk -F : '{ print $1 }')
+        time=$(echo "$line" | awk -F : '{ print $3 }')
+        answer=$(echo $((CURRENT-time)))
+        if [ $answer -ge $keep ]
         then
-                echo "Warning: User account $USER lifetime reached. Removing user..."
-                logger -t "docker" "$0: User account $USER was older than $DAYS day. Removed"
-                sed -i "/^$USER:/d" $DB
+                echo "Warning: User account $user lifetime reached. Removing user..."
+                logger -t "docker" "$0: User account $user was older than $DAYS day. Removed"
+                sed -i "/^$user:/d" $DB
         fi
 done < $DB

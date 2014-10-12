@@ -23,6 +23,8 @@ err(){
 if [ -f $CONFIG ]; then
         source $CONFIG
         source $LIBISLET
+	readonly CONFIG
+	readonly LIBISLET
 else
         err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
 fi
