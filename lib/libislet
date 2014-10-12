@@ -54,6 +54,7 @@ option()  { echo -n -e "${Y}[${N}${BF}$1${N}${Y}/${N}${BF}$2${N}${Y}]${N}: " ;}
 quit(){ MESSAGE="$1"; alert "${MESSAGE:-Exiting session!}"; log "$MESSAGE"; exit 1; }
 message(){ echo; echo "$1"; notice "$MOTD"; echo; }
 sanitize(){ ITEM="$1"; echo ${ITEM//[^a-zA-Z0-9]/}; }
+did_it_work() { test $? -ne 0 && quit "$1"; }
 
 islet_banner(){
 cat <<EOF
