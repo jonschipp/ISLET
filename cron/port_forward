@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Removes old PREROUTING rules for port forwarding
-CONFIG=/etc/islet/islet.conf
+CONFIG=LOCATION
 if [ -f $CONFIG ]; then
         source $CONFIG
 	source $LIBISLET
