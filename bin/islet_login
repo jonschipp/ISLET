@@ -216,6 +216,7 @@ removal_setup(){
 start_container(){
 
 	removal_setup
+	port_forwarding_setup
 
 	NAME_OPT="--name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME"
 	RES_OPT="-c $CPU -m $RAM"
