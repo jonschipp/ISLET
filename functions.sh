@@ -206,7 +206,7 @@ do
 	if ! docker images | grep -q $F
 	then
 		hi "  Installing sample training image for ${F}\n"
-		docker pull jonschipp/${F}-sandbox
+		docker pull jonschipp/islet-${F}
 	fi
 done
 }
