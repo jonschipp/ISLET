@@ -24,7 +24,7 @@ do
         if [ $answer -ge $keep ]
         then
                 echo "Warning: User account $user lifetime reached. Removing user..."
-                logger -t "docker" "$0: User account $user was older than $DAYS day. Removed"
+                logger -t "docker" "$0: Account $user was older than $DAYS days, removed"
                 sed -i "/^$user:/d" $DB
         fi
 done < $DB
