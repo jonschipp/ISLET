@@ -2,6 +2,7 @@
 # Global Declarations
 CONFIG=LOCATION
 COUNT=0
+SPEED=80
 LIST=()
 
 # Store some stuff, these can be referenced from config files
@@ -39,7 +40,7 @@ else
 fi
 
 # Display ISLET Banner
-islet_banner
+test -f $(which pv) && islet_banner | pv -qL $SPEED || islet_banner
 
 # Press key to continue
 echo -e "${Y}.${N}${RF}.${N}${BF}.${N}Press any key to continue or CTRL+C to exit${Y}.${N}${RF}.${N}${BF}.${N}\n"
