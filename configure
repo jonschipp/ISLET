@@ -55,6 +55,7 @@ then
 	do
   		echo -n "${MISSING[$i]} "
 	done
+	echo
 	exit $CRITICAL
 else
 	echo "${Y}[${N}${BF}*${N}${Y}]${N} All dependencies found, now you can run \`\`make install''"
