@@ -8,6 +8,10 @@ iptables -P INPUT DROP
 iptables -P OUTPUT ACCEPT
 iptables -P FORWARD ACCEPT
 
+# Logging
+#iptables -I INPUT 1 -p tcp --dport 22 -j LOG
+iptables -t nat -I PREROUTING 1 -j LOG
+
 # Allow traffic on loopback
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
