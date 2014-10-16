@@ -195,7 +195,7 @@ try_again(){
 
 port_forwarding_setup() {
         # Use PPID and CLIENT as a way to associate the user with a container
-        if [ $PORT ] && [ $PORT -gt 1023 ]; then
+        if [ $PORT ]; then
 
                 # Re-attachment is impractical if we're keeping track with PPID
                 removal_setup REMOVE=yes
@@ -233,7 +233,7 @@ start_container(){
 
 	local NAME_OPT="--name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME"
 	local RES_OPT="-c $CPU -m $RAM"
-	local NET_OPT="--net $NETWORK --dns $DNS"
+	local NET_OPT="$PUBLISH --net $NETWORK --dns $DNS"
 	local GLB_OPT="$GLOBAL_OPTIONS"
 	local OTH_OPT="$LOCAL_OPTIONS"
 	local MNT_OPT="$MOUNT"
