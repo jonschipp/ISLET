@@ -194,20 +194,34 @@ try_again(){
 }
 
 port_forwarding_setup() {
-        # Use PPID and CLIENT as a way to associate the user with a container
+	# Use HOST_PORT and CLIENT as a way to associate the user with a container
+        local HOST_PORT="$PPID"
+        local VIRTUAL_PORT="$PORT"
+
         if [ $PORT ]; then
+
+		# If host port is in use, find another to bind to
+                while true
+                do
+                        if ! netstat -nalt | fgrep -q ":$HOST_PORT"
+                        then
+                                break
+                        fi
+                        let HOST_PORT++
+                done
 
                 # Re-attachment is impractical if we're keeping track with PPID
                 removal_setup REMOVE=yes
 
-                readonly PUBLISH="--publish $BIND:$PPID:$PORT"
+                readonly PUBLISH="--publish $BIND:$HOST_PORT:$VIRTUAL_PORT"
 
                 if [[ "$BIND" == "127.0.0.1" ]]; then
                         sudo sysctl -w net.ipv4.conf.${INTERFACE}.route_localnet=1 2>/dev/null
                         did_it_work "sysctl command failed to execute, check ${USER}'s permissions"
                 fi
                 # Client will be able to connect to an exposed container port via $SERVER:$PPID
-                sudo iptables -t nat -I PREROUTING -i $INTERFACE -p tcp --source $CLIENT --dport $PPID -j DNAT --to ${BIND}:${PPID} 2>/dev/null
+		sudo iptables -t nat -I PREROUTING -i $INTERFACE \
+                        -p tcp --source $CLIENT --dport $HOST_PORT -j DNAT --to ${BIND}:${HOST_PORT} 2>/dev/null
                 did_it_work "iptables command failed to execute, check ${USER}'s permissions"
         fi
         # Cron job to remove old rules if the PPID doesn't exist any longer
