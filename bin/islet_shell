@@ -8,11 +8,11 @@ ANIMATE_SPEED=80
 
 # Store some stuff, these can be referenced from config files
 read CLIENT SRCPORT SERVER DSTPORT <<<"${SSH_CONNECTION}"
-export CLIENT SRCPORT SERVER DSTPORT
+export CLIENT SRCPORT SERVER DSTPORT IP="$SERVER"
 export SSH_TTY
 export DISPLAY=${CLIENT}:0
 export TERM
-export PPID
+export PPID HOST_PORT="$PPID"
 export TMOUT=60
 readonly CLIENT SRCPORT SERVER DSTPORT SSH_TTY TERM PPID TMOUT
 

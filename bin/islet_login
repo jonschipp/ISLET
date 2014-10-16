@@ -33,9 +33,10 @@ readonly TIME=$(date +"%s")
 readonly EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
 readonly DB
 readonly USER
-readonly PORT
 readonly BIND
 readonly INTERFACE
+readonly IP
+readonly VIRTUAL_PORT
 
 if [ ! -r $DB ]; then
         touch $DB
@@ -194,10 +195,8 @@ try_again(){
 }
 
 port_forwarding_setup() {
-        local HOST_PORT="$PPID"    # Use HOST_PORT and CLIENT as a way to associate the user with a container
-        local VIRTUAL_PORT="$PORT" # Application listens on this port inside container
-
-        if [ $PORT ]; then
+	# Use HOST_PORT and CLIENT as a way to associate the user with a container port (VIRTUAL_PORT)
+        if [ $VIRTUAL_PORT ]; then
 
 		# If host port is in use, find another to bind to
                 while true
@@ -224,7 +223,7 @@ port_forwarding_setup() {
 }
 
 removal_setup(){
-        if [[ "$REMOVE" == "yes" ]] || [ $PORT ] # Re-attachment is impractical if we're keeping track by ports
+        if [[ "$REMOVE" == "yes" ]] || [ $VIRTUAL_PORT ] # Re-attachment is impractical for port forwarding
         then
                 echo
                 notice "This container is set to be terminated upon exit, work will not be saved."
