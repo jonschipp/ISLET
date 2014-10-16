@@ -194,9 +194,8 @@ try_again(){
 }
 
 port_forwarding_setup() {
-	# Use HOST_PORT and CLIENT as a way to associate the user with a container
-        local HOST_PORT="$PPID"
-        local VIRTUAL_PORT="$PORT"
+        local HOST_PORT="$PPID"    # Use HOST_PORT and CLIENT as a way to associate the user with a container
+        local VIRTUAL_PORT="$PORT" # Application listens on this port inside container
 
         if [ $PORT ]; then
 
@@ -209,9 +208,6 @@ port_forwarding_setup() {
                         fi
                         let HOST_PORT++
                 done
-
-                # Re-attachment is impractical if we're keeping track with PPID
-                removal_setup REMOVE=yes
 
                 readonly PUBLISH="--publish $BIND:$HOST_PORT:$VIRTUAL_PORT"
 
@@ -228,7 +224,7 @@ port_forwarding_setup() {
 }
 
 removal_setup(){
-        if [[ "$REMOVE" == "yes" ]]
+        if [[ "$REMOVE" == "yes" ]] || [ $PORT ] # Re-attachment is impractical if we're keeping track by ports
         then
                 echo
                 notice "This container is set to be terminated upon exit, work will not be saved."
