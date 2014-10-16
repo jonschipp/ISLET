@@ -1,0 +1,2 @@
+USERACCOUNT ALL = (root) NOPASSWD:/sbin/iptables -t nat -I PREROUTING -i * -p tcp --source * --dport * -j DNAT --to *
+USERACCOUNT ALL = (root) NOPASSWD:/sbin/sysctl -w net.ipv4.conf.*.route_localnet=1

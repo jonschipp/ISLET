@@ -11,6 +11,7 @@ FUNCTIONS 	= ./functions.sh
 USER		= demo
 NAGIOS		= /usr/local/nagios/libexec
 IPTABLES	= /etc/network/if-pre-up.d/iptables-rules
+SUDOERS		= /etc/sudoers.d
 REPO		= $(shell grep url .git/config)
 Q 		= @
 bold   		= $(shell tput bold)
@@ -69,6 +70,7 @@ uninstall:
 	rm -f $(CRON)/$(PROG)
 	rm -f /var/tmp/$(PROG)_db
 	rm -f /etc/security/limits.d/islet.conf
+	rm -f $(SUDOERS)/islet
 
 mrproper:
 	$(Q)echo " $(yellow)Removing files not in source$(normal)"
@@ -114,6 +116,9 @@ user-config:
 
 security-config:
 	$(FUNCTIONS) security_configuration $(USER) $(BIN_DIR)/$(PROG)_shell
+	install -o root -g root -m 440 config/islet.sudoers $(SUDOERS)/islet
+	sed -i "s|USERACCOUNT|$(USER)|g" $(SUDOERS)/islet
+	visudo -c
 
 iptables-config:
 	install -o root -g root -m 750 extra/iptables-rules $(IPTABLES)
