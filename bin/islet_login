@@ -112,7 +112,7 @@ existing_user(){
 
                 if [ $AUTH ]
                 then
-                        echo "${MF}Success${N}"
+                        info "Success"
 
 			# This is how we handle using the same account for multiple images
 			EXISTS=$(sqlite3 $DB "SELECT image FROM images WHERE user='$USERNAME' AND image='$BASENAME'";)
