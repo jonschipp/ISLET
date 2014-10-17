@@ -44,7 +44,7 @@ USER		| user account created with user-config target (def: demo)
 
 ### Dependencies
 
-* Linux, Bash, Make, OpenSSH, and Docker
+* Linux, Bash, OpenSSH, Make, SQLite, and Docker
 
 The configure script will check dependencies (it doesn't create a makefile):
 ```shell
@@ -53,9 +53,9 @@ The configure script will check dependencies (it doesn't create a makefile):
 
 ![ISLET Configure Screenshot](http://jonschipp.com/islet/islet_configure.png)
 
-Typically all you need is make and docker (for Ubuntu):
+Typically all you need is make, sqlite, and docker (for Ubuntu):
 ```shell
-apt-get install make
+apt-get install make sqlite
 make install-docker
 ```
 
@@ -170,10 +170,9 @@ Common Tasks:
 
 ```
         $ PASS=$(echo "newpassword" | sha1sum | sed 's/ .*//)
-        $ USER=testuser
-        $ sed -i "/^$USER:/ s/:[^:]*/:$PASS/" /var/tmp/islet_db
-        $ grep testuser /var/tmp/islet_db
-        testuser:dd76770fc59bcb08cfe7951e5839ac2cb007b9e5:1410247448
+	$ sqlite3 /var/tmp/islet_db "UPDATE accounts SET password='$PASS' WHERE user='jon';"
+	$ sqlite3 /var/tmp/islet_db "SELECT password FROM accounts WHERE user='jon';"
+	aaaaaaa2a4817e5c9a56db45d41ed876e823fcf|1413533585
 
 ```
 
@@ -182,7 +181,7 @@ Common Tasks:
   1. Specify the number of days for user account and container lifetime in:
 
 ```
-        $ grep ^DAYS /etc/islet/brolive.conf
+        $ grep ^DAYS /etc/islet/islet.conf
         DAYS=3 # Length of the event in days
 ```
 

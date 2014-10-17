@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 # Destroy users which are older than x days
-CURRENT=$(date +"%s")
-ARGC=$#
 DAYS=3 		         # Overwritten by value in $CONFIG
 DB=/var/tmp/islet_db 	 # Overwritten by value in $CONFIG
 CONFIG=LOCATION
@@ -14,17 +12,4 @@ else
 	logger -p local0.notice -t "islet" "$0: $CONFIG not found!"
 fi
 
-keep=$(($DAYS*86400))
-
-while read line
-do
-        user=$(echo "$line" | awk -F : '{ print $1 }')
-        time=$(echo "$line" | awk -F : '{ print $3 }')
-        answer=$(echo $((CURRENT-time)))
-        if [ $answer -ge $keep ]
-        then
-                echo "Warning: User account $user lifetime reached. Removing user..."
-                logger -t "docker" "$0: Account $user was older than $DAYS days, removed"
-                sed -i "/^$user:/d" $DB
-        fi
-done < $DB
+sqlite3 $DB "DELETE FROM accounts WHERE (strftime('%s','now') - ts) >= (${DAYS}*86400);"
