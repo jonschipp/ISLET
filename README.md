@@ -41,6 +41,7 @@ CONFIG_DIR      | islet config files directory (def: /etc/islet)
 INSTALL_DIR     | islet installation directory (def: /opt/islet)
 CRON		| directory to place islet crontab file (def: /etc/cron.d)
 USER		| user account created with user-config target (def: demo)
+NAGIOS      | location of nagios plugins (def: /usr/local/nagios/libexec)
 
 ### Dependencies
 
@@ -85,7 +86,7 @@ yum install docker
 * Configure user account for training (this is given to students to login):
 ```shell
 useradd --create-home --shell /opt/islet/bin/islet_shell training
-echo "training:training | chpasswd
+echo "training:training" | chpasswd
 groupadd docker
 gpasswd -a training docker
 ```
@@ -169,7 +170,7 @@ Common Tasks:
 * Change the password of a container user (Not a system account). Place an SHA-1 hash of the password of choice in the second field of desired user in /var/tmp/islet_db.
 
 ```
-        $ PASS=$(echo "newpassword" | sha1sum | sed 's/ .*//)
+    $ PASS=$(echo "newpassword" | sha1sum | sed 's/ .*//)
 	$ sqlite3 /var/tmp/islet_db "UPDATE accounts SET password='$PASS' WHERE user='jon';"
 	$ sqlite3 /var/tmp/islet_db "SELECT password FROM accounts WHERE user='jon';"
 	aaaaaaa2a4817e5c9a56db45d41ed876e823fcf|1413533585
