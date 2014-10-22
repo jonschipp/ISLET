@@ -38,10 +38,15 @@ readonly INTERFACE
 readonly IP
 readonly VIRTUAL_PORT
 
+# Create database if it doesn't exist
 if [ ! -r $DB ]; then
-        touch $DB
-	chown ${USER}:${USER} $DB
-	chmod 660 $DB
+sqlite3 $DB <<EOF
+PRAGMA foreign_keys = ON;
+CREATE TABLE accounts (user VARCHAR PRIMARY KEY, password VARCHAR, ts TIMESTAMP);
+CREATE TABLE images (user VARCHAR, image VARCHAR, FOREIGN KEY (user) REFERENCES accounts(user));
+EOF
+chown ${USER}:${USER} $DB
+chmod 660 $DB
 fi
 
 identify(){
@@ -87,8 +92,9 @@ new_user(){
 existing_user(){
 	local USERNAME
 	local PASSWORD
-	local USER_SUPPLIED_PASSWORD
 	local HASH
+	local AUTH
+	local EXISTS
 	local COUNT=0
         notice "Your previous account is only valid for the length of the event, after that you must create a new account"
         echo
@@ -100,24 +106,17 @@ existing_user(){
 		ask "Password: "
                 read -r -s PASSWORD
                 echo
-                USER_SUPPLIED_PASSWORD=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
-                HASH=$(awk -F : -v user=$USERNAME '$1 == user { print $2 }' $DB)
-                if [ "$USER_SUPPLIED_PASSWORD" = "$HASH" ]
+                HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
+
+		AUTH=$(sqlite3 $DB "SELECT user, password FROM accounts WHERE user='$USERNAME' AND password='$HASH';")
+
+                if [ $AUTH ]
                 then
-                        echo "${MF}Success${N}"
+                        info "Success"
 
 			# This is how we handle using the same account for multiple images
-			if ! awk -F : -v user="$USERNAME" -v basename="$BASENAME" '$1 == user \
-			{
-				for (i=4;i<=NF;i++)
-					if ($i == basename ) {
-						exit 0
-					}
-					exit 1
-			}' $DB
-			then
-				start_container
-			fi
+			EXISTS=$(sqlite3 $DB "SELECT image FROM images WHERE user='$USERNAME' AND image='$BASENAME'";)
+			[ $EXISTS ] || start_container
 
 			# User is re-attaching to previous image
                         log "${USERNAME}: Returning user from $CLIENT"
@@ -139,13 +138,15 @@ existing_user(){
 }
 
 verify_new_user(){
-        if grep -w -q "$USERNAME" $DB 2>/dev/null
+	local EXISTS
+	EXISTS=$(sqlite3 $DB "SELECT user FROM accounts WHERE user='$USERNAME';")
+        if [ $EXISTS ]
 	then
-                notice "User already exists! Try a different one."
-                AVAILABLE_USER=1
-        else
-                AVAILABLE_USER=0
-        fi
+		AVAILABLE_USER=1
+		notice "User already exists! Try a different one."
+	else
+		AVAILABLE_USER=0
+	fi
 }
 
 verify_new_password(){
@@ -171,10 +172,7 @@ verify_new_password(){
 
         readonly HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
 
-        (
-        flock --timeout 10 100 || quit "Couldn't obtain lock on file, try again later"
-        echo "${USERNAME}:${HASH}:${TIME}" >> $DB
-        ) 100>~/islet.lock
+	sqlite3 $DB "INSERT INTO accounts VALUES('"${USERNAME}"','${HASH}', strftime('%s', 'now'));" || quit "Couldn't write to $DB!"
 
         log "${USERNAME}: Account created from $CLIENT"
         echo "Your account will expire on ${MF}$EXPIRATION${N}"
@@ -229,8 +227,8 @@ removal_setup(){
                 notice "This container is set to be terminated upon exit, work will not be saved."
                 REMOVE="--rm"
         else
-                # Don't remove, instead keep track of the user's container for re-attachment
-                sed -i "/$USERNAME/s/$/:$BASENAME/" $DB
+        # Don't remove, instead keep track of the user's container for re-attachment
+		sqlite3 $DB "INSERT INTO images(user, image) values ('$USERNAME', '$BASENAME');"
                 REMOVE=""
         fi
 }

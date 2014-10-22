@@ -41,10 +41,11 @@ CONFIG_DIR      | islet config files directory (def: /etc/islet)
 INSTALL_DIR     | islet installation directory (def: /opt/islet)
 CRON		| directory to place islet crontab file (def: /etc/cron.d)
 USER		| user account created with user-config target (def: demo)
+NAGIOS      | location of nagios plugins (def: /usr/local/nagios/libexec)
 
 ### Dependencies
 
-* Linux, Bash, Make, OpenSSH, and Docker
+* Linux, Bash, Cron, OpenSSH, Make, SQLite, and Docker
 
 The configure script will check dependencies (it doesn't create a makefile):
 ```shell
@@ -53,9 +54,9 @@ The configure script will check dependencies (it doesn't create a makefile):
 
 ![ISLET Configure Screenshot](http://jonschipp.com/islet/islet_configure.png)
 
-Typically all you need is make and docker (for Ubuntu):
+Typically all you need is make, sqlite, and docker (for Ubuntu):
 ```shell
-apt-get install make
+apt-get install make sqlite
 make install-docker
 ```
 
@@ -85,7 +86,7 @@ yum install docker
 * Configure user account for training (this is given to students to login):
 ```shell
 useradd --create-home --shell /opt/islet/bin/islet_shell training
-echo "training:training | chpasswd
+echo "training:training" | chpasswd
 groupadd docker
 gpasswd -a training docker
 ```
@@ -169,11 +170,10 @@ Common Tasks:
 * Change the password of a container user (Not a system account). Place an SHA-1 hash of the password of choice in the second field of desired user in /var/tmp/islet_db.
 
 ```
-        $ PASS=$(echo "newpassword" | sha1sum | sed 's/ .*//)
-        $ USER=testuser
-        $ sed -i "/^$USER:/ s/:[^:]*/:$PASS/" /var/tmp/islet_db
-        $ grep testuser /var/tmp/islet_db
-        testuser:dd76770fc59bcb08cfe7951e5839ac2cb007b9e5:1410247448
+    $ PASS=$(echo "newpassword" | sha1sum | sed 's/ .*//)
+	$ sqlite3 /var/tmp/islet_db "UPDATE accounts SET password='$PASS' WHERE user='jon';"
+	$ sqlite3 /var/tmp/islet_db "SELECT password FROM accounts WHERE user='jon';"
+	aaaaaaa2a4817e5c9a56db45d41ed876e823fcf|1413533585
 
 ```
 
@@ -182,7 +182,7 @@ Common Tasks:
   1. Specify the number of days for user account and container lifetime in:
 
 ```
-        $ grep ^DAYS /etc/islet/brolive.conf
+        $ grep ^DAYS /etc/islet/islet.conf
         DAYS=3 # Length of the event in days
 ```
 
@@ -236,7 +236,7 @@ Common Tasks:
 * Custom login message for each user
 
   1. Edit the MOTD variable in the image file config in /etc/islet/ with the text of your liking.
-     'echo -e' escape sequences work here.
+     printf escape sequences work here.
 
 ```
         $ grep -A 2 MOTD /etc/islet/brolive.conf

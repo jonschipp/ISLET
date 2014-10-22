@@ -10,7 +10,7 @@ source lib/libislet
 # Global Declarations
 OK=0
 CRITICAL=1
-DEPENDS="bash make sshd docker"
+DEPENDS="bash cron make sshd docker sqlite3"
 MISSING=()
 NO="${Y}[${N}${RF}NO${N}${Y}]${N}"
 YES="${Y}[${N}${BF}YES${N}${Y}]${N}"
