@@ -44,7 +44,7 @@ USER		| user account created with user-config target (def: demo)
 
 ### Dependencies
 
-* Linux, Bash, OpenSSH, Make, SQLite, and Docker
+* Linux, Bash, Cron, OpenSSH, Make, SQLite, and Docker
 
 The configure script will check dependencies (it doesn't create a makefile):
 ```shell
