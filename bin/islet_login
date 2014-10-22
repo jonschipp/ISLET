@@ -227,8 +227,7 @@ removal_setup(){
                 notice "This container is set to be terminated upon exit, work will not be saved."
                 REMOVE="--rm"
         else
-                # Don't remove, instead keep track of the user's container for re-attachment
-		echo test
+        # Don't remove, instead keep track of the user's container for re-attachment
 		sqlite3 $DB "INSERT INTO images(user, image) values ('$USERNAME', '$BASENAME');"
                 REMOVE=""
         fi
