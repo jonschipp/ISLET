@@ -236,7 +236,7 @@ Common Tasks:
 * Custom login message for each user
 
   1. Edit the MOTD variable in the image file config in /etc/islet/ with the text of your liking.
-     'echo -e' escape sequences work here.
+     printf escape sequences work here.
 
 ```
         $ grep -A 2 MOTD /etc/islet/brolive.conf

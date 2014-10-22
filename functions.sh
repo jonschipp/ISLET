@@ -29,13 +29,13 @@ UPSTART=/etc/init/docker.conf
 
 # Logging
 #exec > >(tee -a "$LOGFILE") 2>&1
-#echo -e "\n --> Logging stdout & stderr to $LOGFILE"
+#printf "\n --> Logging stdout & stderr to ${LOGFILE}\n"
 
 die(){
     if [ -f ${COWSAY:-none} ]; then
         $COWSAY -d "$*"
     else
-        echo -e "$(tput setaf 1)$*$(tput sgr0)"
+        printf "$(tput setaf 1)$*$(tput sgr0)\n"
     fi
     if [ -f $IRCSAY ]; then
         ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
@@ -51,7 +51,7 @@ hi(){
     if [ -f ${COWSAY:-none} ]; then
         $COWSAY "$*"
     else
-        echo -e "$(tput setaf 3)$*$(tput sgr0)"
+        printf "$(tput setaf 3)$*$(tput sgr0)\n"
     fi
     if [ -f $IRCSAY ]; then
         ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
@@ -81,7 +81,7 @@ EOF
 is_ubuntu(){
 if ! lsb_release -s -d 2>/dev/null | grep -q Ubuntu
 then
-	echo -e "\n==> Ubuntu Linux is required for installation! <==\n"
+	printf "\n==> Ubuntu Linux is required for installation! <==\n"
 	exit 1
 fi
 }
@@ -147,7 +147,7 @@ fi
 
 if ! grep -q "ClientAliveInterval 15" $SSH_CONFIG
 then
-       echo -e "\nClientAliveInterval 15\nClientAliveCountMax 10\n" >> $SSH_CONFIG
+       printf "\nClientAliveInterval 15\nClientAliveCountMax 10\n" >> $SSH_CONFIG
        RESTART_SSH=1
 fi
 
