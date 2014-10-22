@@ -9,10 +9,10 @@ Items to complete (not ranked):
 * Find solution for users viewing web interfaces in containers
 * Command logging
 * Security testing of bash scripts
-* Make config variables lowercase (safer)
 * Quote everything when possible (safer)
-* SQL database for account management
 * Figure out a way to store and analyze container logs
 * Document use of grsecurity kernel for container security
 * Debian package
 * Test for account expiration in islet_login and list expiration date or countdown
+* Make POSIX compliant
+* Git issues: https://github.com/jonschipp/ISLET/issues
