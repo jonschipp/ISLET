@@ -12,4 +12,6 @@ else
 	logger -p local0.notice -t "islet" "$0: $CONFIG not found!"
 fi
 
-sqlite3 $DB "DELETE FROM accounts WHERE (strftime('%s','now') - ts) >= (${DAYS}*86400);"
+if file $DB 2>/dev/null | grep -q SQLite; then
+        sqlite3 $DB "DELETE FROM accounts WHERE (strftime('%s','now') - ts) >= (${DAYS}*86400);"
+fi

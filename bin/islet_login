@@ -38,16 +38,23 @@ readonly INTERFACE
 readonly IP
 readonly VIRTUAL_PORT
 
-# Create database if it doesn't exist
-if [ ! -r $DB ]; then
+create_db() {
 sqlite3 $DB <<EOF
 PRAGMA foreign_keys = ON;
 CREATE TABLE accounts (user VARCHAR PRIMARY KEY, password VARCHAR, ts TIMESTAMP);
 CREATE TABLE images (user VARCHAR, image VARCHAR, FOREIGN KEY (user) REFERENCES accounts(user));
 EOF
-chown ${USER}:${USER} $DB
-chmod 660 $DB
+chown ${USER}:${USER} $DB && chmod 660 $DB && return 0
+}
+
+# Create database if $DB is not SQLite
+is_sqlite() {
+if ! file $DB 2>/dev/null | grep -q SQLite; then
+        rm -f $DB 2>/dev/null
+        create_db
+        test $? -eq 0 && return 0 || quit "Unable to create $DB"
 fi
+}
 
 identify(){
 	local CHOICE
@@ -257,5 +264,6 @@ start_container(){
 }
 
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
+is_sqlite
 identify
 exit
