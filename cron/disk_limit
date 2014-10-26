@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Kill containers which grows to MAX_SIZE our more
+# Kill containers which grows to MAX_SIZE or more
 # Location of Docker containers
 
 # Superseded by declarations in $CONFIG
