@@ -4,7 +4,7 @@ CONFIG=LOCATION
 COUNT=0
 LIST=()
 ANIMATE=$(which pv 2>/dev/null)
-ANIMATE_SPEED=80
+ANIMATE_SPEED=90
 
 # Store some stuff, these can be referenced from config files
 read CLIENT SRCPORT SERVER DSTPORT <<<"${SSH_CONNECTION}"
