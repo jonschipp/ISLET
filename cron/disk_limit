@@ -1,38 +1,50 @@
 #!/usr/bin/env bash
-# Kill containers which grows to MAX_SIZE or more
-# Location of Docker containers
+# Kill containers which grows to MAX_SIZE our more. If MAX_SIZE isn't set in
+# per-image config then it's taken from islet.conf
 
 # Superseded by declarations in $CONFIG
 CONTAINER_PATH=/var/lib/docker/devicemapper/mnt
-MAX_SIZE=1073741824
-
+MAX_SIZE=1073741824 # Default if CONFIG not found
+METADATA="/var/lib/docker/containers/*/config.json"
 CONFIG=LOCATION
+
 if [ -f $CONFIG ]; then
         source $CONFIG
-	source $LIBISLET
-	readonly CONFIG LIBISLET CONTAINER_PATH MAX_SIZE
-
+        source $LIBISLET
+        GLB_MAX_SIZE=$MAX_SIZE
+        readonly CONFIG GLB_MAX_SIZE
 else
         echo "$0: Warning: CONFIG not found"
         logger -p local0.notice -t "islet" "$0: $CONFIG not found!"
 fi
 
 if [ ! -d $CONTAINER_PATH ]; then
-	echo "$CONTAINER_PATH doesn't exist or is inaccessible, check or modify variable in $0"
-	exit 1
+        echo "$CONTAINER_PATH doesn't exist or is inaccessible, check or modify variable in $0"
+        exit 1
 fi
 
-IFS=$'\n'
-for fs in $(find $CONTAINER_PATH/* -maxdepth 0 -type d -exec du -b -s '{}' \;);
-do
-	size=$(echo "$fs" | awk '{ print $1 }')
-	apath=$(echo "$fs" | awk '{ print $2 }')
-	container=$(basename "$apath" | awk '{ print substr($0,0,12) }')
 
-	if [ $size -ge $MAX_SIZE ]; then
-                echo 'echo "Warning: Max. disk space reached. Destroying container..."' | docker attach $container
-                docker stop --time=3 $container 1>/dev/null
-		docker rm -f $container 1>/dev/null
-                logger -p local0.notice -t "islet" "$0: Container $container size $size is greater than $MAX_SIZE. Removed."
-	fi
+for config in $CONFIG_DIR/*.conf
+do
+        source $config
+        for file in $METADATA
+        do
+                id=$(basename $(dirname $file))
+                if ! grep -q $BASENAME $file; then
+                        continue
+                fi
+
+                du=$(du -bs $CONTAINER_PATH/$id)
+                size=$(echo "$du" | awk '{ print $1 }')
+                path=$(echo "$du" | awk '{ print $2 }')
+
+                if [ $size -ge ${MAX_SIZE:-$GLB_MAX_SIZE} ]
+                then
+                        echo 'echo "Warning: Max. disk space reached. Destroying container..."' | docker attach $id
+                        docker stop --time=3 $id 1>/dev/null
+                        docker rm -f $id 1>/dev/null
+                        logger -p local0.notice -t "islet" "$0: Container $is size $size is greater than $MAX_SIZE. Removed."
+                fi
+        done
+        unset MAX_SIZE BASENAME
 done
