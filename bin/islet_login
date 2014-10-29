@@ -11,8 +11,8 @@ err(){
 
 # Retrieve globals
 if [ -f $CONFIG ]; then
-        source $CONFIG
-        source $LIBISLET
+        . $CONFIG
+        . $LIBISLET
 	readonly CONFIG
 	readonly LIBISLET
 else
@@ -24,7 +24,7 @@ fi
 readonly CONFIGURATION="$1"
 if [ -f "$CONFIG_DIR/$CONFIGURATION" ]
 then
-	source "$CONFIG_DIR/$CONFIGURATION"
+	. "$CONFIG_DIR/$CONFIGURATION"
 else
 	quit "Timeout occurred, config not selected!"
 fi

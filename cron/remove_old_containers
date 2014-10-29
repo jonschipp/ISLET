@@ -6,8 +6,8 @@ CURRENT=$(date +"%s")
 METADATA="/var/lib/docker/containers/*/config.json"
 CONFIG=LOCATION
 if [ -f $CONFIG ]; then
-	source $CONFIG
-	source $LIBISLET
+	. $CONFIG
+	. $LIBISLET
 	GLBDAYS=$DAYS
 	readonly CONFIG GLBDAYS
 else
@@ -17,7 +17,7 @@ fi
 
 for config in $CONFIG_DIR/*.conf
 do
-        source $config
+        . $config
 	for file in $METADATA
 	do
 		id=$(basename $(dirname $file))

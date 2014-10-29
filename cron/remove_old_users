@@ -4,8 +4,8 @@ DAYS=3 		         # Overwritten by value in $CONFIG
 DB=/var/tmp/islet_db 	 # Overwritten by value in $CONFIG
 CONFIG=LOCATION
 if [ -f $CONFIG ]; then
-        source $CONFIG
-	source $LIBISLET
+        . $CONFIG
+	. $LIBISLET
 	readonly CONFIG LIBISLET CURRENT DAYS DB
 else
 	echo "$0: Warning: CONFIG not found"

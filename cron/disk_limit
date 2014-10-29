@@ -9,8 +9,8 @@ METADATA="/var/lib/docker/containers/*/config.json"
 CONFIG=LOCATION
 
 if [ -f $CONFIG ]; then
-        source $CONFIG
-        source $LIBISLET
+        . $CONFIG
+        . $LIBISLET
         GLB_MAX_SIZE=$MAX_SIZE
         readonly CONFIG GLB_MAX_SIZE
 else
@@ -26,7 +26,7 @@ fi
 
 for config in $CONFIG_DIR/*.conf
 do
-        source $config
+        . $config
         for file in $METADATA
         do
                 id=$(basename $(dirname $file))

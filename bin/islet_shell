@@ -23,8 +23,8 @@ err(){
 }
 
 if [ -f $CONFIG ]; then
-        source $CONFIG
-	source $LIBISLET
+        . $CONFIG
+	. $LIBISLET
 	readonly CONFIG
 else
         err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
@@ -55,7 +55,7 @@ printf '\t\t\t%-30s %-7s %-30s\n' "${BF}$SPACER1${N}" "|" "${BF}$SPACER1${N}"
 
 for config in *.conf
 do
-        source $config
+        . $config
         if [[ "$VISIBLE" != "no" ]]; then
                 printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config${N}" "|" "${U}$DESCRIPTION${N}"
                 LIST+=("$config")
@@ -72,7 +72,7 @@ PS3="${Y}[${N}${BF}Choice${N}${Y}]${N}: "
 select CONFIGURATION in ${LIST[@]}
 do
         if [ -f "$CONFIG_DIR/$CONFIGURATION" ]; then
-                source "$CONFIG_DIR/$CONFIGURATION"
+                . "$CONFIG_DIR/$CONFIGURATION"
                 break
         else
                 echo "Invalid choice!"

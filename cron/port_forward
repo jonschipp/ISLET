@@ -2,8 +2,8 @@
 # Removes old PREROUTING rules for port forwarding
 CONFIG=LOCATION
 if [ -f $CONFIG ]; then
-        source $CONFIG
-	source $LIBISLET
+        . $CONFIG
+	. $LIBISLET
 	readonly CONFIG LIBISLET USER INT BIND
 
 else
