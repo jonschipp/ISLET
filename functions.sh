@@ -145,6 +145,15 @@ if [ ! -e $LIMITS/islet.conf ]; then
 	echo "@docker          hard    nproc           10000" 	>> $LIMITS/islet.conf
 fi
 
+
+grep -q ISLET $UPSTART || sed -i '/limit/a \
+# BEGIN ISLET Additions \
+limit nofile 1000 2000 \
+limit nproc  1000 2000 \
+limit fsize  100000000 200000000 \
+limit cpu    500  500 \
+# END' $UPSTART
+
 if ! grep -q "ClientAliveInterval 15" $SSH_CONFIG
 then
        printf "\nClientAliveInterval 15\nClientAliveCountMax 10\n" >> $SSH_CONFIG
