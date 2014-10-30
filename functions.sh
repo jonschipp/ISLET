@@ -152,7 +152,7 @@ limit nofile 1000 2000 \
 limit nproc  1000 2000 \
 limit fsize  100000000 200000000 \
 limit cpu    500  500 \
-# END' $UPSTART
+# END' $UPSTART && RESTART_DOCKER=1
 
 if ! grep -q "ClientAliveInterval 15" $SSH_CONFIG
 then
@@ -195,6 +195,17 @@ then
 	fi
 	echo
 fi
+
+if [ $RESTART_DOCKER -eq 1 ]
+then
+	stop docker
+	sleep 1
+	start docker
+	echo
+	cat /proc/$(pgrep -f "docker -d")/limits
+	echo
+fi
+
 }
 
 install_sample_configuration(){
