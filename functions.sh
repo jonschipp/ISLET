@@ -23,6 +23,7 @@ SHELL="$BIN_DIR/islet_shell"			# $USER's shell: displays login banner then launc
 
 # Other Declarations
 RESTART_SSH=0
+RESTART_DOCKER=1
 LIMITS=/etc/security/limits.d
 DEFAULT=/etc/default/docker
 UPSTART=/etc/init/docker.conf
@@ -146,13 +147,13 @@ if [ ! -e $LIMITS/islet.conf ]; then
 fi
 
 
-grep -q ISLET $UPSTART || sed -i '/limit/a \
+grep -q ISLET $UPSTART && RESTART_DOCKER=0 || sed -i '/limit/a \
 # BEGIN ISLET Additions \
 limit nofile 1000 2000 \
 limit nproc  1000 2000 \
 limit fsize  100000000 200000000 \
 limit cpu    500  500 \
-# END' $UPSTART && RESTART_DOCKER=1
+# END' $UPSTART
 
 if ! grep -q "ClientAliveInterval 15" $SSH_CONFIG
 then
