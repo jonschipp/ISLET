@@ -14,6 +14,7 @@ EMAIL=user@company.com
 # System Configuration
 USER="demo" 					# User account to create for that people will ssh into to enter container
 PASS="demo" 					# Password for the account that users will ssh into
+SIZE=2G						# Maximum size of containers, DoS prevention
 SSH_CONFIG=/etc/ssh/sshd_config
 CONTAINER_DESTINATION= 				# Put containers on another volume e.g. /dev/sdb1 (optional). You must mkfs.$FS first!
 FS="ext4"					# Filesystem type for CONTAINER_DESTINATION, used for mounting
@@ -23,7 +24,7 @@ SHELL="$BIN_DIR/islet_shell"			# $USER's shell: displays login banner then launc
 
 # Other Declarations
 RESTART_SSH=0
-RESTART_DOCKER=1
+RESTART_DOCKER=0
 LIMITS=/etc/security/limits.d
 DEFAULT=/etc/default/docker
 UPSTART=/etc/init/docker.conf
@@ -112,7 +113,22 @@ if ! command -v docker >/dev/null 2>&1
 then
 	apt-get update -qq
 	apt-get install -qy lxc-docker
-	echo
+fi
+}
+
+docker_configuration(){
+local SIZE="${1:-$SIZE}"
+if command -v docker >/dev/null 2>&1
+then
+       # Set devicemapper storage limit
+       stop -q docker 2>/dev/null
+       rm -rf /var/lib/docker || die "Unable to remove /var/lib/docker!"
+       docker -d --storage-driver=devicemapper --storage-opt dm.basesize=$SIZE &
+       sleep 3
+       pkill docker
+       sed -i '/DOCKER_OPTS/d' $DEFAULT
+       echo DOCKER_OPTS=\"--storage-driver=devicemapper --storage-opt dm.basesize=$SIZE\" >> $DEFAULT
+       start -q docker || die "Docker did not start correctly!"
 fi
 }
 
@@ -147,13 +163,17 @@ if [ ! -e $LIMITS/islet.conf ]; then
 fi
 
 
-grep -q ISLET $UPSTART && RESTART_DOCKER=0 || sed -i '/limit/a \
+if ! grep -q ISLET $UPSTART
+then
+sed -i '/limit/a \
 # BEGIN ISLET Additions \
 limit nofile 1000 2000 \
 limit nproc  1000 2000 \
 limit fsize  100000000 200000000 \
 limit cpu    500  500 \
 # END' $UPSTART
+RESTART_DOCKER=1
+fi
 
 if ! grep -q "ClientAliveInterval 15" $SSH_CONFIG
 then
@@ -199,11 +219,12 @@ fi
 
 if [ $RESTART_DOCKER -eq 1 ]
 then
-	stop docker
+	stop -q docker
 	sleep 1
-	start docker
+	start -q docker
 	echo
-	cat /proc/$(pgrep -f "docker -d")/limits
+	PID=$(pgrep -f "docker -d")
+	[ $PID ] && cat /proc/$PID/limits
 	echo
 fi
 
