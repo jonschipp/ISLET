@@ -63,7 +63,7 @@ do
 	unset BANNER
 done
 
-
+test ${#LIST[@]} -eq 0 && quit "\t\t\tNo configurations available!"
 echo && unset BANNER && echo
 notice "Choose a number to load the configuration:"
 echo
