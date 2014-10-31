@@ -23,11 +23,12 @@ update		| Downloads and install new code (custom changes to default files will b
 uninstall       | Uninstall ISLET (Recommended to backup your stuff first)
 mrproper 	| Removes files that did not come with the source
 install-docker  | Installs latest Docker from Docker repo (Ubuntu only)
+docker-config   | Reconfigures Docker storage backend to limit container and image sizes
 user-config     | Configures a user account called demo w/ password dem
 security-config | Configures sshd and pam_limits with islet relevant security in mind
 iptables-config | Installs iptables ruleset
 
-GNU make accepts arguments if you want a customized installation (*not recommended*):
+GNU make accepts arguments if you want a customized installation (*not supported*):
 ```shell
 make install INSTALL_DIR=/usr/local/islet USER=training
 make user-config INSTALL_DIR=/usr/local/islet USER=training
@@ -37,11 +38,13 @@ make uninstall INSTALL_DIR=/usr/local/islet USER=training
 
 Variable:       |    Description:
 ----------------|----------------
-CONFIG_DIR      | islet config files directory (def: /etc/islet)
-INSTALL_DIR     | islet installation directory (def: /opt/islet)
-CRON		| directory to place islet crontab file (def: /etc/cron.d)
-USER		| user account created with user-config target (def: demo)
-NAGIOS      | location of nagios plugins (def: /usr/local/nagios/libexec)
+CONFIG_DIR      | ISLET config files directory (def: /etc/islet)
+INSTALL_DIR     | ISLET installation directory (def: /opt/islet)
+CRON		| Directory to place islet crontab file (def: /etc/cron.d)
+USER		| User account created with user-config target (def: demo)
+SIZE		| Maximum container and image size with configure-docker target (def: 2G)
+IPTABLES	| Iptables ruleset (def: /etc/network/if-pre-up.d/iptables-rules)
+NAGIOS      | Location of nagios plugins (def: /usr/local/nagios/libexec)
 
 ### Dependencies
 
@@ -69,6 +72,7 @@ It is designed to be a quick way to get a working system with a good configurati
 
 ```shell
 make install-docker	# Installs latest Docker
+make configure-docker   # Limits image and container sizes by rebuilding storage backend
 make user-config	# Configures demo user account
 make security-config    # Configure islet relevant security with sshd and pam_limits
 ```
@@ -120,6 +124,25 @@ Match User training
 	PermitEmptyPasswords no
 ```
 
+* ulimit contraints
+
+The following command will configure decent ulimit settings for docker processes.
+These have the effect of restricting the user's environment inside the container.
+
+```shell
+make security-config
+```
+
+Adjust as necessary: _/etc/init/docker.conf_
+```
+# BEGIN ISLET Additions
+limit nofile 1000 2000		 # Limit number of open files
+limit nproc  1000 2000		 # Prevent fork bombs
+limit fsize  100000000 200000000 # Limit file sizes to max of 200MB
+limit cpu    500  500
+# END
+```
+
 * Separate storage for containers:
 
 ```
@@ -137,18 +160,38 @@ service docker start
 Switching storage backends to devicemapper allows for disk quotas.
 Set dm.basesize to the maximum size the container can grow to, 10G is the default.
 
+**Note:** All conatiner and image data will be lost.
+
+Automatic:
+
+```
+make docker-config SIZE=3G
+```
+
+Manual:
+
 ```
 service docker stop
 rm -rf /var/lib/docker/*
+docker -d --storage-driver=devicemapper --storage-opt dm.basesize=3G &
+sleep 3 && pkill docker
 tail -1 /etc/default/docker
 	DOCKER_OPTS="--storage-driver=devicemapper --storage-opt dm.basesize=3G"
-mkdir -p /var/lib/docker/devicemapper/devicemapper
-restart docker
-sleep 5
+start docker
 ```
 
-**Note:** There's currently a bug in devicemapper that may cause docker to fail run containers after a reboot (my experience anyway).
-Not recommended for production at the moment, [more info](https://github.com/docker/docker/issues/4036).
+**Note:** There's currently a bug in devicemapper that may cause docker to fail run containers [more info](https://github.com/docker/docker/issues/4036).
+
+* Iptables
+
+Rate limiting protection for the SSH service
+```
+make iptables-config
+```
+
+* GRSecurity kernel patches
+
+To aid in protecting the host system it's recommended to patch the Linux kernel [more info](https://grsecurity.net/)
 
 # Administration
 
