@@ -105,6 +105,7 @@ install-sample-nsm-configs:
 	install -o root -g root -m 644 extra/tcpdump.conf $(CONFIG_DIR)/tcpdump.conf
 	install -o root -g root -m 644 extra/netsniff-ng.conf $(CONFIG_DIR)/netsniff-ng.conf
 	install -o root -g root -m 644 extra/sniffer.conf $(CONFIG_DIR)/sniffer.conf
+	install -o root -g root -m 644 extra/volatility.conf $(CONFIG_DIR)/volatility.conf
 
 install-sample-distros:
 	$(FUNCTIONS) install_sample_distributions
