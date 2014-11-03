@@ -1,7 +1,7 @@
 Isolated, Scalable, & Lightweight Environment for Training
 =========
 
-Make training a smooth process...#NoMoreVMs <br><br>
+Make training a smooth process...#NoMoreVMs <br>
 
 A container system for teaching Linux based software with minimal participation effort. <br>
 The participation barrier is set very low, students only need an SSH client.
