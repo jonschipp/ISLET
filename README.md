@@ -158,9 +158,9 @@ service docker start
 * Limit container storage size to prevent DoS or resource abuse
 
 Switching storage backends to devicemapper allows for disk quotas.
-Set dm.basesize to the maximum size the container can grow to, 10G is the default.
+Set dm.basesize to the maximum size the container can grow to (def: 10G)
 
-**Note:** All conatiner and image data will be lost.
+**Note:** All container and image data will be lost.
 
 Automatic:
 
@@ -198,9 +198,9 @@ To aid in protecting the host system it's recommended to patch the Linux kernel 
 * Global configuration file: */etc/islet/islet.conf*
 * Per-image configuration file: */etc/islet/$IMAGE.conf*
 
-Per-image configs overwrite the global variables specified in the global config file.
-For each Docker image you want available for use by islet, create an image file with a .conf extension and place it in the /etc/islet/ directory.
-These images will be selectable from the islet menu after a student authenticates via SSH as the demo user (default).
+Per-image configs overwrite the variables specified in the global config file.
+For each Docker image you want available for use by ISLET, create an image file with a .conf extension and place it in the /etc/islet/ directory.
+These images will be selectable from the ISLET menu after authentication via SSH.
 
 Common Tasks:
 
@@ -210,7 +210,7 @@ Common Tasks:
         $ passwd demo
 ```
 
-* Change the password of a container user (Not a system account). Place an SHA-1 hash of the password of choice in the second field of desired user in /var/tmp/islet_db.
+* Change the password of a container user (Not a system account).
 
 ```
     $ PASS=$(echo "newpassword" | sha1sum | sed 's/ .*//)
@@ -236,7 +236,7 @@ Common Tasks:
   - System and use case dependent
 
 ```
-        $ grep -A 5 "Container config /etc/islet/brolive.conf
+    $ grep -A 5 "Container config /etc/islet/brolive.conf
 	# Container Configuration
 	VIRTUSER="demo"                                         # Account used when container is entered (Must exist in container!)
 	CPU="1"                                                 # Number of CPU's allocated to each container
