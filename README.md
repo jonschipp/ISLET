@@ -22,7 +22,7 @@ install         | Install ISLET: install-files + configuration
 update		| Downloads and install new code (custom changes to default files will be overwritten)
 uninstall       | Uninstall ISLET (Recommended to backup your stuff first)
 mrproper 	| Removes files that did not come with the source
-install-docker  | Installs latest Docker from Docker repo (Ubuntu only)
+install-docker  | Installs latest Docker from Docker repo (Debian/Ubuntu only)
 docker-config   | Reconfigures Docker storage backend to limit container and image sizes
 user-config     | Configures a user account called demo w/ password dem
 security-config | Configures sshd and pam_limits with islet relevant security in mind
@@ -57,13 +57,13 @@ The configure script will check dependencies (it doesn't create a makefile):
 
 ![ISLET Configure Screenshot](http://jonschipp.com/islet/islet_configure.png)
 
-Typically all you need is make, sqlite, and docker (for Ubuntu):
+Typically all you need is make, sqlite, and docker (for Debian/Ubuntu):
 ```shell
 apt-get install make sqlite
 make install-docker
 ```
 
-The included installation scripts are designed to work with Ubuntu.
+The included installation scripts are designed to work with Debian/Ubuntu systems.
 
 #### Ubuntu
 

@@ -81,10 +81,9 @@ EOF
 }
 
 is_ubuntu(){
-if ! lsb_release -s -d 2>/dev/null | grep -q Ubuntu
+if ! lsb_release -s -d 2>/dev/null | egrep -q 'Ubuntu|Debian'
 then
-	printf "\n==> Ubuntu Linux is required for installation! <==\n"
-	exit 1
+	die "Debian or Ubuntu Linux is required for installation!"
 fi
 }
 
@@ -117,18 +116,25 @@ fi
 }
 
 docker_configuration(){
+local RESTART=0
 local SIZE="${1:-$SIZE}"
 if command -v docker >/dev/null 2>&1
 then
        # Set devicemapper storage limit
-       stop -q docker 2>/dev/null
+			 [ -f /etc/init.d/docker ] && service docker stop 2>&1 >/dev/null || stop -q docker 2>/dev/null
+			 sleep 1
+			 [ -d /var/lib/docker/aufs ] && umount /var/lib/docker/aufs
+			 [ -d /var/lib/docker/devicemapper ] && umount /var/lib/docker/devicemapper
        rm -rf /var/lib/docker || die "Unable to remove /var/lib/docker!"
        docker -d --storage-driver=devicemapper --storage-opt dm.basesize=$SIZE &
        sleep 3
        pkill docker
        sed -i '/DOCKER_OPTS/d' $DEFAULT
        echo DOCKER_OPTS=\"--storage-driver=devicemapper --storage-opt dm.basesize=$SIZE\" >> $DEFAULT
-       start -q docker || die "Docker did not start correctly!"
+			 [ -f /etc/init.d/docker ] && RESTART=1 && service docker start || die "Docker did not start correctly!"
+			 [ $RESTART -eq 0 ] && [ -f /etc/init/docker.conf ] && start -q docker || hi "Docker started!" && exit 0
+else
+			 die "Docker is required for configuration!"
 fi
 }
 
@@ -189,7 +195,6 @@ Match User $USER
 	X11Forwarding no
 	AllowTcpForwarding no
 	GatewayPorts no
-	PermitOpen none
 	PermitTunnel no
 	MaxAuthTries 3
 	MaxSessions 1
@@ -209,8 +214,8 @@ if [ $RESTART_SSH -eq 1 ]
 then
 	if sshd -t 2>/dev/null
 	then
-		service sshd restart 2>/dev/null
-		service ssh restart 2>/dev/null
+		[ -f /etc/init.d/sshd ] && service sshd restart 2>/dev/null
+		[ -f /etc/init.d/ssh ] && service ssh restart 2>/dev/null
 	else
 		echo "Syntax error in ${SSH_CONFIG}."
 	fi
@@ -219,9 +224,11 @@ fi
 
 if [ $RESTART_DOCKER -eq 1 ]
 then
-	stop -q docker
-	sleep 1
-	start -q docker
+  local RESTART=0
+	[ -f /etc/init.d/docker ] && service docker stop 2>&1 >/dev/null || stop -q docker 2>/dev/null
+	sleep 2
+  [ -f /etc/init.d/docker ] && RESTART=1 && service docker start || die "Docker did not start correctly!"
+	[ -f /etc/init/docker.conf ] && [ $RESTART -eq 0 ] && start -q docker
 	echo
 	PID=$(pgrep -f "docker -d")
 	[ $PID ] && cat /proc/$PID/limits
