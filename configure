@@ -15,6 +15,18 @@ MISSING=()
 NO="${Y}[${N}${RF}NO${N}${Y}]${N}"
 YES="${Y}[${N}${BF}YES${N}${Y}]${N}"
 
+check_arch()
+{
+        echo -n "${Y}[${N}${BF}*${N}${Y}]${N} Checking arch ... "
+	ARCH=$(getconf LONG_BIT)
+        if [ $ARCH -ne 64 ] ; then
+                echo "$NO Not a 64-bit system"
+		MISSING+=('64-bit')
+        else
+                echo "$YES 64-bit system"
+        fi
+}
+
 check_linux()
 {
         echo -n "${Y}[${N}${BF}*${N}${Y}]${N} Checking Linux ... "
@@ -40,6 +52,7 @@ check_dependencies()
         fi
 }
 
+check_arch
 check_linux
 
 for i in $DEPENDS
