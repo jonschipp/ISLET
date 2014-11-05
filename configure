@@ -5,7 +5,8 @@
 # Subject to the GNU GPL
 
 # Get colors from libislet
-source lib/libislet
+LIBISLET=lib/libislet
+[ -f $LIBISLET ] && source $LIBISLET
 
 # Global Declarations
 OK=0
