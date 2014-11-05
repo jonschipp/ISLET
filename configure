@@ -14,10 +14,11 @@ DEPENDS="bash cron make sshd docker sqlite3"
 MISSING=()
 NO="${Y}[${N}${RF}NO${N}${Y}]${N}"
 YES="${Y}[${N}${BF}YES${N}${Y}]${N}"
+BULLET="${Y}[${N}${BF}*${N}${Y}]${N}"
 
 check_arch()
 {
-        echo -n "${Y}[${N}${BF}*${N}${Y}]${N} Checking arch ... "
+        echo -n "${BULLET} Checking arch ... "
 	ARCH=$(getconf LONG_BIT)
         if [ $ARCH -ne 64 ] ; then
                 echo "$NO Not a 64-bit system"
@@ -29,7 +30,7 @@ check_arch()
 
 check_linux()
 {
-        echo -n "${Y}[${N}${BF}*${N}${Y}]${N} Checking Linux ... "
+        echo -n "${BULLET} Checking Linux ... "
 
         if [[ "$(uname)" != "Linux" ]] ; then
                 echo "$NO Linux not found"
@@ -42,7 +43,7 @@ check_linux()
 check_dependencies()
 {
 	local depends=$1
-        echo -n "${Y}[${N}${BF}*${N}${Y}]${N} Checking $depends ... "
+        echo -n "${BULLET} Checking $depends ... "
 
         if [[ "x$(which $depends 2>/dev/null)" == "x" ]] ; then
                 echo "$NO $depends not found"
@@ -71,5 +72,5 @@ then
 	echo
 	exit $CRITICAL
 else
-	echo "${Y}[${N}${BF}*${N}${Y}]${N} All dependencies found, now you can run \`\`make install''"
+	echo "${BULLET} All dependencies found, now you can run \`\`make install''"
 fi
