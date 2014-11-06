@@ -3,7 +3,7 @@ Isolated, Scalable, & Lightweight Environment for Training
 
 Make training a smooth process...#NoMoreVMs <br>
 
-A container system for teaching Linux based software with minimal participation effort. <br>
+A container system for teaching Linux based software with minimal participation and configuration effort. <br>
 The participation barrier is set very low, students only need an SSH client.
 
 ![ISLET Screenshot](http://jonschipp.com/islet/islet.png)
@@ -314,7 +314,7 @@ See Docker's [image documentation](http://docs.docker.com/userguide/dockerimages
 
 # Demo
 
-I used ISLET to aid the instructers in teaching the Bro platform at BroCon14.
+The precursor to ISLET was used to aid the instructers in teaching the Bro platform at BroCon14.
 
 Steps:
 * Install ISLET and dependencies
