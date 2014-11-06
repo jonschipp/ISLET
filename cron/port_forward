@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Removes old PREROUTING rules for port forwarding
 CONFIG=LOCATION
-if [ -f $CONFIG ]; then
-        . $CONFIG
-	. $LIBISLET
+if [ -f "$CONFIG" ]; then
+        . "$CONFIG"
+	. "$LIBISLET"
 	readonly CONFIG LIBISLET USER INT BIND
 
 else
@@ -14,8 +14,8 @@ fi
 IFS=$'\n'
 for rule in $(iptables -t nat --list-rules PREROUTING | grep "${INT}.*${BIND}")
 do
-	id=$(echo "$rule" | awk -F : '{ print $2 }')
-	if ! ps -U $USER -o ppid,command --no-headers | awk '/docker/ { print $1 }' | grep -q "$id"
+	id="$(echo "$rule" | awk -F : '{ print $2 }')"
+	if ! ps -U "$USER" -o ppid,command --no-headers | awk '/docker/ { print $1 }' | grep -q "$id"
 	then
 		eval iptables -t nat "$(echo $rule | sed 's/^-./-D/')"
 		log "Removing rule: iptables -t nat $(echo $rule | sed 's/^-./-D/')"

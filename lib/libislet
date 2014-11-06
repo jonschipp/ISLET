@@ -53,8 +53,8 @@ option()  { printf "${Y}[${N}${BF}$1${N}${Y}/${N}${BF}$2${N}${Y}]${N}: " ;}
 
 quit(){ local message="$1"; alert "${message:-Exiting session!}"; log "$message"; exit 1; }
 message(){ local message="$1"; echo; echo "$message"; notice "$MOTD"; echo; }
-sanitize(){ local item="$1"; echo ${item//[^a-zA-Z0-9]/}; }
-did_it_work() { test $? -ne 0 && quit "$1"; }
+sanitize(){ local item="$1"; echo "${item//[^a-zA-Z0-9]/}"; }
+did_it_work() { test "$?" -ne 0 && quit "$1"; }
 
 islet_banner(){
 cat <<EOF

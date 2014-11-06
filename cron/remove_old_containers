@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Destroy containers which are older than x DAYS, per-image config
-ARGC=$#
+ARGC="$#"
 DAYS=3             # Overwritten by value in $CONFIG
-CURRENT=$(date +"%s")
+CURRENT="$(date +"%s")"
 METADATA="/var/lib/docker/containers/*/config.json"
 CONFIG=LOCATION
-if [ -f $CONFIG ]; then
-	. $CONFIG
-	. $LIBISLET
-	GLBDAYS=$DAYS
+if [ -f "$CONFIG" ]; then
+	. "$CONFIG"
+	. "$LIBISLET"
+	GLBDAYS="$DAYS"
 	readonly CONFIG GLBDAYS
 else
 	echo "$0: Warning: CONFIG not found"
@@ -17,20 +17,20 @@ fi
 
 for config in $CONFIG_DIR/*.conf
 do
-        . $config
+        . "$config"
 	for file in $METADATA
 	do
-		id=$(basename $(dirname $file))
-		if ! grep -q $BASENAME $file; then
+		id="$(basename $(dirname $file))"
+		if ! grep -q "$BASENAME" "$file"; then
 			continue
 		fi
-		tstamp=$(egrep -o '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{9}Z' $file | head -n 1)
-		time=$(date --date=${tstamp} +"%s")
-		left=$((CURRENT-time))
-		delete=$((${DAYS:-GLBDAYS}*86400))
-		if [ $left -gt $delete ]; then
+		tstamp="$(egrep -o '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{9}Z' "$file" | head -n 1)"
+		time="$(date --date=${tstamp} +"%s")"
+		left="$((CURRENT-time))"
+		delete="$((${DAYS:-GLBDAYS}*86400))"
+		if [ "$left" -gt "$delete" ]; then
 			logger -t "$0" "Container $id was older than $DAYS day. Stopped"
-			docker rm $id
+			docker rm "$id"
 		fi
 	done
         unset DAYS BASENAME

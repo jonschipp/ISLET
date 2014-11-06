@@ -3,11 +3,11 @@
 # Written for Ubuntu Saucy and Trusty, should be adaptable to other distros.
 
 # Installation notification (not implemented yet)
-MAIL=$(which mail 2>/dev/null)
+MAIL="$(which mail 2>/dev/null)"
 COWSAY=/usr/games/cowsay
 IRCSAY=/usr/local/bin/ircsay
 IRC_CHAN="#replace_me"
-HOST=$(hostname -s)
+HOST="$(hostname -s)"
 LOGFILE=install.log
 EMAIL=user@company.com
 
@@ -34,32 +34,32 @@ UPSTART=/etc/init/docker.conf
 #printf "\n --> Logging stdout & stderr to ${LOGFILE}\n"
 
 die(){
-    if [ -f ${COWSAY:-none} ]; then
-        $COWSAY -d "$*"
+    if [ -f "${COWSAY:-none}" ]; then
+        "$COWSAY" -d "$*"
     else
         printf "$(tput setaf 1)$*$(tput sgr0)\n"
     fi
-    if [ -f $IRCSAY ]; then
-        ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
+    if [ -f "$IRCSAY" ]; then
+        ( set +e; "$IRCSAY" "$IRC_CHAN" "$*" 2>/dev/null || true )
     fi
-    if [ -f ${MAIL:-none} ]; then
-    	echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+    if [ -f "${MAIL:-none}" ]; then
+    	echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" "$EMAIL"
     fi
 
     exit 1
 }
 
 hi(){
-    if [ -f ${COWSAY:-none} ]; then
-        $COWSAY "$*"
+    if [ -f "${COWSAY:-none}" ]; then
+        "$COWSAY" "$*"
     else
         printf "$(tput setaf 3)$*$(tput sgr0)\n"
     fi
-    if [ -f $IRCSAY ]; then
-        ( set +e; $IRCSAY "$IRC_CHAN" "$*" 2>/dev/null || true )
+    if [ -f "$IRCSAY" ]; then
+        ( set +e; "$IRCSAY" "$IRC_CHAN" "$*" 2>/dev/null || true )
     fi
-    if [ -f ${MAIL:-none} ]; then
-    	echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" $EMAIL
+    if [ -f "${MAIL:-none}" ]; then
+    	echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" "$EMAIL"
     fi
 }
 
@@ -126,13 +126,13 @@ then
 			 [ -d /var/lib/docker/aufs ] && umount /var/lib/docker/aufs
 			 [ -d /var/lib/docker/devicemapper ] && umount /var/lib/docker/devicemapper
        rm -rf /var/lib/docker || die "Unable to remove /var/lib/docker!"
-       docker -d --storage-driver=devicemapper --storage-opt dm.basesize=$SIZE &
+       docker -d --storage-driver=devicemapper --storage-opt dm.basesize="$SIZE" &
        sleep 3
        pkill docker
-       sed -i '/DOCKER_OPTS/d' $DEFAULT
-       echo DOCKER_OPTS=\"--storage-driver=devicemapper --storage-opt dm.basesize=$SIZE\" >> $DEFAULT
+       sed -i '/DOCKER_OPTS/d' "$DEFAULT"
+       echo DOCKER_OPTS=\"--storage-driver=devicemapper --storage-opt dm.basesize=$SIZE\" >> "$DEFAULT"
 			 [ -f /etc/init.d/docker ] && RESTART=1 && service docker start || die "Docker did not start correctly!"
-			 [ $RESTART -eq 0 ] && [ -f /etc/init/docker.conf ] && start -q docker || hi "Docker started!" && exit 0
+			 [ "$RESTART" -eq 0 ] && [ -f /etc/init/docker.conf ] && start -q docker || hi "Docker started!" && exit 0
 else
 			 die "Docker is required for configuration!"
 fi
@@ -143,16 +143,16 @@ local USER="${1:-$USER}"
 local SHELL="${2:-$SHELL}"
 hi "  Configuring the $USER user account!\n"
 
-if ! getent passwd $USER 1>/dev/null
+if ! getent passwd "$USER" 1>/dev/null
 then
-	useradd --create-home --shell $SHELL $USER
+	useradd --create-home --shell "$SHELL" "$USER"
 	echo "$USER:$PASS" | chpasswd
 fi
 
-if ! getent group docker | grep -q $USER 1>/dev/null
+if ! getent group docker | grep -q "$USER" 1>/dev/null
 then
 	groupadd docker 2>/dev/null
-	gpasswd -a $USER docker 2>/dev/null
+	gpasswd -a "$USER" docker 2>/dev/null
 fi
 }
 
@@ -161,15 +161,15 @@ local USER="${1:-$USER}"
 local SHELL="${2:-$SHELL}"
 hi "  Configuring the system with security in mind!\n"
 
-if [ ! -e $LIMITS/islet.conf ]; then
-	echo "demo             hard    maxlogins       500" 	>  $LIMITS/islet.conf
-	echo "demo             hard    cpu             180" 	>> $LIMITS/islet.conf
-	echo "@docker          hard    fsize           1000000" >> $LIMITS/islet.conf
-	echo "@docker          hard    nproc           10000" 	>> $LIMITS/islet.conf
+if [ ! -e "$LIMITS/islet.conf" ]; then
+	echo "demo             hard    maxlogins       500" 	>  "$LIMITS/islet.conf"
+	echo "demo             hard    cpu             180" 	>> "$LIMITS/islet.conf"
+	echo "@docker          hard    fsize           1000000" >> "$LIMITS/islet.conf"
+	echo "@docker          hard    nproc           10000" 	>> "$LIMITS/islet.conf"
 fi
 
 
-if ! grep -q ISLET $UPSTART
+if ! grep -q ISLET "$UPSTART"
 then
 sed -i '/limit/a \
 # BEGIN ISLET Additions \
@@ -177,20 +177,20 @@ limit nofile 1000 2000 \
 limit nproc  1000 2000 \
 limit fsize  100000000 200000000 \
 limit cpu    500  500 \
-# END' $UPSTART
+# END' "$UPSTART"
 RESTART_DOCKER=1
 fi
 
-if ! grep -q "ClientAliveInterval 15" $SSH_CONFIG
+if ! grep -q "ClientAliveInterval 15" "$SSH_CONFIG"
 then
-       printf "\nClientAliveInterval 15\nClientAliveCountMax 10\n" >> $SSH_CONFIG
+       printf "\nClientAliveInterval 15\nClientAliveCountMax 10\n" >> "$SSH_CONFIG"
        RESTART_SSH=1
 fi
 
-if ! grep -q "Match User $USER" $SSH_CONFIG; then
-cat <<EOF >> $SSH_CONFIG
-Match User $USER
-	ForceCommand $SHELL
+if ! grep -q "Match User $USER" "$SSH_CONFIG"; then
+cat <<EOF >> "$SSH_CONFIG"
+Match User "$USER"
+	ForceCommand "$SHELL"
 	PasswordAuthentication yes
 	X11Forwarding no
 	AllowTcpForwarding no
@@ -204,13 +204,13 @@ EOF
 RESTART_SSH=1
 fi
 
-if grep -q '^Subsystem sftp' $SSH_CONFIG
+if grep -q '^Subsystem sftp' "$SSH_CONFIG"
 then
-	sed -i '/Subsystem.*sftp/s/^/#/' $SSH_CONFIG
+	sed -i '/Subsystem.*sftp/s/^/#/' "$SSH_CONFIG"
 	RESTART_SSH=1
 fi
 
-if [ $RESTART_SSH -eq 1 ]
+if [ "$RESTART_SSH" -eq 1 ]
 then
 	if sshd -t 2>/dev/null
 	then
@@ -222,16 +222,16 @@ then
 	echo
 fi
 
-if [ $RESTART_DOCKER -eq 1 ]
+if [ "$RESTART_DOCKER" -eq 1 ]
 then
   local RESTART=0
 	[ -f /etc/init.d/docker ] && service docker stop 2>&1 >/dev/null || stop -q docker 2>/dev/null
 	sleep 2
   [ -f /etc/init.d/docker ] && RESTART=1 && service docker start || die "Docker did not start correctly!"
-	[ -f /etc/init/docker.conf ] && [ $RESTART -eq 0 ] && start -q docker
+	[ -f /etc/init/docker.conf ] && [ "$RESTART" -eq 0 ] && start -q docker
 	echo
-	PID=$(pgrep -f "docker -d")
-	[ $PID ] && cat /proc/$PID/limits
+	PID="$(pgrep -f "docker -d")"
+	[ "$PID" ] && cat /proc/"$PID"/limits
 	echo
 fi
 
@@ -251,23 +251,23 @@ install_sample_configuration
 
 for file in $(git ls-files extra/*.conf | grep -v brolive.conf)
 do
-	F=$(basename $file .conf)
-	if ! docker images | grep -q $F
+	F="$(basename $file .conf)"
+	if ! docker images | grep -q "$F"
 	then
 		hi "  Installing sample training image for ${F}\n"
-		docker pull jonschipp/islet-${F}
+		docker pull jonschipp/islet-"${F}"
 	fi
 done
 }
 
 install_sample_distributions(){
 DISTRO="ubuntu debian fedora centos"
-for image in $DISTRO
+for image in "$DISTRO"
 do
-	if ! docker images | grep -q $image
+	if ! docker images | grep -q "$image"
 	then
 		hi "  Installing distribution image for ${image}\n"
-		docker pull $image
+		docker pull "$image"
 	fi
 done
 }

@@ -10,7 +10,7 @@ ANIMATE_SPEED=90
 read CLIENT SRCPORT SERVER DSTPORT <<<"${SSH_CONNECTION}"
 export CLIENT SRCPORT SERVER DSTPORT IP="$SERVER"
 export SSH_TTY
-export DISPLAY=${CLIENT}:0
+export DISPLAY="${CLIENT}:0"
 export TERM
 export PPID HOST_PORT="$PPID"
 export TMOUT=60
@@ -22,9 +22,9 @@ err(){
         exit 1
 }
 
-if [ -f $CONFIG ]; then
-        . $CONFIG
-	. $LIBISLET
+if [ -f "$CONFIG" ]; then
+        . "$CONFIG"
+	. "$LIBISLET"
 	readonly CONFIG
 else
         err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
@@ -32,15 +32,15 @@ fi
 
 clear
 
-if [ -d $CONFIG_DIR ]
+if [ -d "$CONFIG_DIR" ]
 then
-        cd $CONFIG_DIR
+        cd "$CONFIG_DIR"
 else
         err "Error: $CONFIG_DIR doesn't exist or non-executable!"
 fi
 
 # Display ISLET Banner
-test -f ${ANIMATE:-notset} && islet_banner | pv -qL $ANIMATE_SPEED || islet_banner
+test -f "${ANIMATE:-notset}" && islet_banner | pv -qL "$ANIMATE_SPEED" || islet_banner
 
 # Press key to continue
 printf "${Y}.${N}${RF}.${N}${BF}.${N}Press any key to continue or CTRL+C to exit${Y}.${N}${RF}.${N}${BF}.${N}\n"
@@ -55,7 +55,7 @@ printf '\t\t\t%-30s %-7s %-30s\n' "${BF}$SPACER1${N}" "|" "${BF}$SPACER1${N}"
 
 for config in *.conf
 do
-        . $config
+        . "$config"
         if [[ "$VISIBLE" != "no" ]]; then
                 printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config${N}" "|" "${U}$DESCRIPTION${N}"
                 LIST+=("$config")
@@ -63,13 +63,13 @@ do
 	unset BANNER
 done
 
-test ${#LIST[@]} -eq 0 && quit "\t\t\tNo configurations available!"
+test "${#LIST[@]}" -eq 0 && quit "\t\t\tNo configurations available!"
 echo && unset BANNER && echo
 notice "Choose a number to load the configuration:"
 echo
 
 PS3="${Y}[${N}${BF}Choice${N}${Y}]${N}: "
-select CONFIGURATION in ${LIST[@]}
+select CONFIGURATION in "${LIST[@]}"
 do
         if [ -f "$CONFIG_DIR/$CONFIGURATION" ]; then
                 . "$CONFIG_DIR/$CONFIGURATION"
@@ -79,7 +79,7 @@ do
         fi
 
         let COUNT++
-        if [ $COUNT -ge $FAILURE_COUNT ]; then
+        if [ "$COUNT" -ge "$FAILURE_COUNT" ]; then
                 alert "Too many failed attempts!"
                 exit 1
         fi

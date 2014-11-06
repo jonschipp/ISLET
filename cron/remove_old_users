@@ -3,15 +3,15 @@
 DAYS=3 		         # Overwritten by value in $CONFIG
 DB=/var/tmp/islet_db 	 # Overwritten by value in $CONFIG
 CONFIG=LOCATION
-if [ -f $CONFIG ]; then
-        . $CONFIG
-	. $LIBISLET
+if [ -f "$CONFIG" ]; then
+        . "$CONFIG"
+	. "$LIBISLET"
 	readonly CONFIG LIBISLET CURRENT DAYS DB
 else
 	echo "$0: Warning: CONFIG not found"
 	logger -p local0.notice -t "islet" "$0: $CONFIG not found!"
 fi
 
-if file $DB 2>/dev/null | grep -q SQLite; then
-        sqlite3 $DB "DELETE FROM accounts WHERE (strftime('%s','now') - ts) >= (${DAYS}*86400);"
+if file "$DB" 2>/dev/null | grep -q SQLite; then
+        sqlite3 "$DB" "DELETE FROM accounts WHERE (strftime('%s','now') - ts) >= (${DAYS}*86400);"
 fi

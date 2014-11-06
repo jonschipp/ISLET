@@ -10,9 +10,9 @@ err(){
 }
 
 # Retrieve globals
-if [ -f $CONFIG ]; then
-        . $CONFIG
-        . $LIBISLET
+if [ -f "$CONFIG" ]; then
+        . "$CONFIG"
+        . "$LIBISLET"
 	readonly CONFIG
 	readonly LIBISLET
 else
@@ -39,18 +39,18 @@ readonly IP
 readonly VIRTUAL_PORT
 
 create_db() {
-sqlite3 $DB <<EOF
+sqlite3 "$DB" <<EOF
 PRAGMA foreign_keys = ON;
 CREATE TABLE accounts (user VARCHAR PRIMARY KEY, password VARCHAR, ts TIMESTAMP);
 CREATE TABLE images (user VARCHAR, image VARCHAR, FOREIGN KEY (user) REFERENCES accounts(user));
 EOF
-chown ${USER}:${USER} $DB && chmod 660 $DB && return 0
+chown "${USER}:${USER}" "$DB" && chmod 660 "$DB" && return 0
 }
 
 # Create database if $DB is not SQLite
 is_sqlite() {
-if ! file $DB 2>/dev/null | grep -q SQLite; then
-        rm -f $DB 2>/dev/null
+if ! file "$DB" 2>/dev/null | grep -q SQLite; then
+        rm -f "$DB" 2>/dev/null
         create_db
         test $? -eq 0 && return 0 || quit "Unable to create $DB"
 fi
@@ -74,7 +74,7 @@ new_user(){
         notice "A temporary account will be created so that you can resume your session."
         echo
 
-        until test $AVAILABLE_USER -ne 1
+        until test "$AVAILABLE_USER" -ne 1
         do
 		ask "Choose a username: "
                 option "a-zA-Z0-9"
@@ -104,7 +104,7 @@ existing_user(){
 	local COUNT=0
         notice "Your previous account is only valid for the length of the event, after that you must create a new account"
         echo
-        while test $COUNT -lt $FAILURE_COUNT
+        while test "$COUNT" -lt "$FAILURE_COUNT"
         do
 		ask "Username: "
                 read -r USERNAME
@@ -116,13 +116,13 @@ existing_user(){
 
 		AUTH=$(sqlite3 $DB "SELECT user, password FROM accounts WHERE user='$USERNAME' AND password='$HASH';")
 
-                if [ $AUTH ]
+                if [ "$AUTH" ]
                 then
                         info "Success"
 
 			# This is how we handle using the same account for multiple images
 			EXISTS=$(sqlite3 $DB "SELECT image FROM images WHERE user='$USERNAME' AND image='$BASENAME'";)
-			[ $EXISTS ] || start_container
+			[ "$EXISTS" ] || start_container
 
 			# User is re-attaching to previous image
                         log "${USERNAME}: Returning user from $CLIENT"
@@ -130,7 +130,7 @@ existing_user(){
 			is_debug "opt: start/attach ${BASENAME}.${USERNAME}"
 
                         docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && exec docker attach "${BASENAME}.${USERNAME}"
-                        if [ $? -ne 0 ]; then
+                        if [ "$?" -ne 0 ]; then
                                 alert "Launching container failed! Please report to admins"
                                 quit "Launching container failed!"
                         fi
@@ -145,8 +145,8 @@ existing_user(){
 
 verify_new_user(){
 	local EXISTS
-	EXISTS=$(sqlite3 $DB "SELECT user FROM accounts WHERE user='$USERNAME';")
-        if [ $EXISTS ]
+	EXISTS=$(sqlite3 "$DB" "SELECT user FROM accounts WHERE user='$USERNAME';")
+        if [ "$EXISTS" ]
 	then
 		AVAILABLE_USER=1
 		notice "User already exists! Try a different one."
@@ -160,7 +160,7 @@ verify_new_password(){
 	local HASH
         while [ "$PASSWORD" != "$PASSWORD_VERIFY" ]
         do
-                if [ $COUNT -lt $FAILURE_COUNT ]
+                if [ "$COUNT" -lt "$FAILURE_COUNT" ]
                 then
                         notice "Passwords do not match! Try again."
 			ask "Choose a password: "
@@ -178,7 +178,7 @@ verify_new_password(){
 
         readonly HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
 
-	sqlite3 $DB "INSERT INTO accounts VALUES('"${USERNAME}"','${HASH}', strftime('%s', 'now'));" || quit "Couldn't write to $DB!"
+	sqlite3 "$DB" "INSERT INTO accounts VALUES('"${USERNAME}"','${HASH}', strftime('%s', 'now'));" || quit "Couldn't write to $DB!"
 
         log "${USERNAME}: Account created from $CLIENT"
         echo "Your account will expire on ${MF}$EXPIRATION${N}"
@@ -200,7 +200,7 @@ try_again(){
 
 port_forwarding_setup() {
 	# Use HOST_PORT and CLIENT as a way to associate the user with a container port (VIRTUAL_PORT)
-        if [ $VIRTUAL_PORT ]; then
+        if [ "$VIRTUAL_PORT" ]; then
 
 		# If host port is in use, find another to bind to
                 while true
@@ -215,26 +215,26 @@ port_forwarding_setup() {
                 readonly PUBLISH="--publish $BIND:$HOST_PORT:$VIRTUAL_PORT"
 
                 if [[ "$BIND" == "127.0.0.1" ]]; then
-                        sudo sysctl -w net.ipv4.conf.${INTERFACE}.route_localnet=1 2>/dev/null
+                        sudo sysctl -w net.ipv4.conf."${INTERFACE}".route_localnet=1 2>/dev/null
                         did_it_work "sysctl command failed to execute, check ${USER}'s permissions"
                 fi
                 # Client will be able to connect to an exposed container port via $SERVER:$PPID
-		sudo iptables -t nat -I PREROUTING -i $INTERFACE \
-                        -p tcp --source $CLIENT --dport $HOST_PORT -j DNAT --to ${BIND}:${HOST_PORT} 2>/dev/null
+		sudo iptables -t nat -I PREROUTING -i "$INTERFACE" \
+                        -p tcp --source "$CLIENT" --dport "$HOST_PORT" -j DNAT --to "${BIND}:${HOST_PORT}" 2>/dev/null
                 did_it_work "iptables command failed to execute, check ${USER}'s permissions"
         fi
         # Cron job to remove old rules if the PPID doesn't exist any longer
 }
 
 removal_setup(){
-        if [[ "$REMOVE" == "yes" ]] || [ $VIRTUAL_PORT ] # Re-attachment is impractical for port forwarding
+        if [[ "$REMOVE" == "yes" ]] || [ "$VIRTUAL_PORT" ] # Re-attachment is impractical for port forwarding
         then
                 echo
                 notice "This container is set to be terminated upon exit, work will not be saved."
                 REMOVE="--rm"
         else
         # Don't remove, instead keep track of the user's container for re-attachment
-		sqlite3 $DB "INSERT INTO images(user, image) values ('$USERNAME', '$BASENAME');"
+		sqlite3 "$DB" "INSERT INTO images(user, image) values ('$USERNAME', '$BASENAME');"
                 REMOVE=""
         fi
 }
@@ -259,7 +259,7 @@ start_container(){
 
         message "Enjoy yourself!"
 
-	eval exec docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $IMG_OPT $ENV_OPT" $INFOLEVEL
+	eval exec docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $IMG_OPT $ENV_OPT" "$INFOLEVEL"
 }
 
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
