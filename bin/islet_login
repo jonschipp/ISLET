@@ -246,7 +246,7 @@ start_container(){
 
 	local NAME_OPT="--name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME"
 	local RES_OPT="-c $CPU -m $RAM"
-	local NET_OPT="$PUBLISH --net $NETWORK --dns $DNS"
+	local NET_OPT="$PUBLISH --net $NETWORK --dns $DNS --add-host $HOSTNAME:127.0.0.1"
 	local GLB_OPT="$GLOBAL_OPTIONS"
 	local OTH_OPT="$LOCAL_OPTIONS"
 	local MNT_OPT="$MOUNT"
