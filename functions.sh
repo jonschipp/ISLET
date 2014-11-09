@@ -169,7 +169,7 @@ if [ ! -e "$LIMITS/islet.conf" ]; then
 fi
 
 
-if ! grep -q ISLET "$UPSTART"
+if ! grep -q ISLET "$UPSTART" 2>/dev/null
 then
 sed -i '/limit/a \
 # BEGIN ISLET Additions \
@@ -177,7 +177,7 @@ limit nofile 1000 2000 \
 limit nproc  1000 2000 \
 limit fsize  100000000 200000000 \
 limit cpu    500  500 \
-# END' "$UPSTART"
+# END' "$UPSTART" 2>/dev/null
 RESTART_DOCKER=1
 fi
 
