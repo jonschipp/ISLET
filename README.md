@@ -8,10 +8,11 @@ The participation barrier is set very low, students only need an SSH client.
 
 ![ISLET Screenshot](http://jonschipp.com/islet/islet.png)
 
-#### Use Cases
+#### Uses
 
-* Staff training
 * Event training
+* Staff training
+* Capture the flag competitions
 * Trying out tools in a containerized environment
 * Development environments
 
