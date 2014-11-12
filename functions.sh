@@ -125,7 +125,7 @@ then
 			 sleep 1
 			 [ -d /var/lib/docker/aufs ] && umount /var/lib/docker/aufs
 			 [ -d /var/lib/docker/devicemapper ] && umount /var/lib/docker/devicemapper
-       rm -rf /var/lib/docker || die "Unable to remove /var/lib/docker!"
+       rm -rf /var/lib/docker/* || die "Unable to remove /var/lib/docker!"
        docker -d --storage-driver=devicemapper --storage-opt dm.basesize="$SIZE" &
        sleep 3
        pkill docker
