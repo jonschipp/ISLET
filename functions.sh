@@ -63,6 +63,60 @@ hi(){
     fi
 }
 
+template(){
+cat <<"EOF"
+# System Configuration
+IMAGE="jonschipp/islet-netsniff-ng"                     # Launch containers from this image, must match name in Docker exactly.
+DESCRIPTION="Netsniff-NG Toolkit training image"        # Brief description of image, shown in selection menu
+BASENAME="netsniff-ng"                                  # Container prefix as $BASENAME.$USERNAME, used for re-attachment.
+
+# Security Configuration
+VISIBLE="yes"                                           # This config file is visible from config selection menu
+DAYS="3"                                                # Container lifetime specified in days, removed after x days by cron jobs
+REMOVE="no"                                             # Container is removed after exit, user cannot re-attach and resume work
+
+# Container Configuration
+VIRTUSER="demo"                                         # Account used when container is entered (Must exist in image!)
+CPU="1"                                                 # Number of CPU's allocated to each container
+RAM="256m"                                              # Amount of memory allocated to each container
+HOSTNAME="netsniff-ng"                                  # Set hostname in container. PS1 will end up as $VIRTUSER@$HOSTNAME:~$ in shell
+NETWORK="none"                                          # Disable networking by default: none; Enable networking: bridge
+DNS="127.0.0.1"                                         # Use loopback when networking is disabled to prevent error messages from resolver
+MOUNT="-v /exercises:/exercises:ro"                     # Mount point(s), sep. by -v: /src:/dst:attributes, ro = readonly (avoid rw if possible)
+LOCAL_OPTIONS=""--cap-add=NET_RAW"                      # Apply any other options you want passed to Docker run here
+LOCAL_ENV=""                                            # Variables that get passed to VIRTUSER's shell for container
+
+# Branding & Information
+MOTD="Training materials are in /exercises\n
+e.g. $ netsniff-ng --in /exercises/pcap/traffic.pcap"   # Message of the day is displayed before entering container
+BANNER="
+=================================================================
+
+Welcome to Netsniff-NG Configuration!
+
+netsniff-ng is a free, performant Linux network analyzer and
+linux network analyzer and  networking toolkit. If you will,
+the Swiss army knife for network packets.
+
+Web: http://netsniff-ng.org
+
+                /(      )\\
+              ./ {______} \.
+               \ ^,    ,^ /
+                |'O\  /O'|     _.<0101011>--
+                > \`'  '\` <  /
+                ) ,.==., (  |
+             .-(|/--~~--\|)-'
+             (      ___
+              \__.=|___E
+
+A place to try out Netsniff-NG
+
+=================================================================
+"
+EOF
+}
+
 logo(){
 cat <<"EOF"
 ===============================================================

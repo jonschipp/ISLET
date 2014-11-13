@@ -38,6 +38,7 @@ help:
 	$(Q)echo "$(bold)Miscellaneous targets:$(normal)"
 	$(Q)echo " $(red)install-brolive-config$(normal)        	- Install and configure Brolive image"
 	$(Q)echo " $(red)install-nagios-plugin$(normal)        	- Install ISLET Nagios plugin (def: /usr/local/nagios/libexec)"
+	$(Q)echo " $(red)template$(normal)                       - Print ISLET config template to stdout"
 	$(Q)echo " $(red)logo$(normal)                         	- Print logo to stdout"
 
 install: install-files configuration
@@ -135,3 +136,6 @@ install-nagios-plugin:
 
 logo:
 	$(FUNCTIONS) logo
+
+template:
+	$(FUNCTIONS) template
