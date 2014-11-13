@@ -74,6 +74,7 @@ uninstall:
 	rm -f /var/tmp/$(PROG)_db
 	rm -f /etc/security/limits.d/islet.conf
 	rm -f $(SUDOERS)/islet
+	userdel -r $(USER)
 
 mrproper:
 	$(Q)echo " $(yellow)Removing files not in source$(normal)"
