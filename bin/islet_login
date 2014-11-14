@@ -2,6 +2,7 @@
 # Global Variables
 CONFIG=LOCATION
 AVAILABLE_USER=1
+TIMEOUT="8h"
 
 err(){
         MESSAGE="$1"
@@ -31,6 +32,7 @@ fi
 
 readonly TIME=$(date +"%s")
 readonly EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
+readonly TIMEOUT
 readonly DB
 readonly USER
 readonly BIND
@@ -259,7 +261,7 @@ start_container(){
 
         message "Enjoy yourself!"
 
-	eval exec docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $IMG_OPT $ENV_OPT" "$INFOLEVEL"
+	eval exec timeout $TIMEOUT docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $IMG_OPT $ENV_OPT" "$INFOLEVEL"
 }
 
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
