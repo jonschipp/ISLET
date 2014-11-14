@@ -237,7 +237,7 @@ fi
 
 if ! grep -q "ClientAliveInterval 15" "$SSH_CONFIG"
 then
-       printf "\nClientAliveInterval 15\nClientAliveCountMax 10\n" >> "$SSH_CONFIG"
+       printf "\nClientAliveInterval 600\nClientAliveCountMax 3\n" >> "$SSH_CONFIG"
        RESTART_SSH=1
 fi
 
