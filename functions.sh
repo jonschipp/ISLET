@@ -74,6 +74,7 @@ BASENAME="netsniff-ng"                                  # Container prefix as $B
 VISIBLE="yes"                                           # This config file is visible from config selection menu
 DAYS="3"                                                # Container lifetime specified in days, removed after x days by cron jobs
 REMOVE="no"                                             # Container is removed after exit, user cannot re-attach and resume work
+TIMEOUT="4h"                                            # Max runtime of containers, accepts timeout(1) arguments
 
 # Container Configuration
 VIRTUSER="demo"                                         # Account used when container is entered (Must exist in image!)
