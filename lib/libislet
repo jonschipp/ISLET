@@ -75,17 +75,17 @@ EOF
 
 log(){
 	local message=$(echo "$1" | sed -e 's/\\n/ /g' -e 's/\\t/ /g' -e 's/\\r/ /g')
-        logger -p local0.notice -t "islet" "$0: $message"
+  logger -p local0.notice -t "islet" "$0: $message"
 }
 
 is_debug(){
-local message="$1"
-if [[ "$DEBUG" == "yes" ]];
-then
-        INFOLEVEL=""
-        alert "$message"
-        log "$message"
-else
-        INFOLEVEL="2>/dev/null"
-fi
+  local message="$1"
+  if [[ "$DEBUG" == "yes" ]];
+  then
+    INFOLEVEL=""
+    alert "$message"
+    log "$message"
+  else
+    INFOLEVEL="2>/dev/null"
+  fi
 }

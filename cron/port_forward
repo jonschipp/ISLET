@@ -2,22 +2,21 @@
 # Removes old PREROUTING rules for port forwarding
 CONFIG=LOCATION
 if [ -f "$CONFIG" ]; then
-        . "$CONFIG"
-	. "$LIBISLET"
-	readonly CONFIG LIBISLET USER INT BIND
-
+  . "$CONFIG"
+  . "$LIBISLET"
+  readonly CONFIG LIBISLET USER INT BIND
 else
-	echo "$0: Warning: CONFIG not found"
-	logger -p local0.notice -t "islet" "$0: $CONFIG not found!"
+  echo "$0: Warning: CONFIG not found"
+  logger -p local0.notice -t "islet" "$0: $CONFIG not found!"
 fi
 
 IFS=$'\n'
 for rule in $(iptables -t nat --list-rules PREROUTING | grep "${INT}.*${BIND}")
 do
-	id="$(echo "$rule" | awk -F : '{ print $2 }')"
-	if ! ps -U "$USER" -o ppid,command --no-headers | awk '/docker/ { print $1 }' | grep -q "$id"
-	then
-		eval iptables -t nat "$(echo $rule | sed 's/^-./-D/')"
-		log "Removing rule: iptables -t nat $(echo $rule | sed 's/^-./-D/')"
-	fi
+  id="$(echo "$rule" | awk -F : '{ print $2 }')"
+  if ! ps -U "$USER" -o ppid,command --no-headers | awk '/docker/ { print $1 }' | grep -q "$id"
+  then
+    eval iptables -t nat "$(echo $rule | sed 's/^-./-D/')"
+    log "Removing rule: iptables -t nat $(echo $rule | sed 's/^-./-D/')"
+  fi
 done

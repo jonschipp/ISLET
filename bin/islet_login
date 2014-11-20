@@ -5,29 +5,29 @@ AVAILABLE_USER=1
 TIMEOUT="8h"
 
 err(){
-        MESSAGE="$1"
-        logger -s -p local0.notice -t "islet" "$0: $MESSAGE"
-        exit 1
+  MESSAGE="$1"
+  logger -s -p local0.notice -t "islet" "$0: $MESSAGE"
+  exit 1
 }
 
 # Retrieve globals
 if [ -f "$CONFIG" ]; then
-        . "$CONFIG"
-        . "$LIBISLET"
-	readonly CONFIG
-	readonly LIBISLET
+  . "$CONFIG"
+  . "$LIBISLET"
+  readonly CONFIG
+  readonly LIBISLET
 else
-        err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
-        exit 1
+  err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
+  exit 1
 fi
 
 # Override with per image configuration
 readonly CONFIGURATION="$1"
 if [ -f "$CONFIG_DIR/$CONFIGURATION" ]
 then
-	. "$CONFIG_DIR/$CONFIGURATION"
+  . "$CONFIG_DIR/$CONFIGURATION"
 else
-	quit "Timeout occurred, config not selected!"
+  quit "Timeout occurred, config not selected!"
 fi
 
 readonly TIME=$(date +"%s")
@@ -46,222 +46,219 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE accounts (user VARCHAR PRIMARY KEY, password VARCHAR, ts TIMESTAMP);
 CREATE TABLE images (user VARCHAR, image VARCHAR, FOREIGN KEY (user) REFERENCES accounts(user));
 EOF
-chown "${USER}:${USER}" "$DB" && chmod 660 "$DB" && return 0
+  chown "${USER}:${USER}" "$DB" && chmod 660 "$DB" && return 0
 }
 
 # Create database if $DB is not SQLite
 is_sqlite() {
-if ! file "$DB" 2>/dev/null | grep -q SQLite; then
-        rm -f "$DB" 2>/dev/null
-        create_db
-        test $? -eq 0 && return 0 || quit "Unable to create $DB"
-fi
+  if ! file "$DB" 2>/dev/null | grep -q SQLite; then
+    rm -f "$DB" 2>/dev/null
+    create_db
+    test $? -eq 0 && return 0 || quit "Unable to create $DB"
+  fi
 }
 
 identify(){
-	local CHOICE
-	ask "Are you a new or existing user? "
-        option "new" "existing"
-        read -r CHOICE
+  local CHOICE
+  ask "Are you a new or existing user? "
+  option "new" "existing"
+  read -r CHOICE
 
-        if [[ "$CHOICE" = "new" ]] || [[ "$CHOICE" = "existing" ]]; then
-                [[ "$CHOICE" = "new" ]] && new_user
-                [[ "$CHOICE" = "existing" ]] && existing_user
-        else
-                try_again
-        fi
+  if [[ "$CHOICE" = "new" ]] || [[ "$CHOICE" = "existing" ]]; then
+    [[ "$CHOICE" = "new" ]] && new_user
+    [[ "$CHOICE" = "existing" ]] && existing_user
+  else
+    try_again
+  fi
 }
 
 new_user(){
-        notice "A temporary account will be created so that you can resume your session."
-        echo
+  notice "A temporary account will be created so that you can resume your session."
+  echo
 
-        until test "$AVAILABLE_USER" -ne 1
-        do
-		ask "Choose a username: "
-                option "a-zA-Z0-9"
-                read -r USERNAME
+  until test "$AVAILABLE_USER" -ne 1
+  do
+  ask "Choose a username: "
+    option "a-zA-Z0-9"
+    read -r USERNAME
 
-                USERNAME=$(sanitize $USERNAME)
-                echo "Your username is ${MF}$USERNAME${N}"
-                verify_new_user
-        done
+    USERNAME=$(sanitize $USERNAME)
+    echo "Your username is ${MF}$USERNAME${N}"
+    verify_new_user
+  done
 
-	ask "Choose a password: "
-        read -r -s PASSWORD
-        echo
-        ask "Verify your password: "
-        read -r -s PASSWORD_VERIFY
-        echo
+  ask "Choose a password: "
+  read -r -s PASSWORD
+  echo
+  ask "Verify your password: "
+  read -r -s PASSWORD_VERIFY
+  echo
 
-        verify_new_password
+  verify_new_password
 }
 
 existing_user(){
-	local USERNAME
-	local PASSWORD
-	local HASH
-	local AUTH
-	local EXISTS
-	local COUNT=0
-        notice "Your previous account is only valid for the length of the event, after that you must create a new account"
-        echo
-        while test "$COUNT" -lt "$FAILURE_COUNT"
-        do
-		ask "Username: "
-                read -r USERNAME
-                USERNAME=$(sanitize $USERNAME)
-		ask "Password: "
-                read -r -s PASSWORD
-                echo
-                HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
+  local USERNAME
+  local PASSWORD
+  local HASH
+  local AUTH
+  local EXISTS
+  local COUNT=0
+  notice "Your previous account is only valid for the length of the event, after that you must create a new account"
+  echo
+  while test "$COUNT" -lt "$FAILURE_COUNT"
+  do
+    ask "Username: "
+    read -r USERNAME
+    USERNAME=$(sanitize $USERNAME)
+    ask "Password: "
+    read -r -s PASSWORD
+    echo
 
-		AUTH=$(sqlite3 $DB "SELECT user, password FROM accounts WHERE user='$USERNAME' AND password='$HASH';")
+    HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
+    AUTH=$(sqlite3 $DB "SELECT user, password FROM accounts WHERE user='$USERNAME' AND password='$HASH';")
 
-                if [ "$AUTH" ]
-                then
-                        info "Success"
+    if [ "$AUTH" ]
+    then
+      info "Success"
 
-			# This is how we handle using the same account for multiple images
-			EXISTS=$(sqlite3 $DB "SELECT image FROM images WHERE user='$USERNAME' AND image='$BASENAME'";)
-			[ "$EXISTS" ] || start_container
+      # This is how we handle using the same account for multiple images
+      EXISTS=$(sqlite3 $DB "SELECT image FROM images WHERE user='$USERNAME' AND image='$BASENAME'";)
+      [ "$EXISTS" ] || start_container
 
-			# User is re-attaching to previous image
-                        log "${USERNAME}: Returning user from $CLIENT"
-                        message "Welcome back!"
-			is_debug "opt: start/attach ${BASENAME}.${USERNAME}"
+      # User is re-attaching to previous image
+      log "${USERNAME}: Returning user from $CLIENT"
+      message "Welcome back!"
+      is_debug "opt: start/attach ${BASENAME}.${USERNAME}"
 
-                        docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && exec docker attach "${BASENAME}.${USERNAME}"
-                        if [ "$?" -ne 0 ]; then
-                                alert "Launching container failed! Please report to admins"
-                                quit "Launching container failed!"
-                        fi
-                else
-                        notice "Login Failed, try again."
-                fi
-                let COUNT++
-        done
-        alert "Too many failed attempts!"
-        quit "$COUNT failed password verification attempts"
+      docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && exec docker attach "${BASENAME}.${USERNAME}"
+      if [ "$?" -ne 0 ]; then
+        alert "Launching container failed! Please report to admins"
+        quit "Launching container failed!"
+      fi
+      else
+        notice "Login Failed, try again."
+      fi
+    let COUNT++
+  done
+  alert "Too many failed attempts!"
+  quit "$COUNT failed password verification attempts"
 }
 
 verify_new_user(){
-	local EXISTS
-	EXISTS=$(sqlite3 "$DB" "SELECT user FROM accounts WHERE user='$USERNAME';")
-        if [ "$EXISTS" ]
-	then
-		AVAILABLE_USER=1
-		notice "User already exists! Try a different one."
-	else
-		AVAILABLE_USER=0
-	fi
+  local EXISTS
+  EXISTS=$(sqlite3 "$DB" "SELECT user FROM accounts WHERE user='$USERNAME';")
+  if [ "$EXISTS" ]
+  then
+    AVAILABLE_USER=1
+    notice "User already exists! Try a different one."
+  else
+    AVAILABLE_USER=0
+  fi
 }
 
 verify_new_password(){
-	local COUNT=0
-	local HASH
-        while [ "$PASSWORD" != "$PASSWORD_VERIFY" ]
-        do
-                if [ "$COUNT" -lt "$FAILURE_COUNT" ]
-                then
-                        notice "Passwords do not match! Try again."
-			ask "Choose a password: "
-                        read -r -s PASSWORD
-                        echo
-                        ask "Verify your password: "
-                        read -r -s PASSWORD_VERIFY
-                        echo
-                else
-                        alert "Too many failed attempts!"
-                        quit "$COUNT failed password verification attempts"
-                fi
-        let COUNT++
-        done
+  local COUNT=0
+  local HASH
+  while [ "$PASSWORD" != "$PASSWORD_VERIFY" ]
+  do
+    if [ "$COUNT" -lt "$FAILURE_COUNT" ]
+    then
+      notice "Passwords do not match! Try again."
+      ask "Choose a password: "
+      read -r -s PASSWORD
+      echo
+      ask "Verify your password: "
+      read -r -s PASSWORD_VERIFY
+      echo
+    else
+      alert "Too many failed attempts!"
+      quit "$COUNT failed password verification attempts"
+    fi
+    let COUNT++
+  done
 
-        readonly HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
+  readonly HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
+  sqlite3 "$DB" "INSERT INTO accounts VALUES('"${USERNAME}"','${HASH}', strftime('%s', 'now'));" || quit "Couldn't write to $DB!"
+  log "${USERNAME}: Account created from $CLIENT"
 
-	sqlite3 "$DB" "INSERT INTO accounts VALUES('"${USERNAME}"','${HASH}', strftime('%s', 'now'));" || quit "Couldn't write to $DB!"
-
-        log "${USERNAME}: Account created from $CLIENT"
-        echo "Your account will expire on ${MF}$EXPIRATION${N}"
-        start_container
+  echo "Your account will expire on ${MF}$EXPIRATION${N}"
+  start_container
 }
 
 try_again(){
-	local TRY
-	ask "I didn't understand your response. Would you like to try again? "
-        option "Y" "N"
-        read -r TRY
-        if [[ "$TRY" = [YyNn] ]] || [[ "$TRY" = "[yY][eE]sS]" ]] || [[ "$TRY" = "[nN][oO]" ]]; then
-                [[ "$TRY" = [Yy] ]] || [[ "$TRY" = "[yY][eE][sS]" ]] && identify
-                [[ "$TRY" = [Nn] ]] || [[ "$TRY" = "[nN][oO]" ]] && quit "User chose to exit from try_again"
-        else
-                quit "User forced to exit from try_again because of invalid response to question"
-        fi
+  local TRY
+  ask "I didn't understand your response. Would you like to try again? "
+  option "Y" "N"
+  read -r TRY
+  if [[ "$TRY" = [YyNn] ]] || [[ "$TRY" = "[yY][eE]sS]" ]] || [[ "$TRY" = "[nN][oO]" ]]; then
+    [[ "$TRY" = [Yy] ]] || [[ "$TRY" = "[yY][eE][sS]" ]] && identify
+    [[ "$TRY" = [Nn] ]] || [[ "$TRY" = "[nN][oO]" ]] && quit "User chose to exit from try_again"
+  else
+    quit "User forced to exit from try_again because of invalid response to question"
+  fi
 }
 
 port_forwarding_setup() {
-	# Use HOST_PORT and CLIENT as a way to associate the user with a container port (VIRTUAL_PORT)
-        if [ "$VIRTUAL_PORT" ]; then
+  # Use HOST_PORT and CLIENT as a way to associate the user with a container port (VIRTUAL_PORT)
+  if [ "$VIRTUAL_PORT" ]; then
 
-		# If host port is in use, find another to bind to
-                while true
-                do
-                        if ! netstat -nalt | fgrep -q ":$HOST_PORT"
-                        then
-                                break
-                        fi
-                        let HOST_PORT++
-                done
+    # If host port is in use, find another to bind to
+    while true
+    do
+      if ! netstat -nalt | fgrep -q ":$HOST_PORT"
+      then
+        break
+      fi
+      let HOST_PORT++
+    done
 
-                readonly PUBLISH="--publish $BIND:$HOST_PORT:$VIRTUAL_PORT"
+    readonly PUBLISH="--publish $BIND:$HOST_PORT:$VIRTUAL_PORT"
 
-                if [[ "$BIND" == "127.0.0.1" ]]; then
-                        sudo sysctl -w net.ipv4.conf."${INTERFACE}".route_localnet=1 2>/dev/null
-                        did_it_work "sysctl command failed to execute, check ${USER}'s permissions"
-                fi
-                # Client will be able to connect to an exposed container port via $SERVER:$PPID
-		sudo iptables -t nat -I PREROUTING -i "$INTERFACE" \
-                        -p tcp --source "$CLIENT" --dport "$HOST_PORT" -j DNAT --to "${BIND}:${HOST_PORT}" 2>/dev/null
-                did_it_work "iptables command failed to execute, check ${USER}'s permissions"
-        fi
-        # Cron job to remove old rules if the PPID doesn't exist any longer
+    if [[ "$BIND" == "127.0.0.1" ]]; then
+      sudo sysctl -w net.ipv4.conf."${INTERFACE}".route_localnet=1 2>/dev/null
+      did_it_work "sysctl command failed to execute, check ${USER}'s permissions"
+    fi
+    # Client will be able to connect to an exposed container port via $SERVER:$PPID
+    sudo iptables -t nat -I PREROUTING -i "$INTERFACE" \
+      -p tcp --source "$CLIENT" --dport "$HOST_PORT" -j DNAT --to "${BIND}:${HOST_PORT}" 2>/dev/null
+    did_it_work "iptables command failed to execute, check ${USER}'s permissions"
+  fi
 }
 
 removal_setup(){
-        if [[ "$REMOVE" == "yes" ]] || [ "$VIRTUAL_PORT" ] # Re-attachment is impractical for port forwarding
-        then
-                echo
-                notice "This container is set to be terminated upon exit, work will not be saved."
-                REMOVE="--rm"
-        else
-        # Don't remove, instead keep track of the user's container for re-attachment
-		sqlite3 "$DB" "INSERT INTO images(user, image) values ('$USERNAME', '$BASENAME');"
-                REMOVE=""
-        fi
+  if [[ "$REMOVE" == "yes" ]] || [ "$VIRTUAL_PORT" ] # Re-attachment is impractical for port forwarding
+  then
+    echo
+    notice "This container is set to be terminated upon exit, work will not be saved."
+    REMOVE="--rm"
+  else
+    # Don't remove, instead keep track of the user's container for re-attachment
+    sqlite3 "$DB" "INSERT INTO images(user, image) values ('$USERNAME', '$BASENAME');"
+    REMOVE=""
+  fi
 }
 
 start_container(){
+  removal_setup
+  port_forwarding_setup
 
-	removal_setup
-	port_forwarding_setup
+  local NAME_OPT="--name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME"
+  local RES_OPT="-c $CPU -m $RAM"
+  local NET_OPT="$PUBLISH --net $NETWORK --dns $DNS --add-host $HOSTNAME:127.0.0.1"
+  local GLB_OPT="$GLOBAL_OPTIONS"
+  local OTH_OPT="$LOCAL_OPTIONS"
+  local MNT_OPT="$MOUNT"
+  local IMG_OPT="$REMOVE -i $IMAGE"
+  local ENV_OPT="sudo -i -u $VIRTUSER $GLOBAL_ENV $LOCAL_ENV"
 
-	local NAME_OPT="--name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME"
-	local RES_OPT="-c $CPU -m $RAM"
-	local NET_OPT="$PUBLISH --net $NETWORK --dns $DNS --add-host $HOSTNAME:127.0.0.1"
-	local GLB_OPT="$GLOBAL_OPTIONS"
-	local OTH_OPT="$LOCAL_OPTIONS"
-	local MNT_OPT="$MOUNT"
-	local IMG_OPT="$REMOVE -i $IMAGE"
-	local ENV_OPT="sudo -i -u $VIRTUSER $GLOBAL_ENV $LOCAL_ENV"
+  # If debugging is yes
+  is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"
+  is_debug "opt: run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT \n\t$MNT_OPT $IMG_OPT $ENV_OPT"
 
-	# If debugging is yes
-	is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"
-	is_debug "opt: run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT \n\t$MNT_OPT $IMG_OPT $ENV_OPT"
+  message "Enjoy yourself!"
 
-        message "Enjoy yourself!"
-
-	eval exec timeout $TIMEOUT docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $IMG_OPT $ENV_OPT" "$INFOLEVEL"
+  eval exec timeout $TIMEOUT docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $IMG_OPT $ENV_OPT" "$INFOLEVEL"
 }
 
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20

@@ -17,26 +17,26 @@ export TMOUT=60
 readonly CLIENT SRCPORT SERVER DSTPORT SSH_TTY TERM PPID TMOUT
 
 err(){
-        MESSAGE="$1"
-        logger -s -p local0.notice -t "islet" "$0: $MESSAGE"
-        exit 1
+  MESSAGE="$1"
+  logger -s -p local0.notice -t "islet" "$0: $MESSAGE"
+  exit 1
 }
 
 if [ -f "$CONFIG" ]; then
-        . "$CONFIG"
-	. "$LIBISLET"
-	readonly CONFIG
+  . "$CONFIG"
+  . "$LIBISLET"
+  readonly CONFIG
 else
-        err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
+  err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
 fi
 
 clear
 
 if [ -d "$CONFIG_DIR" ]
 then
-        cd "$CONFIG_DIR"
+  cd "$CONFIG_DIR"
 else
-        err "Error: $CONFIG_DIR doesn't exist or non-executable!"
+  err "Error: $CONFIG_DIR doesn't exist or non-executable!"
 fi
 
 # Display ISLET Banner
@@ -55,12 +55,12 @@ printf '\t\t\t%-30s %-7s %-30s\n' "${BF}$SPACER1${N}" "|" "${BF}$SPACER1${N}"
 
 for config in *.conf
 do
-        . "$config"
-        if [[ "$VISIBLE" != "no" ]]; then
-                printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config${N}" "|" "${U}$DESCRIPTION${N}"
-                LIST+=("$config")
-        fi
-	unset BANNER
+  . "$config"
+  if [[ "$VISIBLE" != "no" ]]; then
+    printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config${N}" "|" "${U}$DESCRIPTION${N}"
+    LIST+=("$config")
+  fi
+  unset BANNER
 done
 
 test "${#LIST[@]}" -eq 0 && quit "\t\t\tNo configurations available!"
@@ -71,25 +71,24 @@ echo
 PS3="${Y}[${N}${BF}Choice${N}${Y}]${N}: "
 select CONFIGURATION in "${LIST[@]}"
 do
-        if [ -f "$CONFIG_DIR/$CONFIGURATION" ]; then
-                . "$CONFIG_DIR/$CONFIGURATION"
-                break
-        else
-                echo "Invalid choice!"
-        fi
+  if [ -f "$CONFIG_DIR/$CONFIGURATION" ]; then
+    . "$CONFIG_DIR/$CONFIGURATION"
+    break
+  else
+    echo "Invalid choice!"
+  fi
 
-        let COUNT++
-        if [ "$COUNT" -ge "$FAILURE_COUNT" ]; then
-                alert "Too many failed attempts!"
-                exit 1
-        fi
-
+  let COUNT++
+  if [ "$COUNT" -ge "$FAILURE_COUNT" ]; then
+    alert "Too many failed attempts!"
+    exit 1
+  fi
 done
 
 # Per image banner
 if ! [ -z "$BANNER" ]; then
-        clear
-        echo "$BANNER"
+  clear
+  echo "$BANNER"
 fi
 
 ####################################################

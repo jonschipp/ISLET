@@ -20,58 +20,58 @@ BULLET="${Y}[${N}${BF}*${N}${Y}]${N}"
 
 check_arch()
 {
-        echo -n "${BULLET} Checking arch ... "
-	ARCH=$(getconf LONG_BIT)
-        if [ $ARCH -ne 64 ] ; then
-                echo "$NO Not a 64-bit system"
-		MISSING+=('64-bit')
-        else
-                echo "$YES 64-bit system"
-        fi
+  echo -n "${BULLET} Checking arch ... "
+  ARCH=$(getconf LONG_BIT)
+  if [ $ARCH -ne 64 ] ; then
+    echo "$NO Not a 64-bit system"
+    MISSING+=('64-bit')
+  else
+    echo "$YES 64-bit system"
+  fi
 }
 
 check_linux()
 {
-        echo -n "${BULLET} Checking Linux ... "
+  echo -n "${BULLET} Checking Linux ... "
 
-        if [[ "$(uname)" != "Linux" ]] ; then
-                echo "$NO Linux not found"
-		MISSING+=('Linux')
-        else
-                echo "$YES Linux found"
-        fi
+  if [[ "$(uname)" != "Linux" ]] ; then
+    echo "$NO Linux not found"
+    MISSING+=('Linux')
+  else
+    echo "$YES Linux found"
+  fi
 }
 
 is_debian()
 {
-	test -f /etc/debian_version && DEBIAN=1
+  test -f /etc/debian_version && DEBIAN=1
 }
 
 check_dependencies()
 {
-	local depends=$1
-        echo -n "${BULLET} Checking $depends ... "
+  local depends=$1
+  echo -n "${BULLET} Checking $depends ... "
 
-        if [[ "x$(which $depends 2>/dev/null)" == "x" ]] ; then
+  if [[ "x$(which $depends 2>/dev/null)" == "x" ]] ; then
 
-		[ "$depends" = "docker" ] && test $DEBIAN -eq 1 &&
-			echo -n "$NO $depends not found, try "  &&
-			notice "\`\`make install-docker''" 	||
-               		echo "$NO $depends not found"
+    [ "$depends" = "docker" ] && test $DEBIAN -eq 1 &&
+    echo -n "$NO $depends not found, try "  &&
+    notice "\`\`make install-docker''" 	||
+      echo "$NO $depends not found"
 
-		MISSING+=("$depends")
+    MISSING+=("$depends")
 
-        else
-                echo "$YES $depends found"
-        fi
+  else
+      echo "$YES $depends found"
+  fi
 }
 
 check_docker_version()
 {
-	if ! echo ${MISSING[@]} | grep -q docker; then
-        	echo -n "${BULLET} Checking docker version... "
-        	docker version | grep -q 'Server version: 1.3' && echo "$YES 1.3+ found"|| echo "$NO 1.3+ not found"
-	fi
+if ! echo ${MISSING[@]} | grep -q docker; then
+  echo -n "${BULLET} Checking docker version... "
+  docker version | grep -q 'Server version: 1.3' && echo "$YES 1.3+ found"|| echo "$NO 1.3+ not found"
+fi
 }
 
 check_arch
@@ -80,21 +80,21 @@ is_debian
 
 for i in $DEPENDS
 do
-	check_dependencies $i
+  check_dependencies $i
 done
 
 check_docker_version
 
 if [ ${#MISSING[@]} -gt 0 ];
 then
-	count=$(echo ${#MISSING[@]})
-	echo -n "${Y}[${N}${RF}!${N}${Y}]${N} Missing dependencies: "
-	for (( i=0; i<${count}; i++ ));
-	do
-  		echo -n "${MISSING[$i]} "
-	done
-	echo
-	exit $CRITICAL
+  count=$(echo ${#MISSING[@]})
+  echo -n "${Y}[${N}${RF}!${N}${Y}]${N} Missing dependencies: "
+  for (( i=0; i<${count}; i++ ));
+  do
+    echo -n "${MISSING[$i]} "
+  done
+  echo
+  exit $CRITICAL
 else
-	echo "${BULLET} All dependencies found, now you can run \`\`make install''"
+  echo "${BULLET} All dependencies found, now you can run \`\`make install''"
 fi

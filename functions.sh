@@ -12,14 +12,14 @@ LOGFILE=install.log
 EMAIL=user@company.com
 
 # System Configuration
-USER="demo" 					# User account to create for that people will ssh into to enter container
-PASS="demo" 					# Password for the account that users will ssh into
-SIZE=2G						# Maximum size of containers, DoS prevention
+USER="demo" 					            # User account to create for that people will ssh into to enter container
+PASS="demo" 					            # Password for the account that users will ssh into
+SIZE=2G						                # Maximum size of containers, DoS prevention
 SSH_CONFIG=/etc/ssh/sshd_config
-CONTAINER_DESTINATION= 				# Put containers on another volume e.g. /dev/sdb1 (optional). You must mkfs.$FS first!
-FS="ext4"					# Filesystem type for CONTAINER_DESTINATION, used for mounting
-INSTALL_DIR=/opt/islet	 			# ISLET component directory
-BIN_DIR="$INSTALL_DIR/bin" 			# Directory to install islet scripts
+CONTAINER_DESTINATION= 				    # Put containers on another volume e.g. /dev/sdb1 (optional). You must mkfs.$FS first!
+FS="ext4"					                # Filesystem type for CONTAINER_DESTINATION, used for mounting
+INSTALL_DIR=/opt/islet	 	    		# ISLET component directory
+BIN_DIR="$INSTALL_DIR/bin"   			# Directory to install islet scripts
 SHELL="$BIN_DIR/islet_shell"			# $USER's shell: displays login banner then launches islet_login
 
 # Other Declarations
@@ -34,33 +34,33 @@ UPSTART=/etc/init/docker.conf
 #printf "\n --> Logging stdout & stderr to ${LOGFILE}\n"
 
 die(){
-    if [ -f "${COWSAY:-none}" ]; then
-        "$COWSAY" -d "$*"
-    else
-        printf "$(tput setaf 1)$*$(tput sgr0)\n"
-    fi
-    if [ -f "$IRCSAY" ]; then
-        ( set +e; "$IRCSAY" "$IRC_CHAN" "$*" 2>/dev/null || true )
-    fi
-    if [ -f "${MAIL:-none}" ]; then
-    	echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" "$EMAIL"
-    fi
+  if [ -f "${COWSAY:-none}" ]; then
+    "$COWSAY" -d "$*"
+  else
+    printf "$(tput setaf 1)$*$(tput sgr0)\n"
+  fi
+  if [ -f "$IRCSAY" ]; then
+    ( set +e; "$IRCSAY" "$IRC_CHAN" "$*" 2>/dev/null || true )
+  fi
+  if [ -f "${MAIL:-none}" ]; then
+    echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" "$EMAIL"
+  fi
 
-    exit 1
+  exit 1
 }
 
 hi(){
-    if [ -f "${COWSAY:-none}" ]; then
-        "$COWSAY" "$*"
-    else
-        printf "$(tput setaf 3)$*$(tput sgr0)\n"
-    fi
-    if [ -f "$IRCSAY" ]; then
-        ( set +e; "$IRCSAY" "$IRC_CHAN" "$*" 2>/dev/null || true )
-    fi
-    if [ -f "${MAIL:-none}" ]; then
-    	echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" "$EMAIL"
-    fi
+  if [ -f "${COWSAY:-none}" ]; then
+    "$COWSAY" "$*"
+  else
+    printf "$(tput setaf 3)$*$(tput sgr0)\n"
+  fi
+  if [ -f "$IRCSAY" ]; then
+    ( set +e; "$IRCSAY" "$IRC_CHAN" "$*" 2>/dev/null || true )
+  fi
+  if [ -f "${MAIL:-none}" ]; then
+    echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" "$EMAIL"
+  fi
 }
 
 template(){
@@ -136,111 +136,111 @@ EOF
 }
 
 is_ubuntu(){
-if ! lsb_release -s -d 2>/dev/null | egrep -q 'Ubuntu|Debian'
-then
-	die "Debian or Ubuntu Linux is required for installation!"
-fi
+  if ! lsb_release -s -d 2>/dev/null | egrep -q 'Ubuntu|Debian'
+  then
+    die "Debian or Ubuntu Linux is required for installation!"
+  fi
 }
 
 install_docker(){
-is_ubuntu
-hi "  Installing Docker!\n"
+  is_ubuntu
+  hi "  Installing Docker!\n"
 
-# Check that HTTPS transport is available to APT
-if [ ! -e /usr/lib/apt/methods/https ]; then
-	apt-get update -qq
-	apt-get install -qy apt-transport-https
-	echo
-fi
+  # Check that HTTPS transport is available to APT
+  if [ ! -e /usr/lib/apt/methods/https ]; then
+    apt-get update -qq
+    apt-get install -qy apt-transport-https
+    echo
+  fi
 
-# Add the repository to your APT sources
-# Then import the repository key
-if [ ! -e /etc/apt/sources.list.d/docker.list ]
-then
-	echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list
-	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
-	echo
-fi
+  # Add the repository to your APT sources
+  # Then import the repository key
+  if [ ! -e /etc/apt/sources.list.d/docker.list ]
+  then
+    echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
+    echo
+  fi
 
-# Install docker
-if ! command -v docker >/dev/null 2>&1
-then
-	apt-get update -qq
-	apt-get install -qy lxc-docker
-fi
+  # Install docker
+  if ! command -v docker >/dev/null 2>&1
+  then
+    apt-get update -qq
+    apt-get install -qy lxc-docker
+  fi
 }
 
 docker_configuration(){
-local RESTART=0
-local SIZE="${1:-$SIZE}"
-if command -v docker >/dev/null 2>&1
-then
-       # Set devicemapper storage limit
-			 [ -f /etc/init.d/docker ] && service docker stop 2>&1 >/dev/null || stop -q docker 2>/dev/null
-			 sleep 1
-			 [ -d /var/lib/docker/aufs ] && umount /var/lib/docker/aufs
-			 [ -d /var/lib/docker/devicemapper ] && umount /var/lib/docker/devicemapper
-       rm -rf /var/lib/docker/* || die "Unable to remove /var/lib/docker!"
-       docker -d --storage-driver=devicemapper --storage-opt dm.basesize="$SIZE" &
-       sleep 3
-       pkill docker
-       sed -i '/DOCKER_OPTS/d' "$DEFAULT"
-       echo DOCKER_OPTS=\"--storage-driver=devicemapper --storage-opt dm.basesize=$SIZE\" >> "$DEFAULT"
-			 [ -f /etc/init.d/docker ] && RESTART=1 && service docker start || die "Docker did not start correctly!"
-			 [ "$RESTART" -eq 0 ] && [ -f /etc/init/docker.conf ] && start -q docker || hi "Docker started!" && exit 0
-else
-			 die "Docker is required for configuration!"
-fi
+  local RESTART=0
+  local SIZE="${1:-$SIZE}"
+  if command -v docker >/dev/null 2>&1
+  then
+    # Set devicemapper storage limit
+    [ -f /etc/init.d/docker ] && service docker stop 2>&1 >/dev/null || stop -q docker 2>/dev/null
+    sleep 1
+    [ -d /var/lib/docker/aufs ] && umount /var/lib/docker/aufs
+    [ -d /var/lib/docker/devicemapper ] && umount /var/lib/docker/devicemapper
+    rm -rf /var/lib/docker/* || die "Unable to remove /var/lib/docker!"
+    docker -d --storage-driver=devicemapper --storage-opt dm.basesize="$SIZE" &
+    sleep 3
+    pkill docker
+    sed -i '/DOCKER_OPTS/d' "$DEFAULT"
+    echo DOCKER_OPTS=\"--storage-driver=devicemapper --storage-opt dm.basesize=$SIZE\" >> "$DEFAULT"
+    [ -f /etc/init.d/docker ] && RESTART=1 && service docker start || die "Docker did not start correctly!"
+    [ "$RESTART" -eq 0 ] && [ -f /etc/init/docker.conf ] && start -q docker || hi "Docker started!" && exit 0
+  else
+     die "Docker is required for configuration!"
+  fi
 }
 
 user_configuration(){
-local USER="${1:-$USER}"
-local SHELL="${2:-$SHELL}"
-hi "  Configuring the $USER user account!\n"
+  local USER="${1:-$USER}"
+  local SHELL="${2:-$SHELL}"
+  hi "  Configuring the $USER user account!\n"
 
-if ! getent passwd "$USER" 1>/dev/null
-then
-	useradd --create-home --shell "$SHELL" "$USER"
-	echo "$USER:$PASS" | chpasswd
-fi
+  if ! getent passwd "$USER" 1>/dev/null
+  then
+    useradd --create-home --shell "$SHELL" "$USER"
+    echo "$USER:$PASS" | chpasswd
+  fi
 
-if ! getent group docker | grep -q "$USER" 1>/dev/null
-then
-	groupadd docker 2>/dev/null
-	gpasswd -a "$USER" docker 2>/dev/null
-fi
+  if ! getent group docker | grep -q "$USER" 1>/dev/null
+  then
+    groupadd docker 2>/dev/null
+    gpasswd -a "$USER" docker 2>/dev/null
+  fi
 }
 
 security_configuration(){
-local USER="${1:-$USER}"
-local SHELL="${2:-$SHELL}"
-hi "  Configuring the system with security in mind!\n"
+  local USER="${1:-$USER}"
+  local SHELL="${2:-$SHELL}"
+  hi "  Configuring the system with security in mind!\n"
 
-if [ ! -e "$LIMITS/islet.conf" ]; then
-	echo "demo             hard    maxlogins       500" 	>  "$LIMITS/islet.conf"
-	echo "demo             hard    cpu             180" 	>> "$LIMITS/islet.conf"
-	echo "@docker          hard    fsize           1000000" >> "$LIMITS/islet.conf"
-	echo "@docker          hard    nproc           10000" 	>> "$LIMITS/islet.conf"
-fi
+  if [ ! -e "$LIMITS/islet.conf" ]; then
+    echo "demo             hard    maxlogins       500" 	>  "$LIMITS/islet.conf"
+    echo "demo             hard    cpu             180" 	>> "$LIMITS/islet.conf"
+    echo "@docker          hard    fsize           1000000" >> "$LIMITS/islet.conf"
+    echo "@docker          hard    nproc           10000" 	>> "$LIMITS/islet.conf"
+  fi
 
 
-if ! grep -q ISLET "$UPSTART" 2>/dev/null
-then
-sed -i '/limit/a \
-# BEGIN ISLET Additions \
-limit nofile 1000 2000 \
-limit nproc  1000 2000 \
-limit fsize  100000000 200000000 \
-limit cpu    500  500 \
-# END' "$UPSTART" 2>/dev/null
-RESTART_DOCKER=1
-fi
+  if ! grep -q ISLET "$UPSTART" 2>/dev/null
+  then
+    sed -i '/limit/a \
+    # BEGIN ISLET Additions \
+    limit nofile 1000 2000 \
+    limit nproc  1000 2000 \
+    limit fsize  100000000 200000000 \
+    limit cpu    500  500 \
+    # END' "$UPSTART" 2>/dev/null
+    RESTART_DOCKER=1
+  fi
 
-if ! grep -q "ClientAliveInterval 15" "$SSH_CONFIG"
-then
-       printf "\nClientAliveInterval 600\nClientAliveCountMax 3\n" >> "$SSH_CONFIG"
-       RESTART_SSH=1
-fi
+  if ! grep -q "ClientAliveInterval 15" "$SSH_CONFIG"
+  then
+    printf "\nClientAliveInterval 600\nClientAliveCountMax 3\n" >> "$SSH_CONFIG"
+    RESTART_SSH=1
+  fi
 
 if ! grep -q "Match User $USER" "$SSH_CONFIG"; then
 cat <<EOF >> "$SSH_CONFIG"
@@ -259,72 +259,71 @@ EOF
 RESTART_SSH=1
 fi
 
-if grep -q '^Subsystem sftp' "$SSH_CONFIG"
-then
-	sed -i '/Subsystem.*sftp/s/^/#/' "$SSH_CONFIG"
-	RESTART_SSH=1
-fi
+  if grep -q '^Subsystem sftp' "$SSH_CONFIG"
+  then
+    sed -i '/Subsystem.*sftp/s/^/#/' "$SSH_CONFIG"
+    RESTART_SSH=1
+  fi
 
-if [ "$RESTART_SSH" -eq 1 ]
-then
-	if sshd -t 2>/dev/null
-	then
-		[ -f /etc/init.d/sshd ] && service sshd restart 2>/dev/null
-		[ -f /etc/init.d/ssh ] && service ssh restart 2>/dev/null
-	else
-		echo "Syntax error in ${SSH_CONFIG}."
-	fi
-	echo
-fi
+  if [ "$RESTART_SSH" -eq 1 ]
+  then
+    if sshd -t 2>/dev/null
+    then
+      [ -f /etc/init.d/sshd ] && service sshd restart 2>/dev/null
+      [ -f /etc/init.d/ssh ] && service ssh restart 2>/dev/null
+    else
+      echo "Syntax error in ${SSH_CONFIG}."
+    fi
+    echo
+  fi
 
-if [ "$RESTART_DOCKER" -eq 1 ]
-then
-  local RESTART=0
-	[ -f /etc/init.d/docker ] && service docker stop 2>&1 >/dev/null || stop -q docker 2>/dev/null
-	sleep 2
-  [ -f /etc/init.d/docker ] && RESTART=1 && service docker start || die "Docker did not start correctly!"
-	[ -f /etc/init/docker.conf ] && [ "$RESTART" -eq 0 ] && start -q docker
-	echo
-	PID="$(pgrep -f "docker -d")"
-	[ "$PID" ] && cat /proc/"$PID"/limits
-	echo
-fi
-
+  if [ "$RESTART_DOCKER" -eq 1 ]
+  then
+    local RESTART=0
+    [ -f /etc/init.d/docker ] && service docker stop 2>&1 >/dev/null || stop -q docker 2>/dev/null
+    sleep 2
+    [ -f /etc/init.d/docker ] && RESTART=1 && service docker start || die "Docker did not start correctly!"
+    [ -f /etc/init/docker.conf ] && [ "$RESTART" -eq 0 ] && start -q docker
+    echo
+    PID="$(pgrep -f "docker -d")"
+    [ "$PID" ] && cat /proc/"$PID"/limits
+    echo
+  fi
 }
 
 install_sample_configuration(){
-hi "  Installing sample training image for Bro!\n"
-if ! docker images | grep -q brolive
-then
-	docker pull broplatform/brolive
-fi
+  hi "  Installing sample training image for Bro!\n"
+  if ! docker images | grep -q brolive
+  then
+    docker pull broplatform/brolive
+  fi
 }
 
 install_nsm_configurations(){
 
-install_sample_configuration
+  install_sample_configuration
 
-for file in $(git ls-files extra/*.conf | grep -v brolive.conf)
-do
-	F="$(basename $file .conf)"
-	if ! docker images | grep -q "$F"
-	then
-		hi "  Installing sample training image for ${F}\n"
-		docker pull jonschipp/islet-"${F}"
-	fi
-done
+  for file in $(git ls-files extra/*.conf | grep -v brolive.conf)
+  do
+    F="$(basename $file .conf)"
+    if ! docker images | grep -q "$F"
+    then
+      hi "  Installing sample training image for ${F}\n"
+      docker pull jonschipp/islet-"${F}"
+    fi
+  done
 }
 
 install_sample_distributions(){
-DISTRO="ubuntu debian fedora centos"
-for image in "$DISTRO"
-do
-	if ! docker images | grep -q "$image"
-	then
-		hi "  Installing distribution image for ${image}\n"
-		docker pull "$image"
-	fi
-done
+  DISTRO="ubuntu debian fedora centos"
+  for image in "$DISTRO"
+  do
+    if ! docker images | grep -q "$image"
+    then
+      hi "  Installing distribution image for ${image}\n"
+      docker pull "$image"
+    fi
+  done
 }
 
 "$@"
