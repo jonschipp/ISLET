@@ -40,6 +40,17 @@ readonly INTERFACE
 readonly IP
 readonly VIRTUAL_PORT
 
+#######################################
+# Create SQLite database
+# Globals:
+#   DB   - Location of database file
+#   USER - Owner of database file
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+
 create_db() {
 sqlite3 "$DB" <<EOF
 PRAGMA foreign_keys = ON;
@@ -49,7 +60,17 @@ EOF
   chown "${USER}:${USER}" "$DB" && chmod 660 "$DB" && return 0
 }
 
-# Create database if $DB is not SQLite
+#######################################
+# Recreate database if it's not SQLite
+# Old versions of ISLET used text file
+# Globals:
+#   DB   - Location of database file
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+
 is_sqlite() {
   if ! file "$DB" 2>/dev/null | grep -q SQLite; then
     rm -f "$DB" 2>/dev/null
@@ -57,6 +78,16 @@ is_sqlite() {
     test $? -eq 0 && return 0 || quit "Unable to create $DB"
   fi
 }
+
+#######################################
+# Prompt user if they're new or existing
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
 
 identify(){
   local CHOICE
@@ -71,6 +102,16 @@ identify(){
     try_again
   fi
 }
+
+###################################################
+# Get username and password for new user
+# Globals:
+#   AVAILABLE_USER - 1 if user already exists in DB
+# Arguments:
+#   None
+# Returns:
+#   None
+###################################################
 
 new_user(){
   notice "A temporary account will be created so that you can resume your session."
@@ -96,6 +137,17 @@ new_user(){
 
   verify_new_password
 }
+
+###################################################
+# Handles container reattachment for existing users
+# Globals:
+#   FAILURE_COUNT - Max # of authentication failures
+#   BASENAME      - Container name prefix
+# Arguments:
+#   None
+# Returns:
+#   None
+###################################################
 
 existing_user(){
   local USERNAME
@@ -145,6 +197,17 @@ existing_user(){
   quit "$COUNT failed password verification attempts"
 }
 
+###################################################
+# Checks if user already exists in database
+# Globals:
+#   USERNAME - Username to validate
+#   AVAILABLE_USER - 0 if username is note taken
+# Arguments:
+#   None
+# Returns:
+#   None
+###################################################
+
 verify_new_user(){
   local EXISTS
   EXISTS=$(sqlite3 "$DB" "SELECT user FROM accounts WHERE user='$USERNAME';")
@@ -156,6 +219,20 @@ verify_new_user(){
     AVAILABLE_USER=0
   fi
 }
+
+###########################################################
+# Validate password, hash, and write account to database
+# Globals:
+#   PASSWORD      - Password to validate and store in db
+#   USERNAME      - Used to create account in database
+#   FAILURE_COUNT - Max # of authentication failures
+#   CLIENT        - IP address of connecting user
+#   EXPIRATION    - Date/time account expires
+# Arguments:
+#   None
+# Returns:
+#   None
+###########################################################
 
 verify_new_password(){
   local COUNT=0
@@ -186,6 +263,16 @@ verify_new_password(){
   start_container
 }
 
+###########################################################
+# Reprompt if user did not select new or existing user
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+###########################################################
+
 try_again(){
   local TRY
   ask "I didn't understand your response. Would you like to try again? "
@@ -199,10 +286,29 @@ try_again(){
   fi
 }
 
+#################################################################################
+# Create iptables rules for port forwarding to container
+# Used to access ports on a user's container to do things
+# like web interface training. Use PPID of session (sshd) as
+# the port to use for forwarding, that way we can keep track
+# of each user's session to iptables rule.
+# Globals:
+#   VIRTUAL_PORT - Port running inside container to access
+#   HOST_PORT    - Port from host that's forwarded to container (VIRTUAL_PORT)
+#   BIND         - IP address to use to access containers
+#   CLIENT       - IP address of client provided by sshd
+#   INTERFACE    - Network interface to apply iptables rule
+#   USER         - Used for logging
+#   PUBLISH      - Combination of above to set the Docker forwarding rule
+# Arguments:
+#   None
+# Returns:
+#   None
+#################################################################################
+
 port_forwarding_setup() {
   # Use HOST_PORT and CLIENT as a way to associate the user with a container port (VIRTUAL_PORT)
   if [ "$VIRTUAL_PORT" ]; then
-
     # If host port is in use, find another to bind to
     while true
     do
@@ -226,6 +332,22 @@ port_forwarding_setup() {
   fi
 }
 
+######################################################################
+# Remove container if set to remove or port forwarding is used.
+# Removal means no reattachment and is useful in some training cases
+# e.g. limited storage, resource constraints, confidential data, and
+# port forwarding where we cannot guarentee the same port or client IP
+# Globals:
+#   REMOVE        - Option in ISLET configuration files for removal
+#   VIRTUAL_PORT  - If set pass the remove option to Docker
+#   DB            - Database to write to
+#   BASENAME      - Add image to database for account if no removal
+# Arguments:
+#   None
+# Returns:
+#   None
+######################################################################
+
 removal_setup(){
   if [[ "$REMOVE" == "yes" ]] || [ "$VIRTUAL_PORT" ] # Re-attachment is impractical for port forwarding
   then
@@ -238,6 +360,40 @@ removal_setup(){
     REMOVE=""
   fi
 }
+
+###############################################################################################
+# Pass all options to Docker and replace this process with the container
+# Globals:
+#   BASENAME        - from ISLET config files, container prefix used to build container name
+#   USERNAME        - given username for login, container postfix, used to build container name
+#   HOSTNAME        - from ISLET config files, hostname of container
+#   CPU             - from ISLET config files, relative cpu share allocation per container
+#   RAM             - from ISLET config files, memory allocation per container
+#   NETWORK         - from ISLET config files, network settings for container
+#   DNS             - from ISLET config files, nameservers for container
+#   GLOBAL_OPTIONS  - from ISLET config files, pass docker options to all containers
+#   LOCAL_OPTIONS   - from ISLET config files, pass per-image docker options
+#   MOUNT           - from ISLET config files, pass mount options to docker
+#   REMOVE          - from ISLET config files, remove container after exit
+#   IMAGE           - from ISLET config files, docker image to launch
+#   VIRTUSER        - from ISLET config files, user to become in container
+#   GLOBAL_ENV      - from global ISLET config, pass environment variables to all containers
+#   LOCAL_ENV       - from ISLET config files, pass per-image environment variables
+#   CLIENT          - ip address of connecting user
+#   SRCPORT         - source port of connecting user
+#   SERVER          - ip address of islet server
+#   DSTPORT         - ssh destination port of islet server
+#   SSH_TTY         - name of the tty associated with the current shell
+#   TERM            - terminal used
+#   PPID            - pid of the sshd process of the user's session
+#   TMOUT           - shell's timeout value
+#   TIMEOUT         - from ISLET config files, max time container can run
+#   INFOLEVEL       - from ISLET config files, DEBUG'ing information
+# Arguments:
+#   None
+# Returns:
+#   None
+###############################################################################################
 
 start_container(){
   removal_setup
@@ -262,6 +418,7 @@ start_container(){
 }
 
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
+# It all begins here
 is_sqlite
 identify
 exit

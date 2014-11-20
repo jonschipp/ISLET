@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Destroy containers which are older than x DAYS, per-image config
+# Remove containers which are older than x DAYS, per-image config
 ARGC="$#"
 DAYS=3             # Overwritten by value in $CONFIG
 CURRENT="$(date +"%s")"
 METADATA="/var/lib/docker/containers/*/config.json"
 CONFIG=LOCATION
+
+# Get global variables
 if [ -f "$CONFIG" ]; then
   . "$CONFIG"
   . "$LIBISLET"
@@ -15,6 +17,7 @@ else
   logger -p local0.notice -t "islet" "$0: $CONFIG not found!"
 fi
 
+# Load variables from per-image configs
 for config in $CONFIG_DIR/*.conf
 do
   . "$config"

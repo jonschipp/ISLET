@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Kill containers which grows to MAX_SIZE our more. If MAX_SIZE isn't set in
-# per-image config then it's taken from islet.conf
+# Stop and remove containers which grows to MAX_SIZE our more.
+# If MAX_SIZE isn't set in per-image config then it's taken from islet.conf
 
 # Superseded by declarations in $CONFIG
 CONTAINER_PATH=/var/lib/docker/devicemapper/mnt
@@ -8,6 +8,7 @@ MAX_SIZE=1073741824 # Default if CONFIG not found
 METADATA="/var/lib/docker/containers/*/config.json"
 CONFIG=LOCATION
 
+# Get global variables
 if [ -f "$CONFIG" ]; then
   . "$CONFIG"
   . "$LIBISLET"

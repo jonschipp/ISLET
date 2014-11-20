@@ -40,6 +40,16 @@ CB="${cyanb}"
 WF="${whitef}"
 WB="${whiteb}"
 
+#######################################
+# Print text in specific color
+# Globals:
+#   Color codes
+# Arguments:
+#   String of characters
+# Returns:
+#   Message in color
+#######################################
+
 red()     { alert; }
 yellow()  { notice; }
 magenta() { info; }
@@ -51,10 +61,64 @@ info()    { printf "${magentaf}$*${normal}\n"; }
 ask()     { printf "${whitef}$*${normal}"; }
 option()  { printf "${Y}[${N}${BF}$1${N}${Y}/${N}${BF}$2${N}${Y}]${N}: " ;}
 
-quit(){ local message="$1"; alert "${message:-Exiting session!}"; log "$message"; exit 1; }
+#########################################
+# Print, log, and exit script for errors
+# Globals:
+#   None
+# Arguments:
+#   String of text indicating issue
+# Returns:
+#   Red text and exits 1
+##########################################
+
+quit(){ local message="$1"; alert "${message:-Exiting session!}"; lDog "$message"; exit 1; }
+
+######################################################
+# Color message MOTD from ISLET config yellow
+# Globals:
+#   MOTD      - Message of the day string from config
+# Arguments:
+#   String of text
+# Returns:
+#   Yellow text
+######################################################
+
 message(){ local message="$1"; echo; echo "$message"; notice "$MOTD"; echo; }
+
+######################################################
+# Sanitize input by removing special characters and
+# symbols. Used to normalize usernames and passwords
+# Globals:
+#  None
+# Arguments:
+#   String of text, either username or password
+# Returns:
+#   Sanitized string
+######################################################
+
 sanitize(){ local item="$1"; echo "${item//[^a-zA-Z0-9]/}"; }
+
+#########################################################
+# Check exit code of last command
+# Globals:
+#  None
+# Arguments:
+#   String of text
+# Returns:
+#   If true, calls quit which exits 1 after log and error
+#########################################################
+
 did_it_work() { test "$?" -ne 0 && quit "$1"; }
+
+#######################################
+# Print ISLET banner
+# Globals:
+#   Color codes
+# Arguments:
+#   None
+# Returns:
+#   Text of ISLET banner
+#######################################
 
 islet_banner(){
 cat <<EOF
@@ -73,10 +137,31 @@ ${MF}===============================================================${N}
 EOF
 }
 
+#######################################
+# Log message to syslog daemon
+# Globals:
+#   None
+# Arguments:
+#  String of message to log
+# Returns:
+#   None
+#######################################
+
 log(){
 	local message=$(echo "$1" | sed -e 's/\\n/ /g' -e 's/\\t/ /g' -e 's/\\r/ /g')
   logger -p local0.notice -t "islet" "$0: $message"
 }
+
+#######################################
+# Checks if debug mode is on and prints
+# and logs message if on.
+# Globals:
+#   DEBUG   - from ISLET config files
+# Arguments:
+#   String of message
+# Returns:
+#   Message to stdout in yellow
+#######################################
 
 is_debug(){
   local message="$1"

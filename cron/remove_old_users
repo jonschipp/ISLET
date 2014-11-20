@@ -3,6 +3,8 @@
 DAYS=3 		         # Overwritten by value in $CONFIG
 DB=/var/tmp/islet_db 	 # Overwritten by value in $CONFIG
 CONFIG=LOCATION
+
+# Get global variables
 if [ -f "$CONFIG" ]; then
   . "$CONFIG"
   . "$LIBISLET"

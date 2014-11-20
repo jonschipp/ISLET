@@ -22,6 +22,7 @@ err(){
   exit 1
 }
 
+# Get global variables
 if [ -f "$CONFIG" ]; then
   . "$CONFIG"
   . "$LIBISLET"
@@ -53,6 +54,8 @@ notice "\t\t\t\tAvailable configurations:\n"
 printf '\t\t\t%-29s %-7s %-30s\n' "${B}Configuration${N}" "|" "${B}Description${N}"
 printf '\t\t\t%-30s %-7s %-30s\n' "${BF}$SPACER1${N}" "|" "${BF}$SPACER1${N}"
 
+# Iterate over configuration files in $CONFIG_DIR and display them as options
+# It prints the config file ($config) and its description ($DESCRIPTION)
 for config in *.conf
 do
   . "$config"
@@ -63,12 +66,16 @@ do
   unset BANNER
 done
 
+# Quit if there are no config files present
 test "${#LIST[@]}" -eq 0 && quit "\t\t\tNo configurations available!"
 echo && unset BANNER && echo
 notice "Choose a number to load the configuration:"
 echo
 
 PS3="${Y}[${N}${BF}Choice${N}${Y}]${N}: "
+
+# Here the user chooses the configuration from the menu
+# Inherit the variables from the config file after selection
 select CONFIGURATION in "${LIST[@]}"
 do
   if [ -f "$CONFIG_DIR/$CONFIGURATION" ]; then
@@ -90,6 +97,9 @@ if ! [ -z "$BANNER" ]; then
   clear
   echo "$BANNER"
 fi
+
+# Replace this process with islet_login which will
+# pass the config's variables and then launch the container
 
 ####################################################
 exec "$LAUNCH_CONTAINER" "$CONFIGURATION"

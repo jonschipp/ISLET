@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Removes old PREROUTING rules for port forwarding
+# Removes PREROUTING rules no longer associated with running container for port forwarding
 CONFIG=LOCATION
+# Get global variables
 if [ -f "$CONFIG" ]; then
   . "$CONFIG"
   . "$LIBISLET"
