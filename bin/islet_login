@@ -55,7 +55,8 @@ create_db() {
 sqlite3 "$DB" <<EOF
 PRAGMA foreign_keys = ON;
 CREATE TABLE accounts (user VARCHAR PRIMARY KEY, password VARCHAR, ts TIMESTAMP);
-CREATE TABLE images (user VARCHAR not null, image VARCHAR not null unique, primary key (user, image), FOREIGN KEY (user) REFERENCES accounts(user));
+CREATE TABLE images (user VARCHAR, image VARCHAR, FOREIGN KEY (user) REFERENCES accounts(user));
+CREATE UNIQUE INDEX idx_images_user_image ON images(user, image);
 EOF
   chown "${USER}:${USER}" "$DB" && chmod 660 "$DB" && return 0
 }
