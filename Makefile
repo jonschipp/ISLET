@@ -13,6 +13,7 @@ SIZE		= 2G
 NAGIOS		= /usr/local/nagios/libexec
 IPTABLES	= /etc/network/if-pre-up.d/iptables-rules
 SUDOERS		= /etc/sudoers.d
+UPSTART  	= /etc/init
 REPO		= $(shell grep url .git/config)
 Q 		= @
 bold   		= $(shell tput bold)
@@ -112,6 +113,10 @@ install-sample-nsm-configs:
 install-sample-distros:
 	$(FUNCTIONS) install_sample_distributions
 	mkdir -m 755 -p $(CONFIG_DIR)
+
+install-sample-cadvisor:
+	docker run -d -v /var/run:/var/run:rw -v /sys:/sys:ro -v /var/lib/docker/:/var/lib/docker:ro -p 8080:8080 --name="cadvisor" google/cadvisor:latest
+	install -o root -g root -m 644 extra/cadvisor.upstart $(UPSTART)/cadvisor.conf
 
 install-docker:
 	$(FUNCTIONS) install_docker
