@@ -84,11 +84,11 @@ HOSTNAME="netsniff-ng"                                  # Set hostname in contai
 NETWORK="none"                                          # Disable networking by default: none; Enable networking: bridge
 DNS="127.0.0.1"                                         # Use loopback when networking is disabled to prevent error messages from resolver
 MOUNT="-v /exercises:/exercises:ro"                     # Mount point(s), sep. by -v: /src:/dst:attributes, ro = readonly (avoid rw if possible)
-LOCAL_OPTIONS=""--cap-add=NET_RAW"                      # Apply any other options you want passed to Docker run here
+LOCAL_OPTIONS="--cap-add=NET_RAW --cap-add=NET_ADMIN"   # Apply any other options you want passed to Docker run here
 LOCAL_ENV=""                                            # Variables that get passed to VIRTUSER's shell for container
 
 # Branding & Information
-MOTD="Training materials are in /exercises\n
+MOTD="Training materials are in /exercises
 e.g. $ netsniff-ng --in /exercises/pcap/traffic.pcap"   # Message of the day is displayed before entering container
 BANNER="
 =================================================================
