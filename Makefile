@@ -6,6 +6,7 @@ INSTALL_DIR 	= /opt/$(PROG)
 LIB_DIR		= $(INSTALL_DIR)/lib
 CRON_DIR 	= $(INSTALL_DIR)/cron
 BIN_DIR 	= $(INSTALL_DIR)/bin
+MAN_DIR 	= /usr/share/man
 CRON 		= /etc/cron.d
 FUNCTIONS 	= ./functions.sh
 USER		= demo
@@ -59,6 +60,7 @@ install-files:
 	install -o root -g root -m 750 cron/remove_old_users $(CRON_DIR)/remove_old_users
 	install -o root -g root -m 750 cron/disk_limit $(CRON_DIR)/disk_limit
 	install -o root -g root -m 750 cron/port_forward $(CRON_DIR)/port_forward
+	install -o root -g root -m 644 docs/islet.5 $(MAN_DIR)/man5/islet.5
 	$(Q)echo " $(bold)--> Configuration directory is$(normal) $(underline)$(CONFIG_DIR)$(normal)"
 	$(Q)echo " $(bold)--> Install directory is$(normal) $(underline)$(INSTALL_DIR)$(normal)"
 
@@ -75,6 +77,7 @@ uninstall:
 	rm -f /var/tmp/$(PROG)_db
 	rm -f /etc/security/limits.d/islet.conf
 	rm -f $(SUDOERS)/islet
+	rm -f $(MAN_DIR)/man5/islet.5
 	userdel -r $(USER)
 
 mrproper:
