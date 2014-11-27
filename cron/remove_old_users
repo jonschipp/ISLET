@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Destroy users which are older than x days
 DAYS=3 		         # Overwritten by value in $CONFIG
-DB=/var/tmp/islet_db 	 # Overwritten by value in $CONFIG
+DB=/var/tmp/islet.db 	 # Overwritten by value in $CONFIG
 CONFIG=LOCATION
 
 # Get global variables

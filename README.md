@@ -224,8 +224,8 @@ Common Tasks:
 
 ```
     $ PASS=$(echo "newpassword" | sha1sum | sed 's/ .*//)
-	$ sqlite3 /var/tmp/islet_db "UPDATE accounts SET password='$PASS' WHERE user='jon';"
-	$ sqlite3 /var/tmp/islet_db "SELECT password FROM accounts WHERE user='jon';"
+	$ sqlite3 /var/tmp/islet.db "UPDATE accounts SET password='$PASS' WHERE user='jon';"
+	$ sqlite3 /var/tmp/islet.db "SELECT password FROM accounts WHERE user='jon';"
 	aaaaaaa2a4817e5c9a56db45d41ed876e823fcf|1413533585
 
 ```
