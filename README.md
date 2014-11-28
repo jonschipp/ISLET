@@ -24,7 +24,7 @@ On the host operation system
 ```shell
 make install
 ```
-Or as a Docker container running on the host operating system which requires no modification to the host
+Or as a Docker container which requires little to no modification to the host
 ```shell
 make install-contained
 ```
@@ -89,10 +89,19 @@ The included installation scripts are designed to work with Debian/Ubuntu system
 The following make targets will install docker and configure the system with security in mind for the Docker process.
 It is designed to be a quick way to get a working system with a good configuration.
 
+Install ISLET on the host:
 ```shell
 make install-docker	# Installs latest Docker
 make configure-docker   # Limits image and container sizes by rebuilding storage backend
 make user-config	# Configures demo user account
+make security-config    # Configure islet relevant security with sshd and pam_limits
+```
+
+Install ISLET as a container on the host:
+```shell
+make install-docker	# Installs latest Docker
+make install-contained	# Installs ISLET as a container
+make configure-docker   # Limits image and container sizes by rebuilding storage backend
 make security-config    # Configure islet relevant security with sshd and pam_limits
 ```
 
