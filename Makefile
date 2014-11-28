@@ -10,6 +10,7 @@ MAN_DIR 	= /usr/share/man
 CRON 		= /etc/cron.d
 FUNCTIONS 	= ./functions.sh
 USER		= demo
+PORT	  = 2222
 SIZE		= 2G
 NAGIOS		= /usr/local/nagios/libexec
 IPTABLES	= /etc/network/if-pre-up.d/iptables-rules
@@ -27,7 +28,8 @@ default: help
 
 help:
 	$(Q)echo "$(bold)ISLET installation targets:$(normal)"
-	$(Q)echo " $(red)install$(normal)                  	- Installs and configures islet"
+	$(Q)echo " $(red)install$(normal)                  	- Install and configure islet on the host"
+	$(Q)echo " $(red)install-contained$(normal)    		- Install islet as container, no host modification"
 	$(Q)echo " $(red)uninstall$(normal) 	                - Uninstalls islet ($(yellow)Backup first!$(normal))"
 	$(Q)echo " $(red)update$(normal)               		- Update code and reinstall islet"
 	$(Q)echo " $(red)mrproper$(normal)                     	- Remove all files not in source distribution"
@@ -44,6 +46,16 @@ help:
 	$(Q)echo " $(red)logo$(normal)                         	- Print logo to stdout"
 
 install: install-files configuration
+install-contained:
+	$(Q)echo " $(yellow)Installing $(PROG)$(normal)"
+	docker run -d --name="islet" \
+								-v /usr/bin/docker:/usr/bin/docker:ro \
+								-v /var/lib/docker/:/var/lib/docker:rw \
+								-v /exercises:/exercises:ro \
+								-v /var/run/docker.sock:/var/run/docker.sock \
+								-p $(PORT):22 jonschipp/islet
+	install -o root -g root -m 644 config/islet.upstart $(UPSTART)/islet.conf
+	$(Q)echo " $(bold)--> Connect to ISLET on $(normal)$(underline)SSH port $(PORT)$(normal)"
 
 install-files:
 	$(Q)echo " $(yellow)Installing $(PROG)$(normal)"

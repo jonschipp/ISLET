@@ -18,10 +18,15 @@ The participation barrier is set very low, students only need an SSH client.
 
 ## Installation
 
-Installation of ISLET is very simple.
+Installation of ISLET is very simple and it can be done in two ways:
 
+On the host operation system
 ```shell
 make install
+```
+Or as a Docker container running on the host operating system which requires no modification to the host
+```shell
+make install-contained
 ```
 
 ![ISLET Make Screenshot](http://jonschipp.com/islet/islet_make.png)
@@ -29,6 +34,7 @@ make install
 Target:         |    Description:
 ----------------|----------------
 install         | Install ISLET: install-files + configuration
+install-contained | Install ISLET as a container, no modification to host system
 update		| Downloads and install new code (custom changes to default files will be overwritten)
 uninstall       | Uninstall ISLET (Recommended to backup your stuff first)
 mrproper 	| Removes files that did not come with the source
@@ -55,6 +61,7 @@ USER		| User account created with user-config target (def: demo)
 SIZE		| Maximum container and image size with configure-docker target (def: 2G)
 IPTABLES	| Iptables ruleset (def: /etc/network/if-pre-up.d/iptables-rules)
 NAGIOS      | Location of nagios plugins (def: /usr/local/nagios/libexec)
+PORT        | The SSH port on the host when installing ISLET as a container (def: 2222)
 
 ### Dependencies
 
@@ -74,6 +81,8 @@ make install-docker
 ```
 
 The included installation scripts are designed to work with Debian/Ubuntu systems.
+
+**Note:** Installing ISLET as container ``make install-contained'' only requires Docker
 
 #### Ubuntu
 
