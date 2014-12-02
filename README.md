@@ -63,6 +63,18 @@ IPTABLES	| Iptables ruleset (def: /etc/network/if-pre-up.d/iptables-rules)
 NAGIOS      | Location of nagios plugins (def: /usr/local/nagios/libexec)
 PORT        | The SSH port on the host when installing ISLET as a container (def: 2222)
 
+## Updating
+
+Updating an existing ISLET installation is very simple:
+
+For host installation (`make install`):
+```shell
+make update
+```
+For container installation (`make install-contained`):
+```shell
+docker pull jonschipp/islet
+```
 ### Dependencies
 
 * Linux, Bash, Cron, OpenSSH, Make, SQLite, and Docker
