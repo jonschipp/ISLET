@@ -153,6 +153,28 @@ log(){
 }
 
 #######################################
+# Countdown and exit if 0 is reached
+# Globals:
+#   None
+# Arguments:
+#   Integer in seconds to begin count
+# Returns:
+#   Message to stdout
+#######################################
+
+timecount(){
+  countdown="$1"
+  while [ $countdown -ge 0 ]
+  do
+     printf "${Y}.${N}${RF}.${N}${BF}.${N}Press any key to continue or CTRL+C to exit${Y}.${N}${RF}.${N}${BF}.${N}${Y} ${countdown}${N}$(tput el)\r"
+     read -rs -n1 -t1 key && break
+     let countdown--
+  done
+  echo
+  quit "Session ended due to inactivity"
+}
+
+#######################################
 # Checks if debug mode is on and prints
 # and logs message if on.
 # Globals:

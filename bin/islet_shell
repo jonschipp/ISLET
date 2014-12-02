@@ -44,10 +44,8 @@ fi
 test -f "${ANIMATE:-notset}" && islet_banner | pv -qL "$ANIMATE_SPEED" || islet_banner
 
 # Press key to continue
-printf "${Y}.${N}${RF}.${N}${BF}.${N}Press any key to continue or CTRL+C to exit${Y}.${N}${RF}.${N}${BF}.${N}\n"
-read -rs -n1 key
-clear
-echo
+timecount $TMOUT
+clear && echo
 
 # Configuration menu
 notice "\t\t\t\tAvailable configurations:\n"
