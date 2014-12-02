@@ -94,7 +94,7 @@ make install-docker
 
 The included installation scripts are designed to work with Debian/Ubuntu systems.
 
-**Note:** Installing ISLET as container `make install-contained` only requires Docker
+**Note:** Installing ISLET as container (`make install-contained`) only requires Docker
 
 #### Ubuntu
 
