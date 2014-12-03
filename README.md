@@ -62,6 +62,7 @@ SIZE		| Maximum container and image size with configure-docker target (def: 2G)
 IPTABLES	| Iptables ruleset (def: /etc/network/if-pre-up.d/iptables-rules)
 NAGIOS      | Location of nagios plugins (def: /usr/local/nagios/libexec)
 PORT        | The SSH port on the host when installing ISLET as a container (def: 2222)
+PACKAGE     | Type of package to build for `make package` (def: deb)
 
 ## Updating
 
