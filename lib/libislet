@@ -176,10 +176,9 @@ timecount(){
   while [ $countdown -ge 0 ]
   do
      printf "${Y}.${N}${RF}.${N}${BF}.${N}Press any key to continue or CTRL+C to exit${Y}.${N}${RF}.${N}${BF}.${N}${Y} ${countdown}${N}${CL}\r"
-     read -rs -n1 -t1 key && return
+     read -rs -n1 -t1 key && printf "${showcursor}" && return
      let countdown--
   done
-  printf "${showcursor}"
   echo
   quit "Session ended due to inactivity"
 }
