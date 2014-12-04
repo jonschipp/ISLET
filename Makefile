@@ -77,11 +77,14 @@ install-files:
 	install -o root -g root -m 750 cron/disk_limit $(CRON_DIR)/disk_limit
 	install -o root -g root -m 750 cron/port_forward $(CRON_DIR)/port_forward
 	install -o root -g root -m 644 docs/islet.5 $(MAN_DIR)/man5/islet.5
+	install -o root -g root -m 440 config/islet.sudoers $(SUDOERS)/islet
 	$(Q)echo " $(bold)--> Configuration directory is$(normal) $(underline)$(CONFIG_DIR)$(normal)"
 	$(Q)echo " $(bold)--> Install directory is$(normal) $(underline)$(INSTALL_DIR)$(normal)"
 
 configuration:
 	$(Q)echo " $(yellow)Post-install configuration$(normal)"
+	sed -i "s|USERACCOUNT|$(USER)|g" $(SUDOERS)/islet
+	visudo -c
 	sed -i "s|LOCATION|$(CRON_DIR)|g" $(CRON)/$(PROG)
 	sed -i "s|LOCATION|$(CONFIG_DIR)/$(PROG).conf|g" $(BIN_DIR)/* $(CRON_DIR)/*
 
@@ -148,9 +151,6 @@ user-config:
 
 security-config:
 	$(FUNCTIONS) security_configuration $(USER) $(BIN_DIR)/$(PROG)_shell
-	install -o root -g root -m 440 config/islet.sudoers $(SUDOERS)/islet
-	sed -i "s|USERACCOUNT|$(USER)|g" $(SUDOERS)/islet
-	visudo -c
 
 iptables-config:
 	install -o root -g root -m 750 extra/iptables-rules $(IPTABLES)
