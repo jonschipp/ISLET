@@ -120,7 +120,7 @@ new_user(){
 
   until test "$AVAILABLE_USER" -ne 1
   do
-  ask "Choose a username: "
+    ask "Choose a username: "
     option "a-zA-Z0-9"
     read -r USERNAME
 
