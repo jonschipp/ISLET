@@ -287,6 +287,24 @@ try_again(){
   fi
 }
 
+######################################################################
+# Check if image exists before using it, try pulling it or fail out
+# Globals:
+#   IMAGE         - from ISLET configuration, docker image to launch
+# Arguments:
+#   None
+# Returns:
+#   None
+######################################################################
+
+does_image_exist(){
+  if ! sudo fgrep -q "$IMAGE" /var/lib/docker/repositories-"${STORAGE_BACKEND}"
+  then
+    notice "Image not found, trying Docker Hub..." && echo
+    docker pull "$IMAGE" 2>/dev/null || quit "Image doesn't exist!"
+  fi
+}
+
 #################################################################################
 # Create iptables rules for port forwarding to container
 # Used to access ports on a user's container to do things
@@ -397,6 +415,7 @@ removal_setup(){
 ###############################################################################################
 
 start_container(){
+  does_image_exist
   removal_setup
   port_forwarding_setup
 
