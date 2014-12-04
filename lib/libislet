@@ -20,6 +20,9 @@ cyanf="$(tput setaf 6)"
 cyanb="$(tput setab 6)"
 whitef="$(tput setaf 7)"
 whiteb="$(tput setab 7)"
+hidecursor="$(tput civis -- invisible)"
+showcursor="$(tput cnorm -- normal)"
+clearline="$(tput el)"
 
 N="${normal}"
 B="${bold}"
@@ -39,6 +42,9 @@ CF="${cyanf}"
 CB="${cyanb}"
 WF="${whitef}"
 WB="${whiteb}"
+HC="${hidecursor}"
+SC="${showcursor}"
+CL="${clearline}"
 
 #######################################
 # Print text in specific color
@@ -121,6 +127,7 @@ did_it_work() { test "$?" -ne 0 && quit "$1"; }
 #######################################
 
 islet_banner(){
+printf "${hidecursor}"
 cat <<EOF
 ${MF}===============================================================${N}
 
@@ -135,6 +142,7 @@ ${Y}(${N}${RF}I${N}${Y})${N}solated,
 
 ${MF}===============================================================${N}
 EOF
+printf "${showcursor}"
 }
 
 #######################################
@@ -163,13 +171,15 @@ log(){
 #######################################
 
 timecount(){
+  printf "${hidecursor}"
   countdown="$1"
   while [ $countdown -ge 0 ]
   do
-     printf "${Y}.${N}${RF}.${N}${BF}.${N}Press any key to continue or CTRL+C to exit${Y}.${N}${RF}.${N}${BF}.${N}${Y} ${countdown}${N}$(tput el)\r"
+     printf "${Y}.${N}${RF}.${N}${BF}.${N}Press any key to continue or CTRL+C to exit${Y}.${N}${RF}.${N}${BF}.${N}${Y} ${countdown}${N}${CL}\r"
      read -rs -n1 -t1 key && return
      let countdown--
   done
+  printf "${showcursor}"
   echo
   quit "Session ended due to inactivity"
 }

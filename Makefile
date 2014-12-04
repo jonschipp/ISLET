@@ -1,6 +1,7 @@
-.PHONY: default help install uninstall pull update logo mrproper
+.PHONY: default help install uninstall pull update logo mrproper package
 
 PROG 		= islet
+VERSION		= 1.0
 CONFIG_DIR 	= /etc/$(PROG)
 INSTALL_DIR 	= /opt/$(PROG)
 LIB_DIR		= $(INSTALL_DIR)/lib
@@ -17,6 +18,7 @@ IPTABLES	= /etc/network/if-pre-up.d/iptables-rules
 SUDOERS		= /etc/sudoers.d
 UPSTART  	= /etc/init
 REPO		= $(shell grep url .git/config)
+PACKAGE		= deb
 Q 		= @
 bold   		= $(shell tput bold)
 underline 	= $(shell tput smul)
@@ -43,9 +45,11 @@ help:
 	$(Q)echo " $(red)install-brolive-config$(normal)        	- Install and configure Brolive image"
 	$(Q)echo " $(red)install-nagios-plugin$(normal)        	- Install ISLET Nagios plugin (def: /usr/local/nagios/libexec)"
 	$(Q)echo " $(red)template$(normal)                       - Print ISLET config template to stdout"
+	$(Q)echo " $(red)package$(normal)                        - Create package from an ISLET installation (def: deb)"
 	$(Q)echo " $(red)logo$(normal)                         	- Print logo to stdout"
 
 install: install-files configuration
+
 install-contained:
 	$(Q)echo " $(yellow)Installing $(PROG)$(normal)"
 	docker run -d --name="islet" \
@@ -154,6 +158,10 @@ iptables-config:
 
 install-nagios-plugin:
 	install -o root -g nagios -m 550 extra/check_islet.sh $(NAGIOS)/check_islet.sh
+
+package:
+	$(Q)! command -v fpm 1>/dev/null && echo "$(yellow)fpm is not installed or in PATH, try \`\`gem install fpm''.$(normal)" \
+	|| fpm -s dir -t $(PACKAGE) -n "islet" -v $(VERSION) /etc/islet /opt/islet \
 
 logo:
 	$(FUNCTIONS) logo

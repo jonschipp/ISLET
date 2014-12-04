@@ -62,7 +62,20 @@ SIZE		| Maximum container and image size with configure-docker target (def: 2G)
 IPTABLES	| Iptables ruleset (def: /etc/network/if-pre-up.d/iptables-rules)
 NAGIOS      | Location of nagios plugins (def: /usr/local/nagios/libexec)
 PORT        | The SSH port on the host when installing ISLET as a container (def: 2222)
+PACKAGE     | Type of package to build for `make package` (def: deb)
 
+## Updating
+
+Updating an existing ISLET installation is very simple:
+
+For host installation (`make install`):
+```shell
+make update
+```
+For container installation (`make install-contained`):
+```shell
+docker pull jonschipp/islet
+```
 ### Dependencies
 
 * Linux, Bash, Cron, OpenSSH, Make, SQLite, and Docker
@@ -82,7 +95,7 @@ make install-docker
 
 The included installation scripts are designed to work with Debian/Ubuntu systems.
 
-**Note:** Installing ISLET as container ``make install-contained'' only requires Docker
+**Note:** Installing ISLET as container (`make install-contained`) only requires Docker
 
 #### Ubuntu
 
