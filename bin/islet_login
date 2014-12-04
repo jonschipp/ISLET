@@ -130,6 +130,7 @@ new_user(){
   done
 
   ask "Choose a password: "
+  option "a-zA-Z0-9{${MIN_PASSWD_LEN},}"
   read -r -s PASSWORD
   echo
   ask "Verify your password: "
@@ -238,11 +239,11 @@ verify_new_user(){
 verify_new_password(){
   local COUNT=0
   local HASH
-  while [ "$PASSWORD" != "$PASSWORD_VERIFY" ]
+  while [ "$PASSWORD" != "$PASSWORD_VERIFY" ] || [ "${#PASSWORD}" -lt "$MIN_PASSWD_LEN" ]
   do
     if [ "$COUNT" -lt "$FAILURE_COUNT" ]
     then
-      notice "Passwords do not match! Try again."
+      notice "Passwords do not match or meet length requirements (${BF}"${MIN_PASSWD_LEN}"${N}${Y}). Try again."
       ask "Choose a password: "
       read -r -s PASSWORD
       echo
