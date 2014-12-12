@@ -54,8 +54,15 @@ readonly VIRTUAL_PORT
 create_db() {
 sqlite3 "$DB" <<EOF
 PRAGMA foreign_keys = ON;
-CREATE TABLE accounts (user VARCHAR PRIMARY KEY, password VARCHAR, ts TIMESTAMP);
-CREATE TABLE images (user VARCHAR, image VARCHAR, FOREIGN KEY (user) REFERENCES accounts(user));
+CREATE TABLE accounts (
+        user VARCHAR PRIMARY KEY,
+        password VARCHAR,
+        ts TIMESTAMP
+);
+CREATE TABLE images (
+        user VARCHAR REFERENCES accounts(user) ON DELETE CASCADE,
+        image VARCHAR
+);
 CREATE UNIQUE INDEX idx_images_user_image ON images(user, image);
 EOF
   chown "${USER}:${USER}" "$DB" && chmod 660 "$DB" && return 0
@@ -258,7 +265,7 @@ verify_new_password(){
   done
 
   readonly HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
-  sqlite3 "$DB" "INSERT INTO accounts VALUES('"${USERNAME}"','${HASH}', strftime('%s', 'now'));" || quit "Couldn't write to $DB!"
+  sqlite3 "$DB" "pragma foreign_keys = on; INSERT INTO accounts VALUES('"${USERNAME}"','${HASH}', strftime('%s', 'now'));" || quit "Couldn't write to $DB!"
   log "${USERNAME}: Account created from $CLIENT"
 
   echo "Your account will expire on ${MF}$EXPIRATION${N}"
@@ -376,7 +383,7 @@ removal_setup(){
     REMOVE="--rm"
   else
     # Don't remove, instead keep track of the user's container for re-attachment
-    sqlite3 "$DB" "INSERT INTO images(user, image) values ('$USERNAME', '$BASENAME');" 2>/dev/null
+    sqlite3 "$DB" "pragma foreign_keys = on; INSERT INTO images(user, image) values ('$USERNAME', '$BASENAME');" 2>/dev/null
     REMOVE=""
   fi
 }
