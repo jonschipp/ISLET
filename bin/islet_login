@@ -438,7 +438,7 @@ start_container(){
 
   # If debugging is yes
   is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"
-  is_debug "opt: run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT \n\t$MNT_OPT $IMG_OPT $ENV_OPT"
+  is_debug "opt: docker run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $IMG_OPT $ENV_OPT"
 
   message "Enjoy yourself!"
 
