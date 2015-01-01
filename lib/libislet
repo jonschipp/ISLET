@@ -191,7 +191,7 @@ timecount(){
 # Arguments:
 #   String of message
 # Returns:
-#   Message to stdout in yellow
+#   Message to stdout in red
 #######################################
 
 is_debug(){
