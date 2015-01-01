@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Global Declarations
+ARGC=$#
 CONFIG=LOCATION
 COUNT=0
 LIST=()
@@ -41,11 +42,12 @@ else
 fi
 
 # Display ISLET Banner
-test -f "${ANIMATE:-notset}" && islet_banner | pv -qL "$ANIMATE_SPEED" || islet_banner
-
-# Press key to continue
-timecount $TMOUT
-clear && echo
+if [ $ARGC -lt 1 ]; then
+  test -f "${ANIMATE:-notset}" && islet_banner | pv -qL "$ANIMATE_SPEED" || islet_banner
+  # Press key to continue
+  timecount $TMOUT
+  clear && echo
+fi
 
 # Configuration menu
 notice "\t\t\t\tAvailable configurations:\n"

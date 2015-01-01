@@ -192,11 +192,11 @@ existing_user(){
       message "Welcome back!"
       is_debug "opt: start/attach ${BASENAME}.${USERNAME}"
 
-      docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && exec docker attach "${BASENAME}.${USERNAME}"
-      if [ "$?" -ne 0 ]; then
-        alert "Launching container failed! Please report to admins"
-        quit "Launching container failed!"
-      fi
+      docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && timeout --foreground "$TIMEOUT" docker attach "${BASENAME}.${USERNAME}"
+      RESULT=$?
+      test "$RESULT" -eq 124 && quit "Inactive timer expired in menu, exiting..."
+      test "$RESULT" -ne 0 quit "Launching container failed!"
+      exec timeout --foreground "$TMOUT" "$SHELL" nobanner
       else
         notice "Login Failed, try again."
       fi
@@ -442,7 +442,11 @@ start_container(){
 
   message "Enjoy yourself!"
 
-  eval exec timeout $TIMEOUT docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $IMG_OPT $ENV_OPT" "$INFOLEVEL"
+  # Run container
+  eval timeout --foreground "$TIMEOUT" docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $IMG_OPT $ENV_OPT" "$INFOLEVEL"
+  is_timeout "Inactive timer expired in container, exiting..."
+  # Back to menu if we didn't hit $TIMEOUT
+  exec timeout --foreground "$TMOUT" "$SHELL" nobanner
 }
 
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20

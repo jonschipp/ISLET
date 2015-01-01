@@ -184,6 +184,18 @@ timecount(){
 }
 
 #######################################
+# Checks if previous command timesout
+# Globals:
+#   None
+# Arguments:
+#   String of message
+# Returns:
+#   Message to stdout in red
+#######################################
+
+is_timeout(){ test "$?" -eq 124 && quit "$1"; }
+
+#######################################
 # Checks if debug mode is on and prints
 # and logs message if on.
 # Globals:
