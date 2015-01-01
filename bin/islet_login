@@ -195,7 +195,7 @@ existing_user(){
       docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && timeout --foreground "$TIMEOUT" docker attach "${BASENAME}.${USERNAME}"
       RESULT=$?
       test "$RESULT" -eq 124 && quit "Inactive timer expired in menu, exiting..."
-      test "$RESULT" -ne 0 quit "Launching container failed!"
+      test "$RESULT" -ne 0 && quit "Launching container failed!"
       exec timeout --foreground "$TMOUT" "$SHELL" nobanner
       else
         notice "Login Failed, try again."
