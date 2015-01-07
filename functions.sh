@@ -219,7 +219,7 @@ security_configuration(){
   if [ ! -e "$LIMITS/islet.conf" ]; then
     echo "demo             hard    maxlogins       500" 	>  "$LIMITS/islet.conf"
     echo "demo             hard    cpu             180" 	>> "$LIMITS/islet.conf"
-    echo "@docker          hard    fsize           1000000" >> "$LIMITS/islet.conf"
+    echo "@docker          hard    fsize           1000000"     >> "$LIMITS/islet.conf"
     echo "@docker          hard    nproc           10000" 	>> "$LIMITS/islet.conf"
   fi
 
@@ -231,7 +231,6 @@ security_configuration(){
     limit nofile 1000 2000 \
     limit nproc  1000 2000 \
     limit fsize  100000000 200000000 \
-    limit cpu    500  500 \
     # END' "$UPSTART" 2>/dev/null
     RESTART_DOCKER=1
   fi
