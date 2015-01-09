@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Global Declarations
+ARG="$1"
 ARGC=$#
 CONFIG=LOCATION
 COUNT=0
@@ -42,7 +43,7 @@ else
 fi
 
 # Display ISLET Banner
-if [ $ARGC -lt 1 ]; then
+if [ "$ARG" != "nobanner" ]; then
   test -f "${ANIMATE:-notset}" && islet_banner | pv -qL "$ANIMATE_SPEED" || islet_banner
   # Press key to continue
   timecount $TMOUT
