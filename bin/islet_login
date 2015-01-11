@@ -306,7 +306,7 @@ try_again(){
 ######################################################################
 
 does_image_exist(){
-  if ! sudo fgrep -q "$IMAGE" /var/lib/docker/repositories-"${STORAGE_BACKEND}"
+  if ! sudo fgrep -q "$IMAGE" /var/lib/docker/repositories-"${STORAGE_BACKEND}" 2>/dev/null
   then
     notice "Image not found, trying Docker Hub..." && echo
     docker pull "$IMAGE" 2>/dev/null || quit "Image doesn't exist!"
