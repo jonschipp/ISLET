@@ -68,11 +68,11 @@ PACKAGE     | Type of package to build for `make package` (def: deb)
 
 Updating an existing ISLET installation is very simple:
 
-For host installation (`make install`):
+For an existing host installation (`make install`):
 ```shell
 make update
 ```
-For container installation (`make install-contained`):
+For an existing container installation (`make install-contained`):
 ```shell
 docker pull jonschipp/islet
 ```
@@ -80,7 +80,7 @@ docker pull jonschipp/islet
 
 * Linux, Bash, Cron, OpenSSH, Make, SQLite, and Docker
 
-The configure script will check dependencies (it doesn't create a makefile):
+The configure script will check dependencies
 ```shell
 ./configure
 ```
@@ -105,7 +105,7 @@ It is designed to be a quick way to get a working system with a good configurati
 Install ISLET on the host:
 ```shell
 make install-docker	# Installs latest Docker
-make configure-docker   # Limits image and container sizes by rebuilding storage backend
+make configure-docker   # Limits image and container sizes by rebuilding storage backend (Skip if using Docker 1.4+)
 make user-config	# Configures demo user account
 make security-config    # Configure islet relevant security with sshd and pam_limits
 ```
@@ -114,13 +114,13 @@ Install ISLET as a container on the host:
 ```shell
 make install-docker	# Installs latest Docker
 make install-contained	# Installs ISLET as a container
-make configure-docker   # Limits image and container sizes by rebuilding storage backend
+make configure-docker   # Limits image and container sizes by rebuilding storage backend (Skip if using Docker 1.4+)
 make security-config    # Configure islet relevant security with sshd and pam_limits
 ```
 
 #### Manual
 
-Manually install and configure all dependencies to your liking.
+For manual installation and configuration of dependencies to your liking i.e. not using the system make targets.
 
 * Install Docker:
 ```shell
@@ -134,6 +134,30 @@ useradd --create-home --shell /opt/islet/bin/islet_shell training
 echo "training:training" | chpasswd
 groupadd docker
 gpasswd -a training docker
+```
+
+### First Steps
+
+Post-installation first steps
+
+1. Set STORAGE_BACKEND in /etc/islet/islet.conf to match your Docker storage driver
+```
+docker info | grep Storage
+```
+2. Change the password for the islet user (default: demo)
+```
+passwd demo
+```
+3. Create a Docker image for your training environment (see Adding Training Environments)
+```
+docker built -t gcc-training - < Dockerfile
+```
+4. Create an ISLET configuration file for the Docker image (see Adding Training Environments)
+```
+make template > /etc/islet/gcc.conf
+vim /etc/islet/islet/gcc.conf
+# Set IMAGE variable to name of docker image
+# Set VIRTUSER variable to name of shell user in docker image
 ```
 
 ### Security Recommendations
