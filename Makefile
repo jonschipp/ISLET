@@ -168,4 +168,4 @@ logo:
 	$(FUNCTIONS) logo
 
 template:
-	$(FUNCTIONS) template
+	$(Q) $(FUNCTIONS) template
