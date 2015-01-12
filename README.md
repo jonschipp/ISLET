@@ -175,6 +175,9 @@ vim /etc/islet/islet/gcc.conf
 
 ### Security Recommendations
 
+The list below is for manually configuring the items and documenting recommendations.
+Most of these are satisified by make targets.
+
 * SSH: _/etc/ssh/sshd_config_
 
 The following command will configure sshd_config to match the example after with the exception of modifying LoginGraceTime.
@@ -217,7 +220,6 @@ Adjust as necessary: _/etc/init/docker.conf_
 limit nofile 1000 2000		 # Limit number of open files
 limit nproc  1000 2000		 # Prevent fork bombs
 limit fsize  100000000 200000000 # Limit file sizes to max of 200MB
-limit cpu    500  500
 # END
 ```
 
@@ -238,7 +240,7 @@ service docker start
 Switching storage backends to devicemapper allows for disk quotas.
 Set dm.basesize to the maximum size the container can grow to (def: 10G)
 
-**Note:** All container and image data will be lost.
+**Note:** Currently unstable, and all container and image data will be lost.
 
 Automatic:
 
