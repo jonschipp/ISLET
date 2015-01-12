@@ -17,6 +17,9 @@
 # 4.) Check container sizes in bytes
 # $ ./check_islet.sh -T size -w 536870912 -c 1073741824
 
+# 5.) Check database
+# $ ./check_islet.sh -T database
+
 # NRPE
 
 # command[check_islet_status]=/usr/local/nagios/libexec/check_islet.sh -T status
@@ -32,17 +35,6 @@ UNKNOWN=3
 # Set this to the proper location if your installation differs or use ``-f''
 CONFIG=/etc/islet/islet.conf
 
-# Default installation location
-# Set this to the proper location if your installation differs
-INSTALL_DIR=/opt/islet
-
-# Default user
-# Set this to the proper user if yours differs
-USER=demo
-
-# Location of Docker containers
-STORAGE_BACKEND=/var/lib/docker/devicemapper/mnt
-
 usage()
 {
 cat <<EOF
@@ -52,10 +44,11 @@ Check status of ISLET configuration.
      Options:
         -f <path>               Set optional absolute path of global config (def: $CONFIG)
         -T <type>               Check type, "status/available/unavailable/print"
-                                status           - Checks status of islet by verifying configuration 
+                                status           - Checks status of islet by verifying configuration
 				available  	 - Check available configurations for images
 				unavailable 	 - Check configurations marked as invisible
 				size             - Check container sizes (\`\`-w|c <bytes>'')
+                                database         - Check database properties
 	-s <item>		Item(s) to skip (sep:,) "islet.conf,test.conf"
         -c <int>                Critical value
         -w <int>                Warning value
@@ -83,7 +76,7 @@ elif [ ${1:-$MISSING} -gt $WARN ]; then
 else
 	echo "SUCCESS: Everything is referenced properly"
         exit $OK
-fi 
+fi
 }
 
 # Declarations
@@ -97,6 +90,7 @@ UNAVAILABLE_CHECK=0
 VARIABLE_CHECK=0
 STATUS_CHECK=0
 PRINT_CHECK=0
+DATABASE_CHECK=0
 MISSING=0
 COUNT=0
 ARGC=$#
@@ -141,6 +135,8 @@ do
                         UNAVAILABLE_CHECK=1
              elif [[ "$OPTARG" == variable ]]; then
                         PRINT_CHECK=1
+	     elif [[ "$OPTARG" == database ]]; then
+                        DATABASE_CHECK=1
              else
                         echo "Unknown argument type"
                         exit $UNKNOWN
@@ -155,15 +151,13 @@ do
      esac
 done
 
-if [ $LIST_CHECK -eq 1 ] || [ $STATUS_CHECK -eq 1 ] || [ $VARIABLE_CHECK -eq 1 ] ; then
 
-        if [ -f $CONFIG ];
-        then
-		source $CONFIG
-	else
-                 echo "ERROR: islet.conf has not been found. Update the CONFIG variable in $0 or specify the path with \`\`-f''"
-                 exit $UNKNOWN
-        fi
+if [ -f $CONFIG ];
+then
+	source $CONFIG
+else
+         echo "ERROR: islet.conf has not been found. Update the CONFIG variable in $0 or specify the path with \`\`-f''"
+         exit $UNKNOWN
 fi
 
 if [ $UNAVAILABLE_CHECK -eq 1 ]; then
@@ -201,7 +195,7 @@ if [ $AVAILABLE_CHECK -eq 1 ]; then
 	for config in $(find $CONFIG_DIR -type f -name "*.conf")
 	do
 		name=$(basename $CONFIG_DIR/$config)
-		
+
 		CONTINUE=0
 		for i in $SKIP
 		do
@@ -230,7 +224,7 @@ fi
 
 if [ $STATUS_CHECK -eq 1 ]; then
 
-	for dir in $CONFIG_DIR $INSTALL_DIR
+	for dir in $CONFIG_DIR $INSTALL_DIR $CONTAINER_PATH
 	do
 		if [ ! -d $dir ]
 		then
@@ -265,13 +259,13 @@ fi
 
 if [ $SIZE_CHECK -eq 1 ]; then
 
-	if [ ! -d $STORAGE_BACKEND ]; then
-                echo "$STORAGE_BACKEND doesn't exist or is inaccessible, check or modify variable in $0"
+	if [ ! -d $CONTAINER_PATH ]; then
+                echo "$CONTAINER_PATH doesn't exist or is inaccessible, check or modify variable in $0"
                 exit $UNKNOWN
         fi
 
         IFS=$'\n'
-        for fs in $(find $STORAGE_BACKEND/* -maxdepth 0 -type d -exec du -b -s '{}' \;);
+        for fs in $(find $CONTAINER_PATH/* -maxdepth 0 -type d -exec du -b -s '{}' \;);
         do
                 SIZE=$(echo "$fs" | awk '{ print $1 }')
                 APATH=$(echo "$fs" | awk '{ print $2 }')
@@ -294,4 +288,17 @@ if [ $SIZE_CHECK -eq 1 ]; then
                 echo "OK: Container sizes are looking good"
                 exit $OK
         fi
+fi
+
+if [ $DATABASE_CHECK -eq 1 ]; then
+
+  [ -e $DB ] || { echo "CRITICAL: $DB not found"; exit $CRITICAL; }
+
+  user=$(stat -c "%U" $DB)
+  file=$(file -b /var/tmp/islet.db)
+
+  [ "$USER"  = "$user" ]   || { let MISSING++; echo "$USER does not own $DB"; }
+  echo "$file" | grep -q "SQLite 3" || { let MISSING++; echo "$DB is not a SQLite 3 database"; }
+
+  check_values
 fi
