@@ -137,7 +137,7 @@ groupadd docker
 gpasswd -a training docker
 ```
 
-### First Steps
+### Post-Install First Steps
 
 Post-installation first steps
 
@@ -151,14 +151,26 @@ passwd demo
 ```
 3. Create a Docker image for your training environment (see Adding Training Environments)
 ```
-docker built -t gcc-training - < Dockerfile
+cat <<EOF > Dockerfile
+# Build image for C programming
+FROM      ubuntu
+MAINTAINER Jon Schipp <jonschipp@gmail.com>
+
+RUN adduser --disabled-password --gecos "" demo
+RUN apt-get update -qq
+RUN apt-get install -y build-essential
+RUN apt-get install -y git vim emacs nano tcpdump gawk rsyslog
+RUN apt-get install -y --no-install-recommends man-db
+EOF
+
+docker build -t gcc-training - < Dockerfile
 ```
 4. Create an ISLET configuration file for the Docker image (see Adding Training Environments)
 ```
 make template > /etc/islet/gcc.conf
 vim /etc/islet/islet/gcc.conf
-# Set IMAGE variable to name of docker image
-# Set VIRTUSER variable to name of shell user in docker image
+# Set IMAGE variable to name of docker image (e.g. gcc-training)
+# Set VIRTUSER variable to name of user in docker image that the student will become (e.g. demo)
 ```
 
 ### Security Recommendations
