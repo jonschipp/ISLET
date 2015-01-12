@@ -166,7 +166,7 @@ install_docker(){
   if ! command -v docker >/dev/null 2>&1
   then
     apt-get update -qq
-    apt-get install -qy lxc-docker
+    apt-get install -qy lxc-docker linux-image-extra-$(uname -r) aufs-tools
   fi
 }
 
