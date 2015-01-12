@@ -70,7 +70,7 @@ done
 # Quit if there are no config files present
 test "${#LIST[@]}" -eq 0 && quit "\t\t\tNo configurations available!"
 echo && unset BANNER && echo
-notice "Choose a number to load the configuration:"
+notice "Choose a number to load the configuration (or ^C to exit):"
 echo
 
 PS3="${Y}[${N}${BF}Choice${N}${Y}]${N}: "

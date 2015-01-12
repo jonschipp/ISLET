@@ -175,7 +175,7 @@ timecount(){
   countdown="$1"
   while [ $countdown -ge 0 ]
   do
-     printf "${Y}.${N}${RF}.${N}${BF}.${N}Press any key to continue or CTRL+C to exit${Y}.${N}${RF}.${N}${BF}.${N}${Y} ${countdown}${N}${CL}\r"
+     printf "${Y}.${N}${RF}.${N}${BF}.${N}Press any key to continue or ^C to exit${Y}.${N}${RF}.${N}${BF}.${N}${Y} ${countdown}${N}${CL}\r"
      read -rs -n1 -t1 key && printf "${showcursor}" && return
      let countdown--
   done
