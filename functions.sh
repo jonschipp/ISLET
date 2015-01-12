@@ -195,7 +195,8 @@ docker_configuration(){
 
 user_configuration(){
   local USER="${1:-$USER}"
-  local SHELL="${2:-$SHELL}"
+  local PASS="${2:-$PASS}"
+  local SHELL="${3:-$SHELL}"
   hi "  Configuring the $USER user account!\n"
 
   if ! getent passwd "$USER" 1>/dev/null

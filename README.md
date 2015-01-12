@@ -47,7 +47,7 @@ iptables-config | Installs iptables ruleset
 GNU make accepts arguments if you want a customized installation (*not supported*):
 ```shell
 make install INSTALL_DIR=/usr/local/islet USER=training
-make user-config INSTALL_DIR=/usr/local/islet USER=training
+make user-config INSTALL_DIR=/usr/local/islet USER=training PASS=training
 make security-config INSTALL_DIR=/usr/local/islet USER=training
 make uninstall INSTALL_DIR=/usr/local/islet USER=training
 ```
@@ -58,6 +58,7 @@ CONFIG_DIR      | ISLET config files directory (def: /etc/islet)
 INSTALL_DIR     | ISLET installation directory (def: /opt/islet)
 CRON		| Directory to place islet crontab file (def: /etc/cron.d)
 USER		| User account created with user-config target (def: demo)
+PASS		| User account password created with user-config target (def: demo)
 SIZE		| Maximum container and image size with configure-docker target (def: 2G)
 IPTABLES	| Iptables ruleset (def: /etc/network/if-pre-up.d/iptables-rules)
 NAGIOS      | Location of nagios plugins (def: /usr/local/nagios/libexec)

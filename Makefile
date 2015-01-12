@@ -11,6 +11,7 @@ MAN_DIR 	= /usr/share/man
 CRON 		= /etc/cron.d
 FUNCTIONS 	= ./functions.sh
 USER		= demo
+PASS		= demo
 PORT	  = 2222
 SIZE		= 2G
 NAGIOS		= /usr/local/nagios/libexec
@@ -148,7 +149,7 @@ docker-config:
 	$(FUNCTIONS) docker_configuration $(SIZE)
 
 user-config:
-	$(FUNCTIONS) user_configuration $(USER) $(BIN_DIR)/$(PROG)_shell
+	$(FUNCTIONS) user_configuration $(USER) $(PASS) $(BIN_DIR)/$(PROG)_shell
 
 security-config:
 	$(FUNCTIONS) security_configuration $(USER) $(BIN_DIR)/$(PROG)_shell
