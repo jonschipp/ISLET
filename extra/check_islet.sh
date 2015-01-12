@@ -22,7 +22,7 @@
 
 # NRPE
 
-# command[check_islet_status]=/usr/local/nagios/libexec/check_islet.sh -T status
+# command[check_islet_status]=/usr/bin/sudo /usr/local/nagios/libexec/check_islet.sh -T status
 # command[check_islet_available]=/usr/bin/sudo /usr/local/nagios/libexec/check_islet.sh -T available -s islet.conf
 
 # Nagios Exit Codes
