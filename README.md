@@ -432,4 +432,5 @@ Here's a brief demonstration:
         /usr/local/bro/bin/bro
 ```
 
-
+More info:
+[Mailing List] (https://groups.google.com/d/forum/islet)
