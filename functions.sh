@@ -229,7 +229,7 @@ security_configuration(){
   then
     sed -i '/limit/a \
     # BEGIN ISLET Additions \
-    limit nofile 1000 2000 \
+    limit nofile 10000 20000 \
     limit nproc  1000 2000 \
     limit fsize  100000000 200000000 \
     # END' "$UPSTART" 2>/dev/null
