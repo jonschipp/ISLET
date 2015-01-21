@@ -3,8 +3,8 @@ Isolated, Scalable, & Lightweight Environment for Training
 
 Make training a smooth process...#NoMoreVMs <br>
 
-A container system for teaching Linux based software with minimal participation and configuration effort. <br>
-The participation barrier is set very low, students only need an SSH client.
+A container system for teaching Linux based software with minimal participation and <br>
+configuration effort. The participation barrier is set very low, students only need an SSH client.
 
 ![ISLET Screenshot](http://jonschipp.com/islet/islet.png)
 
@@ -15,6 +15,13 @@ The participation barrier is set very low, students only need an SSH client.
 * Capture the flag competitions
 * Trying out tools in a containerized environment
 * Development environments
+
+## Demo
+You can quickly try out ISLET on some of my dev systems. Password is demo
+```shell
+ssh demo@islet1.jonschipp.com
+ssh demo@islet2.jonschipp.com
+```
 
 ## Design
 
@@ -89,7 +96,7 @@ docker pull jonschipp/islet
 
 * Linux, Bash, Cron, OpenSSH, Make, SQLite, and Docker
 
-The configure script will check dependencies
+The configure script will check for dependencies
 ```shell
 ./configure
 ```
@@ -178,107 +185,7 @@ vim /etc/islet/islet/gcc.conf
 # Set VIRTUSER variable to name of user in docker image that the student will become (e.g. demo)
 ```
 
-### Security Recommendations
-
-The list below is for manually configuring the items and documenting recommendations.
-Most of these are satisified by make targets.
-
-* SSH: _/etc/ssh/sshd_config_
-
-The following command will configure sshd_config to match the example after with the exception of modifying LoginGraceTime.
-
-```shell
-make security-config
-```
-
-```shell
-LoginGraceTime 30s
-ClientAliveInterval 15
-ClientAliveCountMax 10
-
-#Subsystem       sftp    /usr/libexec/openssh/sftp-server
-
-Match User training
-	ForceCommand /opt/islet/bin/islet_shell
-	X11Forwarding no
-	AllowTcpForwarding no
-	PermitTunnel no
-	PermitOpen none
-	MaxAuthTries 3
-	MaxSessions 1
-	AllowAgentForwarding no
-	PermitEmptyPasswords no
-```
-
-* ulimit contraints
-
-The following command will configure decent ulimit settings for docker processes.
-These have the effect of restricting the user's environment inside the container.
-
-```shell
-make security-config
-```
-
-Adjust as necessary: _/etc/init/docker.conf_
-```
-# BEGIN ISLET Additions
-limit nofile 1000 2000		 # Limit number of open files
-limit nproc  1000 2000		 # Prevent fork bombs
-limit fsize  100000000 200000000 # Limit file sizes to max of 200MB
-# END
-```
-
-* Separate storage for containers:
-
-```
-service docker stop
-rm -rf /var/lib/docker/*
-mkfs.ext2 /dev/sdb1
-mount -o defaults,noatime,nodiratime /dev/sdb1 /var/lib/docker
-tail -1 /etc/fstab
-	/dev/sdb1	/var/lib/docker	    ext2     defaults,noatime,nodiratime,nobootwait 0 1
-service docker start
-```
-
-* Limit container storage size to prevent DoS or resource abuse
-
-Switching storage backends to devicemapper allows for disk quotas.
-Set dm.basesize to the maximum size the container can grow to (def: 10G)
-
-**Note:** Currently unstable, and all container and image data will be lost.
-
-Automatic:
-
-```
-make docker-config SIZE=3G
-```
-
-Manual:
-
-```
-service docker stop
-rm -rf /var/lib/docker/*
-docker -d --storage-driver=devicemapper --storage-opt dm.basesize=3G &
-sleep 3 && pkill docker
-tail -1 /etc/default/docker
-	DOCKER_OPTS="--storage-driver=devicemapper --storage-opt dm.basesize=3G"
-start docker
-```
-
-**Note:** There's currently a bug in devicemapper that may cause docker to fail run containers [more info](https://github.com/docker/docker/issues/4036).
-
-* Iptables
-
-Rate limiting protection for the SSH service
-```
-make iptables-config
-```
-
-* GRSecurity kernel patches
-
-To aid in protecting the host system it's recommended to patch the Linux kernel [more info](https://grsecurity.net/)
-
-# Administration
+# Administration and Configuration
 
 * Global configuration file: */etc/islet/islet.conf*
 * Per-image configuration file: */etc/islet/$IMAGE.conf*
@@ -340,55 +247,21 @@ Common Tasks:
 
   *  Changes are immediately available for new and existing containers
 
-# Branding
-
-* Per-image banners
-
-  1. Add BANNER variable to the image file config in /etc/islet/. Color codes from libislet work here.
-
-```
-	...
-
-	BANNER="
-	${MF}===============================================================${N}
-
-	${BF}ISLET${N}${RF}:${N} ${Y}A Linux-based Software Training System${N}
-
-   	${BF}Web${N}${RF}:${N} ${U}${Y}https://github.com/jonschipp/islet${N}
-
-	${MF}===============================================================${N}
-	"
-
-```
-
-* Custom login message for each user
-
-  1. Edit the MOTD variable in the image file config in /etc/islet/ with the text of your liking.
-     printf escape sequences work here.
-
-```
-        $ grep -A 2 MOTD /etc/islet/brolive.conf
-        MOTD="
-        Training materials are located in /exercises
-        \te.g. $ bro -r /exercises/BroCon14/beginner/http.pcap\n"
-
-```
-
 # Adding Training Environments
 
 See Docker's [image documentation](http://docs.docker.com/userguide/dockerimages)
 
  1. Build or pull in a new Docker image
 
- 2. Create a ISLET config file for that image. It's best to copy and modify an existing one.
+ 2. Create an ISLET config file for that image. You can use `make template` for an example.
 
- 3. Place it in /etc/islet with a .conf extension
+ 3. Place it in /etc/islet with a .conf extension.
 
  It should now be available from the selection menu upon login.
 
 ![ISLET Configs Screenshot](http://jonschipp.com/islet/islet_configs.png)
 
-# Demo
+# Case Study
 
 The precursor to ISLET was used to aid the instructers in teaching the Bro platform at BroCon14.
 
