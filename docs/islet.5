@@ -49,18 +49,17 @@ Variables used to configure containers are passed directly to
 #################################
 
 # System Configuration
-CONFIG_DIR="/etc/islet"                               # Directory to search for configuration files. Used by scripts.
-INSTALL_DIR="/opt/islet"                              # ISLET installation directory
-LIBISLET="$INSTALL_DIR/lib/libislet"                  # Common functions are stored in libislet
-SHELL="$INSTALL_DIR/bin/islet_shell"                  # ISLET shell, displays login banner, menu, and then launches islet_login
-LAUNCH_CONTAINER="$INSTALL_DIR/bin/islet_login"       # User management script and container launcher
-DB="/var/tmp/islet.db"                                # Credentials database. Must be readable by $USER
-STORAGE_BACKEND="aufs"                                # Docker storage backend, used to check if image exist
-CONTAINER_PATH="/var/lib/docker/$STORAGE_BACKEND/mnt" # Path to container storage location, used by disk_limit
-
-BASENAME="islet"        # Container prefix as $BASENAME.$USERNAME (set in islet_login), for re-attachment.
-USER="demo"             # Linux system user created for ssh'ing into containers. Give account to students.
-DEBUG="no"              # Write debugging info to stdout and syslog
+CONFIG_DIR="/etc/islet"                           # Directory to search for configuration files, used by scripts.
+INSTALL_DIR="/opt/islet"                          # ISLET installation directory
+LIBISLET="$INSTALL_DIR/lib/libislet"              # Common functions are stored in libislet
+SHELL="$INSTALL_DIR/bin/islet_shell"              # ISLET shell, displays login banner, menu, and then launches islet_login
+LAUNCH_CONTAINER="$INSTALL_DIR/bin/islet_login"   # User management script and container launcher
+DB="/var/tmp/islet.db"                            # Credentials database. Must be readable by $USER
+DOCKER_DIR="/var/lib/docker"                      # Location of Docker directory
+STORAGE_BACKEND="aufs"                            # Docker storage backend, used to check if image exist
+CONTAINER_PATH="$DOCKER_DIR/$STORAGE_BACKEND/mnt" # Path to container storage location, used by disk_limit
+USER="demo"                                       # Linux system user created for ssh'ing to ISLET, give account to trainees
+DEBUG="no"                                        # Enable debugging info to stdout and syslog
 
 # Network Configuration
 INTERFACE="eth0"        # Physical interface packets are arriving on
@@ -69,7 +68,7 @@ BIND="172.17.42.1"      # IP address to use to access services on containers (de
 # Security Configuration
 VISIBLE="no"            # This config file is visible from config selection menu
 FAILURE_COUNT=3         # Number of failed choice attempts before exiting (username, password, config)
-DAYS="3"                # Container+user lifetime specified in days. Removed after # days by cron jobs
+DAYS=3                # Container+user lifetime specified in days. Removed after # days by cron jobs
 MAX_SIZE=1073741824     # Maximum size in bytes of container before it's purged by disk_limit
 REMOVE="no"             # Container is removed after exit, user cannot re-attach and resume work
 TIMEOUT="8h"            # Max runtime of containers, accepts timeout(1) arguments
@@ -87,18 +86,18 @@ BASENAME="bro"                         # Container prefix as $BASENAME.$USERNAME
 
 # Security Configuration
 VISIBLE="yes"                          # This config file is visible from config selection menu
-DAYS="3"                               # Container lifetime specified in days, removed after x days by cron jobs
+DAYS=3                                 # Container lifetime specified in days, removed after x days by cron jobs
 
 # Container Configuration
 VIRTUSER="demo"                        # Account used when container is entered (Must exist in container!)
-CPU="1"                                # Number of CPU's allocated to each container
+CPU=1                                  # Number of CPU's allocated to each container
 RAM="256m"                             # Amount of memory allocated to each container
 HOSTNAME="bro"                         # Set hostname in container. PS1 will end up as $VIRTUSER@$HOSTNAME:~$ in shell
 NETWORK="none"                         # Disable networking by default: none; Enable networking: bridge
 DNS="127.0.0.1"                        # Use loopback when networking is disabled to prevent error messages from resolver
 MOUNT="-v /exercises:/exercises:ro"    # Mount point(s), sep. by -v: /src:/dst:attributes, ro = readonly (avoid rw)
 LOCAL_OPTIONS="--cap-add=NET_RAW"      # Apply any other options you want passed to docker run here
-LOCAL_ENV=""                           # Variables that get passed to VIRTUSER's shell for container
+LOCAL_ENV=""                           # Variables that get passed to VIRTUSER's shell for container e.g. LOCAL_ENV="ISLET=1"
 
 # Branding & Information
 MOTD="Training materials are in /exercises" # Message of the day is displayed before entering container
