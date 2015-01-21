@@ -56,6 +56,8 @@ install-contained:
 	docker run -d --name="islet" \
 								-v /usr/bin/docker:/usr/bin/docker:ro \
 								-v /var/lib/docker/:/var/lib/docker:rw \
+								-v /sbin/iptables:/sbin/iptables:ro \
+								-v /sbin/sysctl:/sbin/sysctl:ro \
 								-v /exercises:/exercises:ro \
 								-v /var/run/docker.sock:/var/run/docker.sock \
 								-p $(PORT):22 jonschipp/islet
