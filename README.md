@@ -107,7 +107,6 @@ Install ISLET on the host:
 ```shell
 make install-docker	# Installs latest Docker
 make configure-docker   # Limits image and container sizes by rebuilding storage backend (Skip if using Docker 1.4+)
-make user-config	# Configures demo user account
 make security-config    # Configure islet relevant security with sshd and pam_limits
 ```
 
@@ -115,8 +114,6 @@ Install ISLET as a container on the host:
 ```shell
 make install-docker	# Installs latest Docker
 make install-contained	# Installs ISLET as a container
-make configure-docker   # Limits image and container sizes by rebuilding storage backend (Skip if using Docker 1.4+)
-make security-config    # Configure islet relevant security with sshd and pam_limits
 ```
 
 #### Manual
