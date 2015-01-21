@@ -16,6 +16,14 @@ The participation barrier is set very low, students only need an SSH client.
 * Trying out tools in a containerized environment
 * Development environments
 
+## Design
+
+####Simplified Diagram
+![ISLET Diagram](http://jonschipp.com/islet/islet_diagram.png)
+
+####Detailed Flowchart
+![ISLET Flowchart](http://jonschipp.com/islet/islet_flowchart.png)
+
 ## Installation
 
 Installation of ISLET is very simple and it can be done in two ways:
