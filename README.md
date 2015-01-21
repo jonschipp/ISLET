@@ -146,7 +146,9 @@ yum install docker
 useradd --create-home --shell /opt/islet/bin/islet_shell training
 echo "training:training" | chpasswd
 groupadd docker
+groupadd islet
 gpasswd -a training docker
+gpasswd -a training islet
 ```
 
 ### Post-Install First Steps
@@ -209,6 +211,15 @@ For each Docker image you want available for use by ISLET, create an image file 
 These images will be selectable from the ISLET menu after authentication via SSH.
 
 Common Tasks:
+
+* Add another system account for ISLET (used to remotely access e.g. ssh)
+
+```
+useradd --create-home --shell /opt/islet/bin/islet_shell training
+echo "training:training" | chpasswd
+gpasswd -a training docker
+gpasswd -a training islet
+```
 
 * Change the password of a container user (Not a system account).
 

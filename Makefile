@@ -12,6 +12,7 @@ CRON 		= /etc/cron.d
 FUNCTIONS 	= ./functions.sh
 USER		= demo
 PASS		= demo
+GROUP		= islet
 PORT	  = 2222
 SIZE		= 2G
 NAGIOS		= /usr/local/nagios/libexec
@@ -88,6 +89,7 @@ configuration:
 	$(Q)echo " $(yellow)Post-install configuration$(normal)"
 	sed -i "s|USERACCOUNT|$(USER)|g" $(SUDOERS)/islet
 	sed -i "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
+	sed -i "s|GROUPNAME|$(GROUP)|g" $(CONFIG_DIR)/islet.conf
 	visudo -c
 	sed -i "s|LOCATION|$(CRON_DIR)|g" $(CRON)/$(PROG)
 	sed -i "s|LOCATION|$(CONFIG_DIR)/$(PROG).conf|g" $(BIN_DIR)/* $(CRON_DIR)/*
@@ -102,6 +104,7 @@ uninstall:
 	rm -f $(SUDOERS)/islet
 	rm -f $(MAN_DIR)/man5/islet.5
 	fgrep -q $(USER) /etc/passwd && userdel -r $(USER)
+	fgrep -q $(GROUP) /etc/groups && groupdel $(GROUP)
 
 mrproper:
 	$(Q)echo " $(yellow)Removing files not in source$(normal)"
@@ -151,7 +154,7 @@ docker-config:
 	$(FUNCTIONS) docker_configuration $(SIZE)
 
 user-config:
-	$(FUNCTIONS) user_configuration $(USER) $(PASS) $(BIN_DIR)/$(PROG)_shell
+	$(FUNCTIONS) user_configuration $(USER) $(PASS) $(GROUP) $(BIN_DIR)/$(PROG)_shell
 
 security-config:
 	$(FUNCTIONS) security_configuration $(USER) $(BIN_DIR)/$(PROG)_shell

@@ -12,15 +12,16 @@ LOGFILE=install.log
 EMAIL=user@company.com
 
 # System Configuration
-USER="demo" 					            # User account to create for that people will ssh into to enter container
-PASS="demo" 					            # Password for the account that users will ssh into
-SIZE=2G						                # Maximum size of containers, DoS prevention
+USER="demo" 			# User account to create for that people will ssh into to enter container
+PASS="demo" 			# Password for the account that users will ssh into
+GROUP="islet"                   # ISLET Group, used for permissions of database
+SIZE=2G				# Maximum size of containers, DoS prevention
 SSH_CONFIG=/etc/ssh/sshd_config
-CONTAINER_DESTINATION= 				    # Put containers on another volume e.g. /dev/sdb1 (optional). You must mkfs.$FS first!
-FS="ext4"					                # Filesystem type for CONTAINER_DESTINATION, used for mounting
-INSTALL_DIR=/opt/islet	 	    		# ISLET component directory
-BIN_DIR="$INSTALL_DIR/bin"   			# Directory to install islet scripts
-SHELL="$BIN_DIR/islet_shell"			# $USER's shell: displays login banner then launches islet_login
+CONTAINER_DESTINATION= 		# Put containers on another volume e.g. /dev/sdb1 (optional). You must mkfs.$FS first!
+FS="ext4"			# Filesystem type for CONTAINER_DESTINATION, used for mounting
+INSTALL_DIR=/opt/islet	 	# ISLET component directory
+BIN_DIR="$INSTALL_DIR/bin"   	# Directory to install islet scripts
+SHELL="$BIN_DIR/islet_shell"	# $USER's shell: displays login banner then launches islet_login
 
 # Other Declarations
 RESTART_SSH=0
@@ -196,13 +197,20 @@ docker_configuration(){
 user_configuration(){
   local USER="${1:-$USER}"
   local PASS="${2:-$PASS}"
-  local SHELL="${3:-$SHELL}"
+  local GROUP="${3:-$GROUP}"
+  local SHELL="${4:-$SHELL}"
   hi "  Configuring the $USER user account!\n"
 
   if ! getent passwd "$USER" 1>/dev/null
   then
     useradd --create-home --shell "$SHELL" "$USER"
     echo "$USER:$PASS" | chpasswd
+  fi
+
+  if ! getent group "$GROUP" | grep -q "$USER" 1>/dev/null
+  then
+    groupadd "$GROUP" 2>/dev/null
+    gpasswd -a "$USER" "$GROUP" 2>/dev/null
   fi
 
   if ! getent group docker | grep -q "$USER" 1>/dev/null

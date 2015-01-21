@@ -35,6 +35,7 @@ readonly EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
 readonly TIMEOUT
 readonly DB
 readonly USER
+readonly GROUP
 readonly BIND
 readonly INTERFACE
 readonly IP
@@ -45,6 +46,7 @@ readonly VIRTUAL_PORT
 # Globals:
 #   DB   - Location of database file
 #   USER - Owner of database file
+#   GROUp - Group of database file
 # Arguments:
 #   None
 # Returns:
@@ -65,7 +67,7 @@ CREATE TABLE images (
 );
 CREATE UNIQUE INDEX idx_images_user_image ON images(user, image);
 EOF
-  chown "${USER}:${USER}" "$DB" && chmod 660 "$DB" && return 0
+  chown "${USER}:${GROUP}" "$DB" && chmod 660 "$DB" && return 0
 }
 
 #######################################
