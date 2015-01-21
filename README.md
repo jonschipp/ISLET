@@ -185,7 +185,21 @@ vim /etc/islet/islet/gcc.conf
 # Set VIRTUSER variable to name of user in docker image that the student will become (e.g. demo)
 ```
 
-# Administration and Configuration
+# Adding Training Environments
+
+See Docker's [image documentation](http://docs.docker.com/userguide/dockerimages)
+
+ 1. Build or pull in a new Docker image
+
+ 2. Create an ISLET config file for that image. You can use `make template` for an example.
+
+ 3. Place it in /etc/islet with a .conf extension.
+
+ It should now be available from the selection menu upon login.
+
+![ISLET Configs Screenshot](http://jonschipp.com/islet/islet_configs.png)
+
+# Administration
 
 * Global configuration file: */etc/islet/islet.conf*
 * Per-image configuration file: */etc/islet/$IMAGE.conf*
@@ -195,12 +209,6 @@ For each Docker image you want available for use by ISLET, create an image file 
 These images will be selectable from the ISLET menu after authentication via SSH.
 
 Common Tasks:
-
-* Change the password of the demo user to help prevent unauthorized access
-
-```
-        $ passwd demo
-```
 
 * Change the password of a container user (Not a system account).
 
@@ -247,25 +255,12 @@ Common Tasks:
 
   *  Changes are immediately available for new and existing containers
 
-# Adding Training Environments
-
-See Docker's [image documentation](http://docs.docker.com/userguide/dockerimages)
-
- 1. Build or pull in a new Docker image
-
- 2. Create an ISLET config file for that image. You can use `make template` for an example.
-
- 3. Place it in /etc/islet with a .conf extension.
-
- It should now be available from the selection menu upon login.
-
-![ISLET Configs Screenshot](http://jonschipp.com/islet/islet_configs.png)
 
 # Case Study
 
 The precursor to ISLET was used to aid the instructers in teaching the Bro platform at BroCon14.
 
-Steps:
+Workflow:
 * Install ISLET and dependencies
 * Build Docker image containing Bro (docker pull broplatform/brolive)
 * Write a ISLET config file for the Bro image
