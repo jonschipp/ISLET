@@ -88,7 +88,6 @@ install-files:
 configuration:
 	$(Q)echo " $(yellow)Post-install configuration$(normal)"
 	sed -i "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
-	sed -i "s|GROUPNAME|$(GROUP)|g" $(CONFIG_DIR)/islet.conf
 	visudo -c
 	sed -i "s|LOCATION|$(CRON_DIR)|g" $(CRON)/$(PROG)
 	sed -i "s|LOCATION|$(CONFIG_DIR)/$(PROG).conf|g" $(BIN_DIR)/* $(CRON_DIR)/*
