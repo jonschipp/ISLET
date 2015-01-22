@@ -67,7 +67,7 @@ CREATE TABLE images (
 );
 CREATE UNIQUE INDEX idx_images_user_image ON images(user, image);
 EOF
-  chown "${USER}:${GROUP}" "$DB" && chmod 660 "$DB" && return 0
+return 0
 }
 
 #######################################
@@ -87,6 +87,7 @@ is_sqlite() {
     create_db
     test $? -eq 0 && return 0 || quit "Unable to create $DB"
   fi
+  chown "${USER}:${GROUP}" "$DB" && chmod 660 "$DB" || quit "Fatal: $DB cannot be modified, do you have permission?"
 }
 
 #######################################
