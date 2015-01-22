@@ -254,6 +254,12 @@ if [ $STATUS_CHECK -eq 1 ]; then
 		let MISSING++
 	fi
 
+	if ! getent group $GROUP 1>/dev/null
+	then
+		echo "Error: Group $GROUP doesn't exist!"
+		let MISSING++
+	fi
+
 	check_values
 fi
 
@@ -295,9 +301,11 @@ if [ $DATABASE_CHECK -eq 1 ]; then
   [ -e $DB ] || { echo "CRITICAL: $DB not found"; exit $CRITICAL; }
 
   user=$(stat -c "%U" $DB)
+  group=$(stat -c "%G" $DB)
   file=$(file -b /var/tmp/islet.db)
 
   [ "$USER"  = "$user" ]   || { let MISSING++; echo "$USER does not own $DB"; }
+  [ "$GROUP"  = "$group" ]   || { let MISSING++; echo "$GROUP does not group own $DB"; }
   echo "$file" | grep -q "SQLite 3" || { let MISSING++; echo "$DB is not a SQLite 3 database"; }
 
   check_values

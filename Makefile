@@ -87,7 +87,6 @@ install-files:
 
 configuration:
 	$(Q)echo " $(yellow)Post-install configuration$(normal)"
-	sed -i "s|USERACCOUNT|$(USER)|g" $(SUDOERS)/islet
 	sed -i "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
 	sed -i "s|GROUPNAME|$(GROUP)|g" $(CONFIG_DIR)/islet.conf
 	visudo -c
@@ -104,7 +103,7 @@ uninstall:
 	rm -f $(SUDOERS)/islet
 	rm -f $(MAN_DIR)/man5/islet.5
 	fgrep -q $(USER) /etc/passwd && userdel -r $(USER)
-	fgrep -q $(GROUP) /etc/groups && groupdel $(GROUP)
+	fgrep -q $(GROUP) /etc/group && groupdel $(GROUP)
 
 mrproper:
 	$(Q)echo " $(yellow)Removing files not in source$(normal)"

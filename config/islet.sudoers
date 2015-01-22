@@ -1,3 +1,3 @@
-USERACCOUNT ALL = (root) NOPASSWD:/sbin/iptables -t nat -I PREROUTING -i * -p tcp --source * --dport * -j DNAT --to *
-USERACCOUNT ALL = (root) NOPASSWD:/sbin/sysctl -w net.ipv4.conf.*.route_localnet=1
-USERACCOUNT ALL = (root) NOPASSWD:/bin/fgrep -q * /var/lib/docker/repositories-*
+%islet ALL = (root) NOPASSWD:/sbin/iptables -t nat -I PREROUTING -i * -p tcp --source * --dport * -j DNAT --to *
+%islet ALL = (root) NOPASSWD:/sbin/sysctl -w net.ipv4.conf.*.route_localnet=1
+%islet ALL = (root) NOPASSWD:/bin/fgrep -q * /var/lib/docker/repositories-*
