@@ -102,8 +102,8 @@ uninstall:
 	rm -f /etc/security/limits.d/islet.conf
 	rm -f $(SUDOERS)/islet
 	rm -f $(MAN_DIR)/man5/islet.5
-	fgrep -q $(USER) /etc/passwd && userdel -r $(USER)
-	fgrep -q $(GROUP) /etc/group && groupdel $(GROUP)
+	fgrep -q $(USER) /etc/passwd && userdel -r $(USER) || true
+	fgrep -q $(GROUP) /etc/group && groupdel $(GROUP)  || true
 
 mrproper:
 	$(Q)echo " $(yellow)Removing files not in source$(normal)"
