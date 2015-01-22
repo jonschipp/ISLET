@@ -151,6 +151,8 @@ gpasswd -a training docker
 gpasswd -a training islet
 ```
 
+See the SECURITY file more information on manually securing the system.
+
 ### Post-Install First Steps
 
 Post-installation first steps
