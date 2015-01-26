@@ -26,7 +26,7 @@ ssh demo@islet2.jonschipp.com
 ## Design
 
 ####Simplified Diagram
-![ISLET Diagram](http://jonschipp.com/islet/islet_diagram.png)
+![ISLET Diagram](http://jonschipp.com/islet/islet_diagram.jpg)
 
 ####Detailed Flowchart
 ![ISLET Flowchart](http://jonschipp.com/islet/islet_flowchart.png)
