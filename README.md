@@ -1,6 +1,8 @@
 Isolated, Scalable, & Lightweight Environment for Training
 =========
 
+[![Join the chat at https://gitter.im/jonschipp/ISLET](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jonschipp/ISLET?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Make training a smooth process...#NoMoreVMs <br>
 
 A container system for teaching Linux based software with minimal participation and <br>
