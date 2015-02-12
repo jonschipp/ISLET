@@ -61,6 +61,7 @@ install-contained:
 								-v /sbin/sysctl:/sbin/sysctl:ro \
 								-v /exercises:/exercises:ro \
 								-v /var/run/docker.sock:/var/run/docker.sock \
+								--cap-add=NET_ADMIN \
 								-p $(PORT):22 jonschipp/islet
 	install -o root -g root -m 644 config/islet.upstart $(UPSTART)/islet.conf
 	$(Q)echo " $(bold)--> Connect to ISLET on $(normal)$(underline)SSH port $(PORT)$(normal)"
