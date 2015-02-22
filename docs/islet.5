@@ -36,7 +36,8 @@ Location                      Description
 is the global configuration file and must exist.
 Settings in this file are sourced from all ISLET scripts. Image configuration files only pertain
 to a specific Docker image and are sourced after the global file overriding any variables of the
-same name giving granular control to your training environments. These Image files are also to be placed in the
+same name giving granular control to your training environments. ``source'' can be used inside any
+config file to include variables from other config files. These Image files are also to be placed in the
 ISLET configuration directory. At the very least an Image configuration must contain the variable
 IMAGE set to the name of docker image as matched in the output of ``docker images''.
 Variables used to configure containers are passed directly to
@@ -68,10 +69,12 @@ BIND="172.17.42.1"      # IP address to use to access services on containers (de
 # Security Configuration
 VISIBLE="no"            # This config file is visible from config selection menu
 FAILURE_COUNT=3         # Number of failed choice attempts before exiting (username, password, config)
-DAYS=3                # Container+user lifetime specified in days. Removed after # days by cron jobs
+DAYS=3                  # Container+user lifetime specified in days. Removed after # days by cron jobs
 MAX_SIZE=1073741824     # Maximum size in bytes of container before it's purged by disk_limit
 REMOVE="no"             # Container is removed after exit, user cannot re-attach and resume work
 TIMEOUT="8h"            # Max runtime of containers, accepts timeout(1) arguments
+
+source "$CONFIG_DIR"/security.conf  # Detailed kernel security capabilities to apply to containers
 
 # Global Container Configuration
 GLOBAL_OPTIONS=""            # Apply options to all configs, line should not be present in per image configs

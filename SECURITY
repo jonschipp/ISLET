@@ -30,6 +30,11 @@ Match User training
 	PermitEmptyPasswords no
 ```
 
+* Drop capabilities in containers:
+ISLET inclues security.conf which can be used to easily add or drop kernel capabilities(7)
+for containers. They can be set in any ISLET configuration file. Only add what you need
+to run the software in the container.
+
 * ulimit contraints
 
 The following command will configure decent ulimit settings for docker processes.

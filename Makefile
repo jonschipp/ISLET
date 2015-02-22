@@ -72,6 +72,7 @@ install-files:
 	mkdir -m 755 -p $(CRON_DIR)
 	mkdir -m 755 -p $(BIN_DIR)
 	install -o root -g root -m 644 config/islet.conf $(CONFIG_DIR)/$(PROG).conf
+	install -o root -g root -m 644 config/security.conf $(CONFIG_DIR)/security.conf
 	install -o root -g root -m 644 lib/libislet $(LIB_DIR)/libislet
 	install -o root -g root -m 755 bin/islet_shell $(BIN_DIR)/$(PROG)_shell
 	install -o root -g root -m 755 bin/islet_login $(BIN_DIR)/$(PROG)_login
