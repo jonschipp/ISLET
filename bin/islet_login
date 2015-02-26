@@ -426,7 +426,11 @@ check_capabilities(){
   [[ "$DROP_ALL" = "yes" ]] && CAPABILITIES_OPTIONS="--cap-drop all" && return 0
   [[ "$ADD_ALL"  = "yes" ]] && CAPABILITIES_OPTIONS="--cap-add  all" && return 0
 
-  # Set capabilities per container
+  # Enabled by default for ISLET
+  SETFCAP="${CAP_SETFCAP:-yes}"              && set_capabilities SETFCAP $SETFCAP
+  SETUID="${CAP_SETUID:-yes}"                && set_capabilities SETUID $SETUID
+  SETGID="${CAP_SETGID:-yes}"                && set_capabilities SETGID $SETGID
+
   ## Disabled by default in Docker
   AUDIT_WRITE="${CAP_AUDIT_WRITE:-no}"       && set_capabilities AUDIT_WRITE $AUDIT_WRITE
   AUDIT_CONTROL="${CAP_AUDIT_CONTROL:-no}"   && set_capabilities AUDIT_CONTROL $AUDIT_CONTROL
@@ -445,27 +449,24 @@ check_capabilities(){
   SYS_TTY_CONFIG="${CAP_SYS_TTY_CONFIG:-no}" && set_capabilities SYS_TTY_CONFIG $SYS_TTY_CONFIG
 
   ## Enabled/Others
-  BLOCK_SUSPEND="${CAP_BLOCK_SUSPEND:-yes}"       && set_capabilities BLOCK_SUSPEND $BLOCK_SUSPEND
-  CHOWN="${CAP_CHOWN:-yes}"                       && set_capabilities CHOWN $CHOWN
-  DAC_OVERRIDE="${CAP_DAC_OVERRIDE:-yes}"         && set_capabilities DAC_OVERRIDE $DAC_OVERRIDE
-  DAC_READ_SEARCH="${CAP_DAC_READ_SEARCH:-yes}"   && set_capabilities DAC_READ_SEARCH $DAC_READ_SEARCH
-  FOWNER="${CAP_FOWNER:-yes}"                     && set_capabilities FOWNER $FOWNER
-  FSETID="${CAP_FSETID:-yes}"                     && set_capabilities FSETID $FSETID
-  IPC_LOCK="${CAP_IPC_LOCK:-yes}"                 && set_capabilities IPC_LOCK $IPC_LOCK
-  IPC_OWNER="${CAP_IPC_OWNER:-yes}"               && set_capabilities IPC_OWNER $IPC_OWNER
-  KILL="${CAP_KILL:-yes}"                         && set_capabilities KILL $KILL
-  LEASE="${CAP_LEASE:-yes}"                       && set_capabilities LEASE $LEASE
-  LINUX_IMMUTABLE="${CAP_LINUX_IMMUTABLE:-yes}"   && set_capabilities LINUX_IMMUTABLE $LINUX_IMMUTABLE
-  NET_BIND_SERVICE="${CAP_NET_BIND_SERVICE:-yes}" && set_capabilities NET_BIND_SERVICE $NET_BIND_SERVICE
-  NET_BROADCAST="${CAP_NET_BROADCAST:-yes}"       && set_capabilities NET_BROADCAST $NET_BROADCAST
-  NET_RAW="${CAP_NET_RAW:-yes}"                   && set_capabilities NET_RAW $NET_RAW
-  SETGID="${CAP_SETGID:-yes}"                     && set_capabilities SETGID $SETGID
-  SETFCAP="${CAP_SETFCAP:-yes}"                   && set_capabilities SETFCAP $SETFCAP
-  SETUID="${CAP_SETUID:-yes}"                     && set_capabilities SETUID $SETUID
-  SYS_BOOT="${CAP_SYS_BOOT:-yes}"                 && set_capabilities SYS_BOOT $SYS_BOOT
-  SYS_CHROOT="${CAP_SYS_CHROOT:-yes}"             && set_capabilities SYS_CHROOT $SYS_CHROOT
-  SYS_PTRACE="${CAP_SYS_PTRACE:-yes}"             && set_capabilities SYS_PTRACE $SYS_PTRACE
-  WAKE_ALARM="${CAP_SYS_PTRACE:-yes}"             && set_capabilities WAKE_ALARM $WAKE_ALARM
+  BLOCK_SUSPEND="${CAP_BLOCK_SUSPEND:-no}"       && set_capabilities BLOCK_SUSPEND $BLOCK_SUSPEND
+  CHOWN="${CAP_CHOWN:-no}"                       && set_capabilities CHOWN $CHOWN
+  DAC_OVERRIDE="${CAP_DAC_OVERRIDE:-no}"         && set_capabilities DAC_OVERRIDE $DAC_OVERRIDE
+  DAC_READ_SEARCH="${CAP_DAC_READ_SEARCH:-no}"   && set_capabilities DAC_READ_SEARCH $DAC_READ_SEARCH
+  FOWNER="${CAP_FOWNER:-no}"                     && set_capabilities FOWNER $FOWNER
+  FSETID="${CAP_FSETID:-no}"                     && set_capabilities FSETID $FSETID
+  IPC_LOCK="${CAP_IPC_LOCK:-no}"                 && set_capabilities IPC_LOCK $IPC_LOCK
+  IPC_OWNER="${CAP_IPC_OWNER:-no}"               && set_capabilities IPC_OWNER $IPC_OWNER
+  KILL="${CAP_KILL:-no}"                         && set_capabilities KILL $KILL
+  LEASE="${CAP_LEASE:-no}"                       && set_capabilities LEASE $LEASE
+  LINUX_IMMUTABLE="${CAP_LINUX_IMMUTABLE:-no}"   && set_capabilities LINUX_IMMUTABLE $LINUX_IMMUTABLE
+  NET_BIND_SERVICE="${CAP_NET_BIND_SERVICE:-no}" && set_capabilities NET_BIND_SERVICE $NET_BIND_SERVICE
+  NET_BROADCAST="${CAP_NET_BROADCAST:-no}"       && set_capabilities NET_BROADCAST $NET_BROADCAST
+  NET_RAW="${CAP_NET_RAW:-no}"                   && set_capabilities NET_RAW $NET_RAW
+  SYS_BOOT="${CAP_SYS_BOOT:-no}"                 && set_capabilities SYS_BOOT $SYS_BOOT
+  SYS_CHROOT="${CAP_SYS_CHROOT:-no}"             && set_capabilities SYS_CHROOT $SYS_CHROOT
+  SYS_PTRACE="${CAP_SYS_PTRACE:-no}"             && set_capabilities SYS_PTRACE $SYS_PTRACE
+  WAKE_ALARM="${CAP_SYS_PTRACE:-no}"             && set_capabilities WAKE_ALARM $WAKE_ALARM
 }
 
 ###############################################################################################
