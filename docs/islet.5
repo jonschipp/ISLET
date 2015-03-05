@@ -57,7 +57,7 @@ SHELL="$INSTALL_DIR/bin/islet_shell"              # ISLET shell, displays login 
 LAUNCH_CONTAINER="$INSTALL_DIR/bin/islet_login"   # User management script and container launcher
 DB="/var/tmp/islet.db"                            # Credentials database. Must be readable by $USER
 DOCKER_DIR="/var/lib/docker"                      # Location of Docker directory
-STORAGE_BACKEND="aufs"                            # Docker storage backend, used to check if image exist
+STORAGE_BACKEND="devicemapper"                    # Docker storage backend, used to check if image exist
 CONTAINER_PATH="$DOCKER_DIR/$STORAGE_BACKEND/mnt" # Path to container storage location, used by disk_limit
 USER="demo"                                       # Linux system user created for ssh'ing to ISLET, give account to trainees
 DEBUG="no"                                        # Enable debugging info to stdout and syslog
@@ -100,7 +100,9 @@ HOSTNAME="bro"                         # Set hostname in container. PS1 will end
 NETWORK="none"                         # Disable networking by default: none; Enable networking: bridge
 DNS="127.0.0.1"                        # Use loopback when networking is disabled to prevent error messages from resolver
 MOUNT="-v /exercises:/exercises:ro"    # Mount point(s), sep. by -v: /src:/dst:attributes, ro = readonly (avoid rw)
-LOCAL_OPTIONS="--cap-add=NET_RAW"      # Apply any other options you want passed to docker run here
+CAP_NET_ADMIN="yes"                    # Configure the network
+CAP_NET_RAW="yes"                      # Use RAW and PACKET sockets
+LOCAL_OPTIONS=""                       # Apply any other options you want passed to docker run here
 LOCAL_ENV=""                           # Variables that get passed to VIRTUSER's shell for container e.g. LOCAL_ENV="ISLET=1"
 
 # Branding & Information
