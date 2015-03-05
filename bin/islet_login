@@ -87,7 +87,9 @@ is_sqlite() {
     create_db
     test $? -eq 0 && return 0 || quit "Unable to create $DB"
   fi
-  chown "${USER}:${GROUP}" "$DB" && chmod 660 "$DB" || quit "Fatal: $DB cannot be modified, do you have permission?"
+  { [[ $(stat -c %U ${DB}) == "$USER"  ]] || chown "$USER"     "$DB" 2>/dev/null; } || quit "Fatal: cannot set owner ${USER} on ${DB}, do you have permission?"
+  { [[ $(stat -c %G ${DB}) == "$GROUP" ]] || chown :"${GROUP}" "$DB" 2>/dev/null; } || quit "Fatal: cannot set group ${GROUP} on ${DB}, do you have permission?"
+  { [[ $(stat -c %a ${DB}) == 660      ]] || chmod 660         "$DB" 2>/dev/null; } || quit "Fatal: cannot set modes 660 on ${DB}, do you have permission?"
 }
 
 #######################################
