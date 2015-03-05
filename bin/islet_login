@@ -91,6 +91,29 @@ is_sqlite() {
 }
 
 #######################################
+# Verify that storage backend matches
+# ISLET configuration
+# Globals:
+#   STORAGE_BACKEND - Backend location
+#   CONFIG          - ISLET config file
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+
+verify_backend() {
+  local file
+  local backend
+  for i in /var/lib/docker/repositories-{aufs,btrfs,devicemapper,vfs,overlayfs}
+  do
+    file=$(sudo ls "$i" 2>/dev/null)
+    [ $file ] && backend=${file#*-} && break
+  done
+  [[ "$backend" == "$STORAGE_BACKEND" ]] || quit "Fatal: Docker storage backend doesn't match value in $CONFIG"
+}
+
+#######################################
 # Prompt user if they're new or existing
 # Globals:
 #   None
@@ -534,5 +557,6 @@ start_container(){
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
 # It all begins here
 is_sqlite
+verify_backend
 identify
 exit
