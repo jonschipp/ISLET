@@ -93,11 +93,8 @@ do
   fi
 done
 
-# Per image banner
-if ! [ -z "$BANNER" ]; then
-  clear
-  echo "$BANNER"
-fi
+# Display image banner
+[ "$BANNER" ] && clear && echo "$BANNER"
 
 # Move to temp directory for islet_login
 [ -d /tmp ] && cd /tmp
