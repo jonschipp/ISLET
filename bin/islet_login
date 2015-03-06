@@ -149,9 +149,12 @@ identify(){
   option "new" "existing"
   read -e -r CHOICE
 
-  if [[ "$CHOICE" = "new" ]] || [[ "$CHOICE" = "existing" ]]; then
-    [[ "$CHOICE" = "new" ]] && new_user
-    [[ "$CHOICE" = "existing" ]] && existing_user
+  if [[ "$CHOICE" =~ ^[nN][eE][wW]$ ]] ||
+     [[ "$CHOICE" =~ ^[eE][xX][iI][sS][tT][iI][nN][gG]$ ]] ||
+     [[ "$CHOICE" =~ ^[nN]$ ]] || [[ "$CHOICE" =~ ^[eE]$ ]]
+  then
+    { [[ "$CHOICE" =~ ^[nN][eE][wW]$ ]] || [[ "$CHOICE" =~ ^[nN]$ ]]; } && new_user
+    { [[ "$CHOICE" =~ ^[eE][xX][iI][sS][tT][iI][nN][gG]$ ]] || [[ "$CHOICE" =~ ^[eE]$ ]]; } && existing_user
   else
     try_again
   fi
