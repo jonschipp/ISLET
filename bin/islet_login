@@ -116,6 +116,23 @@ verify_backend() {
 }
 
 #######################################
+# Configures autocompletion
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+
+enable_autocompletion(){
+  # Hackish way
+  local tmp="/tmp/islet"
+  [[ "$PWD" == "$tmp" ]] || { mkdir -p "$tmp" && cd "$tmp"; }
+  [[ "$PWD" == "$tmp" ]] && touch {new,existing,yes,no}
+}
+
+#######################################
 # Prompt user if they're new or existing
 # Globals:
 #   None
@@ -127,9 +144,10 @@ verify_backend() {
 
 identify(){
   local CHOICE
+  enable_autocompletion
   ask "Are you a new or existing user? "
   option "new" "existing"
-  read -r CHOICE
+  read -e -r CHOICE
 
   if [[ "$CHOICE" = "new" ]] || [[ "$CHOICE" = "existing" ]]; then
     [[ "$CHOICE" = "new" ]] && new_user
@@ -313,11 +331,11 @@ verify_new_password(){
 try_again(){
   local TRY
   ask "I didn't understand your response. Would you like to try again? "
-  option "Y" "N"
-  read -r TRY
-  if [[ "$TRY" = [YyNn] ]] || [[ "$TRY" = "[yY][eE]sS]" ]] || [[ "$TRY" = "[nN][oO]" ]]; then
-    [[ "$TRY" = [Yy] ]] || [[ "$TRY" = "[yY][eE][sS]" ]] && identify
-    [[ "$TRY" = [Nn] ]] || [[ "$TRY" = "[nN][oO]" ]] && quit "User chose to exit from try_again"
+  option "yes" "no"
+  read -e -r TRY
+  if [[ "$TRY" =~ ^[YyNn]$ ]] || [[ "$TRY" =~ ^[yY][eE][sS]$ ]] || [[ "$TRY" =~ ^[nN][oO]$ ]]; then
+     [[ "$TRY" =~ ^[Yy]$   ]] || [[ "$TRY" =~ ^[yY][eE][sS]$ ]] && identify
+     [[ "$TRY" =~ ^[Nn]$   ]] || [[ "$TRY" =~ ^[nN][oO]$     ]] && quit "User decided to leave from try_again"
   else
     quit "User forced to exit from try_again because of invalid response to question"
   fi

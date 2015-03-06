@@ -99,6 +99,9 @@ if ! [ -z "$BANNER" ]; then
   echo "$BANNER"
 fi
 
+# Move to temp directory for islet_login
+[ -d /tmp ] && cd /tmp
+
 # Replace this process with islet_login which will
 # pass the config's variables and then launch the container
 
