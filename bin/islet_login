@@ -96,6 +96,22 @@ is_sqlite() {
 }
 
 #######################################
+# Verify group settings
+# ISLET configuration
+# Globals:
+#  $USER - System user that runs Docker
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+
+verify_group() {
+  getent group docker 1>/dev/null 2>&1 || quit "Fatal: docker group doesn't exist!"
+  getent group docker 2>/dev/null | grep -q $USER || quit "Fatal: $USER user not in docker group"
+}
+
+#######################################
 # Verify that storage backend matches
 # ISLET configuration
 # Globals:
@@ -584,6 +600,7 @@ start_container(){
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
 # It all begins here
 is_sqlite
+verify_group
 verify_backend
 identify
 exit
