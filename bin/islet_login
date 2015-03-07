@@ -82,6 +82,9 @@ return 0
 #######################################
 
 is_sqlite() {
+  local file
+  file=$(which sqlite3)
+  [[ -f $file ]] || quit "Fatal: sqlite3 not found, is it installed and in the PATH?"
   if ! file "$DB" 2>/dev/null | grep -q SQLite; then
     rm -f "$DB" 2>/dev/null
     create_db
