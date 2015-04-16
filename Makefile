@@ -33,7 +33,7 @@ default: help
 help:
 	$(Q)echo "$(bold)ISLET installation targets:$(normal)"
 	$(Q)echo " $(red)install$(normal)                  	- Install and configure islet on the host"
-	$(Q)echo " $(red)install-contained$(normal)    		- Install islet as container, no host modification"
+	$(Q)echo " $(red)install-contained$(normal)    		- Install islet as container, with little modification to host"
 	$(Q)echo " $(red)uninstall$(normal) 	                - Uninstalls islet ($(yellow)Backup first!$(normal))"
 	$(Q)echo " $(red)update$(normal)               		- Update code and reinstall islet"
 	$(Q)echo " $(red)mrproper$(normal)                     	- Remove all files not in source distribution"
@@ -54,12 +54,17 @@ install: install-files configuration
 
 install-contained:
 	$(Q)echo " $(yellow)Installing $(PROG)$(normal)"
+	mkdir -m 755 -p $(CONFIG_DIR)
+	install -o root -g root -m 644 config/islet.conf $(CONFIG_DIR)/$(PROG).conf
+	sed -i "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
+	install -o root -g root -m 644 config/security.conf $(CONFIG_DIR)/security.conf
 	docker run -d --name="islet" \
 								-v /usr/bin/docker:/usr/bin/docker:ro \
 								-v /var/lib/docker/:/var/lib/docker:rw \
 								-v /sbin/iptables:/sbin/iptables:ro \
 								-v /sbin/sysctl:/sbin/sysctl:ro \
 								-v /exercises:/exercises:ro \
+								-v /etc/islet:/etc/islet:ro \
 								-v /var/run/docker.sock:/var/run/docker.sock \
 								--cap-add=NET_ADMIN \
 								-p $(PORT):22 jonschipp/islet
