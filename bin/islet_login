@@ -195,24 +195,33 @@ new_user(){
 
   until test "$AVAILABLE_USER" -ne 1
   do
-    ask "Choose a username: "
-    option "a-zA-Z0-9"
-    read -r USERNAME
-
-    USERNAME=$(sanitize $USERNAME)
-    echo "Your username is ${MF}$USERNAME${N}"
-    verify_new_user
+    choose_username && verify_new_user
   done
 
+  until [[ "$PASSWORD" ]] && [[ "$PASSWORD_VERIFY" ]]
+  do
+    choose_password && verify_new_password
+  done
+}
+
+choose_username(){
+  ask "Choose a username: "
+  option "a-zA-Z0-9"
+  read -r USERNAME
+  [[ "$USERNAME" ]] || { alert "Empty value not permitted" && return 1; }
+  USERNAME=$(sanitize "$USERNAME") && return 0
+}
+
+choose_password(){
   ask "Choose a password: "
   option "a-zA-Z0-9{${MIN_PASSWD_LEN},}"
   read -r -s PASSWORD
+  [[ "$PASSWORD" ]] || { alert "\nEmpty value not permitted" && return 1; }
   echo
   ask "Verify your password: "
   read -r -s PASSWORD_VERIFY
+  [[ "$PASSWORD_VERIFY" ]] || { alert "\nEmpty value not permitted" && return 1; }
   echo
-
-  verify_new_password
 }
 
 ###################################################
@@ -266,12 +275,11 @@ existing_user(){
       test "$RESULT" -ne 0 && quit "Launching container failed!"
       exec timeout --foreground "$TMOUT" "$SHELL" nobanner
       else
-        notice "Login Failed, try again."
+        notice "Login failed, try again ("$COUNT"/"$FAILURE_COUNT")."
       fi
     let COUNT++
   done
-  alert "Too many failed attempts!"
-  quit "$COUNT failed password verification attempts"
+  quit "Too many failed attempts! ("$COUNT"/"$FAILURE_COUNT")."
 }
 
 ###################################################
@@ -294,6 +302,7 @@ verify_new_user(){
     notice "User already exists! Try a different one."
   else
     AVAILABLE_USER=0
+    echo "Your username is ${MF}$USERNAME${N}"
   fi
 }
 
@@ -318,16 +327,10 @@ verify_new_password(){
   do
     if [ "$COUNT" -lt "$FAILURE_COUNT" ]
     then
-      notice "Passwords do not match or meet length requirements (${BF}"${MIN_PASSWD_LEN}"${N}${Y}). Try again."
-      ask "Choose a password: "
-      read -r -s PASSWORD
-      echo
-      ask "Verify your password: "
-      read -r -s PASSWORD_VERIFY
-      echo
+      notice "Passwords do not match or meet length requirements (${BF}"${MIN_PASSWD_LEN}"${N}${Y}). Try again ("$COUNT"/"$FAILURE_COUNT")."
+      choose_password
     else
-      alert "Too many failed attempts!"
-      quit "$COUNT failed password verification attempts"
+      quit "Too many failed attempts! ("$COUNT"/"$FAILURE_COUNT")."
     fi
     let COUNT++
   done
