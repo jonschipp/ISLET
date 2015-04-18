@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Global Variables
-CONFIG=LOCATION
+CONFIG=/etc/islet/islet.conf
 AVAILABLE_USER=1
 TIMEOUT="8h"
 
@@ -14,32 +14,13 @@ err(){
 if [ -f "$CONFIG" ]; then
   . "$CONFIG"
   . "$LIBISLET"
-  readonly CONFIG
-  readonly LIBISLET
 else
   err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
   exit 1
 fi
 
-# Override with per image configuration
-readonly CONFIGURATION="$1"
-if [ -f "$CONFIG_DIR/$CONFIGURATION" ]
-then
-  . "$CONFIG_DIR/$CONFIGURATION"
-else
-  quit "Timeout occurred, config not selected!"
-fi
-
 readonly TIME=$(date +"%s")
 readonly EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
-readonly TIMEOUT
-readonly DB
-readonly USER
-readonly GROUP
-readonly BIND
-readonly INTERFACE
-readonly IP
-readonly VIRTUAL_PORT
 
 #######################################
 # Create SQLite database
@@ -236,7 +217,6 @@ choose_password(){
 ###################################################
 
 existing_user(){
-  local USERNAME
   local PASSWORD
   local HASH
   local AUTH
@@ -256,30 +236,11 @@ existing_user(){
     HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
     AUTH=$(sqlite3 $DB "SELECT user, password FROM accounts WHERE user='$USERNAME' AND password='$HASH';")
 
-    if [ "$AUTH" ]
-    then
-      info "Success"
-
-      # This is how we handle using the same account for multiple images
-      EXISTS=$(sqlite3 $DB "SELECT image FROM images WHERE user='$USERNAME' AND image='$BASENAME'";)
-      [ "$EXISTS" ] || start_container
-
-      # User is re-attaching to previous image
-      log "${USERNAME}: Returning user from $CLIENT"
-      message "Welcome back!"
-      is_debug "opt: docker start ${BASENAME}.${USERNAME} && docker attach ${BASENAME}.${USERNAME}"
-
-      docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && timeout --foreground "$TIMEOUT" docker attach "${BASENAME}.${USERNAME}"
-      RESULT=$?
-      test "$RESULT" -eq 124 && quit "Inactive timer expired in menu, exiting..."
-      test "$RESULT" -ne 0 && quit "Launching container failed!"
-      exec timeout --foreground "$TMOUT" "$SHELL" nobanner
-      else
-        notice "Login failed, try again ("$COUNT"/"$FAILURE_COUNT")."
-      fi
+    [ "$AUTH" ] && info "Success" && sleep 1 && break
+    notice "Login failed, try again ("$COUNT"/"$FAILURE_COUNT")."
     let COUNT++
   done
-  quit "Too many failed attempts! ("$COUNT"/"$FAILURE_COUNT")."
+  [ $AUTH ] || quit "Too many failed attempts! ("$COUNT"/"$FAILURE_COUNT")."
 }
 
 ###################################################
@@ -340,7 +301,74 @@ verify_new_password(){
   log "${USERNAME}: Account created from $CLIENT"
 
   echo "Your account will expire on ${MF}$EXPIRATION${N}"
-  start_container
+}
+
+menu_loop(){
+  while true
+  do
+    { [ -d "$CONFIG_DIR" ] && cd "$CONFIG_DIR"; } || quit "Unable to access ${CONFIG_DIR}!"
+    LIST=()
+    clear && config_menu
+  done
+}
+
+attach_container(){
+  # User is re-attaching to previous image
+  log "${USERNAME}: Returning user from $CLIENT"
+  notice "Welcome back!"
+  mention "$MOTD"
+  is_debug "opt: docker start ${BASENAME}.${USERNAME} && docker attach ${BASENAME}.${USERNAME}"
+  docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && timeout --foreground "$TIMEOUT" docker attach "${BASENAME}.${USERNAME}"
+  RESULT=$?
+  [[ $RESULT -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
+}
+
+config_menu(){
+  # Configuration menu
+  notice "\t\t\t\tAvailable configurations:\n"
+  printf '\t\t\t%-29s %-7s %-30s\n' "${B}Configuration${N}" "|" "${B}Description${N}"
+  printf '\t\t\t%-30s %-7s %-30s\n' "${BF}$SPACER1${N}" "|" "${BF}$SPACER1${N}"
+
+  # Iterate over configuration files in $CONFIG_DIR and display them as options
+  # It prints the config file ($config) and its description ($DESCRIPTION)
+  for config in *.conf
+  do
+    . "$config"
+    if [[ "$VISIBLE" = "yes" || "$ENABLE" = "yes" ]]; then
+      printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config${N}" "|" "${U}$DESCRIPTION${N}"
+      LIST+=("$config")
+    fi
+    unset BANNER config
+  done
+
+  # Quit if there are no config files present
+  [[ "${#LIST[@]}" -eq 0 ]] && quit "\t\t\tNo configurations available!"
+  echo && unset BANNER
+  notice "Choose a number to load the configuration (or ^C to exit):"
+
+  PS3="${Y}[${N}${BF}Choice${N}${Y}]${N}: "
+  # Here the user chooses the configuration from the menu
+  # Inherit the variables from the config file after selection
+  select CONFIGURATION in "${LIST[@]}"
+  do
+    if [[ -f "$CONFIG_DIR/$CONFIGURATION" ]]; then
+      . "$CONFIG_DIR/$CONFIGURATION"
+      break
+    else
+      let COUNT++
+      alert "Invalid choice! Try again ($COUNT/$FAILURE_COUNT)"
+    fi
+    if [[ "$COUNT" -ge "$FAILURE_COUNT" ]]; then
+      quit "Too many failed attempts! ($COUNT/$FAILURE_COUNT)"
+    fi
+  done
+
+  # Display image banner
+  [[ "$BANNER" ]] && clear && echo "$BANNER"
+
+  # This is how we handle using the same account for multiple images
+  ATTACH=$(sqlite3 $DB "SELECT image FROM images WHERE user='$USERNAME' AND image='$BASENAME'";)
+  { [[ $ATTACH ]] && attach_container; } || start_container
 }
 
 ###########################################################
@@ -489,7 +517,7 @@ set_capabilities(){
 ##################################################################
 
 check_capabilities(){
-
+  unset CAPABILITIES_OPTIONS
   # Set all capabilities per container
   [[ "$DROP_ALL" = "yes" ]] && CAPABILITIES_OPTIONS="--cap-drop all" && return 0
   [[ "$ADD_ALL"  = "yes" ]] && CAPABILITIES_OPTIONS="--cap-add  all" && return 0
@@ -591,13 +619,14 @@ start_container(){
   is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"
   is_debug "opt: docker run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $CAP_OPT $IMG_OPT $ENV_OPT"
 
-  message "Enjoy yourself!"
+  notice "Enjoy yourself!"
+  mention "$MOTD"
 
   # Run container
   eval timeout --foreground "$TIMEOUT" docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $CAP_OPT $MNT_OPT $IMG_OPT $ENV_OPT" "$INFOLEVEL"
   is_timeout "Inactive timer expired in container, exiting..."
   # Back to menu if we didn't hit $TIMEOUT
-  exec timeout --foreground "$TMOUT" "$SHELL" nobanner
+  menu_loop
 }
 
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
@@ -606,4 +635,5 @@ is_sqlite
 verify_group
 verify_backend
 identify
+menu_loop
 exit

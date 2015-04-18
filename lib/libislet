@@ -65,6 +65,7 @@ alert()   { printf "${redf}$*${normal}\n" >>/dev/stderr; }
 notice()  { printf "${yellow}$*${normal}\n"; }
 info()    { printf "${magentaf}$*${normal}\n"; }
 ask()     { printf "${whitef}$*${normal}"; }
+mention() { printf "${whitef}$*${normal}\n"; }
 option()  { printf "${Y}[${N}${BF}$1${N}${Y}/${N}${BF}$2${N}${Y}]${N}: " ;}
 
 #########################################
