@@ -35,13 +35,6 @@ fi
 
 clear
 
-if [ -d "$CONFIG_DIR" ]
-then
-  cd "$CONFIG_DIR"
-else
-  err "Error: $CONFIG_DIR doesn't exist or non-executable!"
-fi
-
 # Display ISLET Banner
 if [ "$ARG" != "nobanner" ]; then
   test -f "${ANIMATE:-notset}" && islet_banner | pv -qL "$ANIMATE_SPEED" || islet_banner
@@ -49,52 +42,6 @@ if [ "$ARG" != "nobanner" ]; then
   timecount $TMOUT
   clear && echo
 fi
-
-# Configuration menu
-notice "\t\t\t\tAvailable configurations:\n"
-printf '\t\t\t%-29s %-7s %-30s\n' "${B}Configuration${N}" "|" "${B}Description${N}"
-printf '\t\t\t%-30s %-7s %-30s\n' "${BF}$SPACER1${N}" "|" "${BF}$SPACER1${N}"
-
-# Iterate over configuration files in $CONFIG_DIR and display them as options
-# It prints the config file ($config) and its description ($DESCRIPTION)
-for config in *.conf
-do
-  . "$config"
-  if [[ "$VISIBLE" = "yes" || "$ENABLE" = "yes" ]]; then
-    printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config${N}" "|" "${U}$DESCRIPTION${N}"
-    LIST+=("$config")
-  fi
-  unset BANNER
-done
-
-# Quit if there are no config files present
-test "${#LIST[@]}" -eq 0 && quit "\t\t\tNo configurations available!"
-echo && unset BANNER && echo
-notice "Choose a number to load the configuration (or ^C to exit):"
-echo
-
-PS3="${Y}[${N}${BF}Choice${N}${Y}]${N}: "
-
-# Here the user chooses the configuration from the menu
-# Inherit the variables from the config file after selection
-select CONFIGURATION in "${LIST[@]}"
-do
-  if [ -f "$CONFIG_DIR/$CONFIGURATION" ]; then
-    . "$CONFIG_DIR/$CONFIGURATION"
-    break
-  else
-    echo "Invalid choice!"
-  fi
-
-  let COUNT++
-  if [ "$COUNT" -ge "$FAILURE_COUNT" ]; then
-    alert "Too many failed attempts!"
-    exit 1
-  fi
-done
-
-# Display image banner
-[ "$BANNER" ] && clear && echo "$BANNER"
 
 # Move to temp directory for islet_login
 [ -d /tmp ] && cd /tmp
