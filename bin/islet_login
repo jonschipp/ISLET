@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Global Variables
-CONFIG=/etc/islet/islet.conf
+CONFIG=LOCATION
 AVAILABLE_USER=1
 TIMEOUT="8h"
 
