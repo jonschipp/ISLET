@@ -31,18 +31,17 @@ Match User training
 ```
 
 * Drop capabilities in containers:
-ISLET inclues security.conf which can be used to easily add or drop kernel capabilities(7)
-for containers. They can be set in any ISLET configuration file. Only add what you need
-to run the software in the container.
+
+ISLET includes security.conf which can be used to easily add or drop kernel capabilities(7)
+(and apply ulimit values to containers)  globally. They can be set in any ISLET configuration file.
+Only add what you need to run the software in the container.
 
 * ulimit contraints
 
+**Note:** ISLET with Docker 1.6 supports passing ulimit settings in config files.
+
 The following command will configure decent ulimit settings for docker processes.
 These have the effect of restricting the user's environment inside the container.
-
-```shell
-make security-config
-```
 
 Adjust as necessary: _/etc/init/docker.conf_
 ```

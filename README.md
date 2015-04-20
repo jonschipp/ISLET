@@ -58,7 +58,7 @@ mrproper 	| Removes files that did not come with the source
 install-docker  | Installs latest Docker from Docker repo (Debian/Ubuntu only)
 docker-config   | Reconfigures Docker storage backend to limit container and image sizes
 user-config     | Configures a user account called demo w/ password dem
-security-config | Configures sshd and pam_limits with islet relevant security in mind
+security-config | Configures sshd with islet relevant security in mind
 iptables-config | Installs iptables ruleset
 
 GNU make accepts arguments if you want a customized installation (*not supported*):
@@ -124,7 +124,7 @@ Install ISLET on the host:
 ```shell
 make install-docker	# Installs latest Docker
 make configure-docker   # Limits image and container sizes by rebuilding storage backend (Skip if using Docker 1.4+)
-make security-config    # Configure islet relevant security with sshd and pam_limits
+make security-config    # Configure islet relevant security with sshd
 ```
 
 Install ISLET as a container on the host:

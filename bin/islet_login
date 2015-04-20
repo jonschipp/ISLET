@@ -565,6 +565,56 @@ check_capabilities(){
   WAKE_ALARM="${CAP_SYS_PTRACE:-no}"             && set_capabilities WAKE_ALARM $WAKE_ALARM
 }
 
+#####################################################################
+# Build command line options for ulimit settings
+# Globals:
+#  ULIMIT_OPTIONS - Stores Docker ulimit cmd-line options
+# Arguments:
+#   limit       - Ulimit name
+#   value       - Value of ulimit settings
+# Returns:
+#   None
+#####################################################################
+
+set_ulimits(){
+  local limit="$1"
+  local value="$2"
+
+  [[ "$value" = "no" ]] || ULIMIT_OPTIONS="${ULIMIT_OPTIONS} --ulimit ${limit}=${value}"
+}
+
+##################################################################
+# Check and set value of ulimits per container
+# Globals:
+#   ulimit variables - Option in ISLET configuration files
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+
+check_ulimits(){
+  [[ "$DOCKER_VERSION" =~ 1.[6-9]+ ]] || return
+  unset ULIMIT_OPTIONS
+
+  # Set ulimits per container
+  [[ "$ULIMIT_CORE" ]]       && set_ulimits core       $ULIMIT_CORE
+  [[ "$ULIMIT_CPU"  ]]       && set_ulimits cpu        $ULIMIT_CPU
+  [[ "$ULIMIT_DATA" ]]       && set_ulimits data       $ULIMIT_DATA
+  [[ "$ULIMIT_FSIZE" ]]      && set_ulimits fsize      $ULIMIT_FSIZE
+  [[ "$ULIMIT_LOCKS" ]]      && set_ulimits locks      $ULIMIT_LOCKS
+  [[ "$ULIMIT_MEMLOCK" ]]    && set_ulimits memlock    $ULIMIT_MEMLOCK
+  [[ "$ULIMIT_MSGQUEUE" ]]   && set_ulimits msgqueue   $ULIMIT_MSGQUEUE
+  [[ "$ULIMIT_NICE" ]]       && set_ulimits nice       $ULIMIT_NICE
+  [[ "$ULIMIT_NOFILE" ]]     && set_ulimits nofile     $ULIMIT_NOFILE
+  [[ "$ULIMIT_NPROC" ]]      && set_ulimits nproc      $ULIMIT_NPROC
+  [[ "$ULIMIT_RSS" ]]        && set_ulimits rss        $ULIMIT_RSS
+  [[ "$ULIMIT_RTPRIO" ]]     && set_ulimits rtprio     $ULIMIT_RTPRIO
+  [[ "$ULIMIT_RTTIME" ]]     && set_ulimits rttime     $ULIMIT_RTTIME
+  [[ "$ULIMIT_SIGPENDING" ]] && set_ulimits sigpending $ULIMIT_SIGPENDING
+  [[ "$ULIMIT_STACK" ]]      && set_ulimits stack      $ULIMIT_STACK
+}
+
 ###############################################################################################
 # Pass all options to Docker and replace this process with the container
 # Globals:
@@ -604,6 +654,7 @@ start_container(){
   removal_setup
   port_forwarding_setup
   check_capabilities
+  check_ulimits
 
   local NAME_OPT="--name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME"
   local RES_OPT="-c $CPU -m $RAM"
@@ -611,19 +662,20 @@ start_container(){
   local GLB_OPT="$GLOBAL_OPTIONS"
   local OTH_OPT="$LOCAL_OPTIONS"
   local CAP_OPT="$CAPABILITIES_OPTIONS"
+  local LMT_OPT="$ULIMIT_OPTIONS"
   local MNT_OPT="$MOUNT"
   local IMG_OPT="$REMOVE -i $IMAGE"
   local ENV_OPT="sudo -i -u $VIRTUSER $GLOBAL_ENV $LOCAL_ENV"
 
   # If debugging is yes
   is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"
-  is_debug "opt: docker run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $CAP_OPT $IMG_OPT $ENV_OPT"
+  is_debug "opt: docker run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $CAP_OPT $LMT_OPT $IMG_OPT $ENV_OPT"
 
   notice "Enjoy yourself!"
   mention "$MOTD"
 
   # Run container
-  eval timeout --foreground "$TIMEOUT" docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $CAP_OPT $MNT_OPT $IMG_OPT $ENV_OPT" "$INFOLEVEL"
+  eval timeout --foreground "$TIMEOUT" docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $CAP_OPT $LMT_OPT $MNT_OPT $IMG_OPT $ENV_OPT" "$INFOLEVEL"
   is_timeout "Inactive timer expired in container, exiting..."
   # Back to menu if we didn't hit $TIMEOUT
   menu_loop

@@ -7,6 +7,7 @@ COUNT=0
 LIST=()
 ANIMATE=$(which pv 2>/dev/null)
 ANIMATE_SPEED=90
+DOCKER_VERSION="$(docker version | awk -F : '/Server version/ { print substr($2, 2, 3) }')"
 
 # Store some stuff, these can be referenced from config files
 read CLIENT SRCPORT SERVER DSTPORT <<<"${SSH_CONNECTION}"
@@ -16,6 +17,7 @@ export DISPLAY="${CLIENT}:0"
 export TERM
 export PPID HOST_PORT="$PPID"
 export TMOUT=60
+export DOCKER_VERSION
 readonly CLIENT SRCPORT SERVER DSTPORT SSH_TTY TERM PPID TMOUT
 
 err(){

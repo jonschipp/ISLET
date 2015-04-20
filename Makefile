@@ -41,7 +41,7 @@ help:
 	$(Q)echo " $(red)install-docker$(normal)               	- Install docker ($(normal)$(yellow)Debian/Ubuntu only$(normal))"
 	$(Q)echo " $(red)docker-config$(normal)                  - Configure docker storage backend ($(normal)$(yellow)Debian/Ubuntu only$(normal))($(red)Unstable$(normal))"
 	$(Q)echo " $(red)user-config$(normal)               	- Configure demo user for islet"
-	$(Q)echo " $(red)security-config$(normal)               	- Configure security controls (ulimit, sshd_config)"
+	$(Q)echo " $(red)security-config$(normal)               	- Configure security controls (sshd_config)"
 	$(Q)echo " $(red)iptables-config$(normal)               	- Install iptables rules (def: /etc/network/if-pre-up.d/)"
 	$(Q)echo "$(bold)Miscellaneous targets:$(normal)"
 	$(Q)echo " $(red)install-brolive-config$(normal)        	- Install and configure Brolive image"

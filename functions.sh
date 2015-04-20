@@ -226,25 +226,6 @@ security_configuration(){
   local SHELL="${2:-$SHELL}"
   hi "  Configuring the system with security in mind!\n"
 
-  if [ ! -e "$LIMITS/islet.conf" ]; then
-    echo "demo             hard    maxlogins       500" 	>  "$LIMITS/islet.conf"
-    echo "demo             hard    cpu             180" 	>> "$LIMITS/islet.conf"
-    echo "@docker          hard    fsize           1000000"     >> "$LIMITS/islet.conf"
-    echo "@docker          hard    nproc           10000" 	>> "$LIMITS/islet.conf"
-  fi
-
-
-  if ! grep -q ISLET "$UPSTART" 2>/dev/null
-  then
-    sed -i '/limit/a \
-    # BEGIN ISLET Additions \
-    limit nofile 10000 20000 \
-    limit nproc  1000 2000 \
-    limit fsize  100000000 200000000 \
-    # END' "$UPSTART" 2>/dev/null
-    RESTART_DOCKER=1
-  fi
-
   if ! grep -q "ClientAliveInterval 15" "$SSH_CONFIG"
   then
     printf "\nClientAliveInterval 600\nClientAliveCountMax 3\n" >> "$SSH_CONFIG"
