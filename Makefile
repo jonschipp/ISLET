@@ -1,7 +1,7 @@
 .PHONY: default help install uninstall pull update logo mrproper package
 
 PROG 		= islet
-VERSION		= 1.0
+VERSION		= 1.1.0
 CONFIG_DIR 	= /etc/$(PROG)
 INSTALL_DIR 	= /opt/$(PROG)
 LIB_DIR		= $(INSTALL_DIR)/lib
@@ -31,7 +31,7 @@ yellow	 	= $(shell tput setaf 3)
 default: help
 
 help:
-	$(Q)echo "$(bold)ISLET installation targets:$(normal)"
+	$(Q)echo "$(bold)ISLET (v$(VERSION)) installation targets:$(normal)"
 	$(Q)echo " $(red)install$(normal)                  	- Install and configure islet on the host"
 	$(Q)echo " $(red)install-contained$(normal)    		- Install islet as container, with little modification to host"
 	$(Q)echo " $(red)uninstall$(normal) 	                - Uninstalls islet ($(yellow)Backup first!$(normal))"
@@ -56,6 +56,7 @@ install-contained:
 	$(Q)echo " $(yellow)Installing $(PROG)$(normal)"
 	mkdir -m 755 -p $(CONFIG_DIR)
 	install -o root -g root -m 644 config/islet.conf $(CONFIG_DIR)/$(PROG).conf
+	sed -i "s|ISLETVERS|$(VERSION)|" $(CONFIG_DIR)/islet.conf
 	sed -i "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
 	install -o root -g root -m 644 config/security.conf $(CONFIG_DIR)/security.conf
 	docker run -d --name="islet" \
@@ -94,6 +95,7 @@ install-files:
 
 configuration:
 	$(Q)echo " $(yellow)Post-install configuration$(normal)"
+	sed -i "s|ISLETVERS|$(VERSION)|" $(CONFIG_DIR)/islet.conf
 	sed -i "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
 	visudo -c
 	sed -i "s|LOCATION|$(CRON_DIR)|g" $(CRON)/$(PROG)
