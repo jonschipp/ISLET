@@ -1,7 +1,7 @@
 .PHONY: default help install uninstall pull update logo mrproper package
 
 PROG 		= islet
-VERSION		= 1.1.1
+VERSION		= 1.1.2
 CONFIG_DIR 	= /etc/$(PROG)
 INSTALL_DIR 	= /opt/$(PROG)
 LIB_DIR		= $(INSTALL_DIR)/lib
@@ -165,6 +165,8 @@ user-config:
 
 security-config:
 	$(FUNCTIONS) security_configuration $(USER) $(BIN_DIR)/$(PROG)_shell
+
+bro-training: install user-config security-config install-docker install-brolive-config
 
 iptables-config:
 	install -o root -g root -m 750 extra/iptables-rules $(IPTABLES)
