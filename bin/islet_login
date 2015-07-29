@@ -322,6 +322,8 @@ attach_container(){
   RESULT=$?
   [[ $RESULT -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
   [[ $RESULT -ne 0   ]] && [[ DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode for more info: DEBUG=yes in $CONFIG"
+  # No errors, we made it
+  return 0
 }
 
 config_menu(){
@@ -406,7 +408,10 @@ try_again(){
 ######################################################################
 
 does_image_exist(){
-  if ! sudo fgrep -q "$IMAGE" /var/lib/docker/repositories-"${STORAGE_BACKEND}" 2>/dev/null
+  BASE="$IMAGE"
+  [[ "$BASE" == *:* ]] && TAG="${BASE##*:}" && BASE=${BASE%%:*}
+  [[ $TAG ]] || TAG=latest
+  if ! sudo fgrep -q "${BASE}\":{\"${TAG}" /var/lib/docker/repositories-"${STORAGE_BACKEND}" 2>/dev/null
   then
     notice "Image not found, trying Docker Hub..." && echo
     docker pull "$IMAGE" 2>/dev/null || quit "Image doesn't exist!"
