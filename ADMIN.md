@@ -86,7 +86,7 @@ gpasswd -a training islet
     $ grep -A 5 "Container config /etc/islet/brolive.conf
 	# Container Configuration
 	VIRTUSER="demo"                                         # Account used when container is entered (Must exist in container!)
-	CPU="1"                                                 # Number of CPU's allocated to each container
+	CPUSHARES="1024"                                        # Proportion of cpu share allocation per container
 	RAM="256m"                                              # Amount of memory allocated to each container
 	HOSTNAME="bro"	                                      	# Set hostname in container. PS1 will end up as $VIRTUSER@$HOSTNAME:~$ in shell
 	NETWORK="none"                                          # Disable networking by default: none; Enable networking: bridge
