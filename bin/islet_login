@@ -672,15 +672,15 @@ start_container(){
   check_capabilities
   check_ulimits
 
-  local NAME_OPT="--name="${BASENAME}.${USERNAME}" -t -h $HOSTNAME"
-  local RES_OPT="--cpu-shares ${CPUSHARES:-$CPU} --cpuset ${CPUSET:-0} -m $RAM"
+  local NAME_OPT="--name="${BASENAME}.${USERNAME}" --tty --hostname $HOSTNAME"
+  local RES_OPT="--cpu-shares ${CPUSHARES:-$CPU} --cpuset ${CPUSET:-0} --memory $RAM"
   local NET_OPT="$PUBLISH --net $NETWORK --dns $DNS --add-host $HOSTNAME:127.0.0.1"
   local GLB_OPT="$GLOBAL_OPTIONS"
   local OTH_OPT="$LOCAL_OPTIONS"
   local CAP_OPT="$CAPABILITIES_OPTIONS"
   local LMT_OPT="$ULIMIT_OPTIONS"
   local MNT_OPT="$MOUNT"
-  local IMG_OPT="$REMOVE -i $IMAGE"
+  local IMG_OPT="$REMOVE --interactive $IMAGE"
   local ENV_OPT="sudo -i -u $VIRTUSER $GLOBAL_ENV $LOCAL_ENV"
 
   # If debugging is yes
