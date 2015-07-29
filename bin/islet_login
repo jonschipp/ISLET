@@ -356,6 +356,7 @@ config_menu(){
   # Inherit the variables from the config file after selection
   select CONFIGURATION in "${LIST[@]}"
   do
+    MENU=1
     if [[ -f "$CONFIG_DIR/$CONFIGURATION" ]]; then
       . "$CONFIG_DIR/$CONFIGURATION"
       break
@@ -367,6 +368,10 @@ config_menu(){
       quit "Too many failed attempts! ($COUNT/$FAILURE_COUNT)"
     fi
   done
+
+  # Avoid launching last value of CONFIGURATION when user sends EOF
+  [[ $MENU ]] || quit "Quit by user..."
+  unset MENU
 
   # Display image banner
   [[ "$BANNER" ]] && clear && echo "$BANNER"
