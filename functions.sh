@@ -80,7 +80,7 @@ TIMEOUT="4h"                                            # Max runtime of contain
 # Container Configuration
 VIRTUSER="demo"                                         # Account used when container is entered (Must exist in image!)
 CPUSHARES="1024"                                        # Proportion of cpu share allocation per container
-RAM="256m"                                              # Amount of memory allocated to each container
+MEMORY="256m"                                              # Amount of memory allocated to each container
 HOSTNAME="netsniff-ng"                                  # Set hostname in container. PS1 will end up as $VIRTUSER@$HOSTNAME:~$ in shell
 NETWORK="none"                                          # Disable networking by default: none; Enable networking: bridge
 DNS="127.0.0.1"                                         # Use loopback when networking is disabled to prevent error messages from resolver
