@@ -637,8 +637,9 @@ check_ulimits(){
 #   BASENAME        - from ISLET config files, container prefix used to build container name
 #   USERNAME        - given username for login, container postfix, used to build container name
 #   HOSTNAME        - from ISLET config files, hostname of container
-#   CPU             - from ISLET config files, relative cpu share allocation per container
-#   MEMORY           - from ISLET config files, memory allocation per container
+#   CPUSHARES       - from ISLET config files, relative cpu share allocation per container
+#   CPUSET          - from ISLET config files, cpu's available for container
+#   MEMORY          - from ISLET config files, memory allocation per container
 #   NETWORK         - from ISLET config files, network settings for container
 #   DNS             - from ISLET config files, nameservers for container
 #   GLOBAL_OPTIONS  - from ISLET config files, pass docker options to all containers
