@@ -640,6 +640,7 @@ check_ulimits(){
 #   CPUSHARES       - from ISLET config files, relative cpu share allocation per container
 #   CPUSET          - from ISLET config files, cpu's available for container
 #   MEMORY          - from ISLET config files, memory allocation per container
+#   SWAP            - from ISLET config files, swap memory allocation per container
 #   NETWORK         - from ISLET config files, network settings for container
 #   DNS             - from ISLET config files, nameservers for container
 #   GLOBAL_OPTIONS  - from ISLET config files, pass docker options to all containers
@@ -674,7 +675,7 @@ start_container(){
   check_ulimits
 
   local NAME_OPT="--name="${BASENAME}.${USERNAME}" --tty --hostname $HOSTNAME"
-  local RES_OPT="--cpu-shares ${CPUSHARES:-$CPU} --cpuset ${CPUSET:-0} --memory ${MEMORY:-$RAM}"
+  local RES_OPT="--cpu-shares ${CPUSHARES:-$CPU} --cpuset-cpus ${CPUSET:-0} --memory ${MEMORY:-$RAM} --memory-swap ${SWAP:--1}"
   local NET_OPT="$PUBLISH --net $NETWORK --dns $DNS --add-host $HOSTNAME:127.0.0.1"
   local GLB_OPT="$GLOBAL_OPTIONS"
   local OTH_OPT="$LOCAL_OPTIONS"

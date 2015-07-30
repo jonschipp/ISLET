@@ -87,7 +87,8 @@ gpasswd -a training islet
 	# Container Configuration
 	VIRTUSER="demo"                                         # Account used when container is entered (Must exist in container!)
 	CPUSHARES="1024"                                        # Proportion of cpu share allocation per container
-	MEMORY="256m"                                              # Amount of memory allocated to each container
+	MEMORY="256m"                                           # Amount of memory allocated to each container
+	SWAP="100m"                                             # Amount of swap memory allocated to each container
 	HOSTNAME="bro"	                                      	# Set hostname in container. PS1 will end up as $VIRTUSER@$HOSTNAME:~$ in shell
 	NETWORK="none"                                          # Disable networking by default: none; Enable networking: bridge
 	DNS="127.0.0.1"                                         # Use loopback when networking is disabled to prevent error messages from resolver
