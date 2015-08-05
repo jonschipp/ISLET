@@ -343,7 +343,7 @@ config_menu(){
       printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config${N}" "|" "${U}$DESCRIPTION${N}"
       LIST+=("$config")
     fi
-    unset BANNER VISIBLE ENABLE config
+    unset BANNER VISIBLE ENABLE PLUGIN config
   done
 
   # Quit if there are no config files present
@@ -368,6 +368,19 @@ config_menu(){
       quit "Too many failed attempts! ($COUNT/$FAILURE_COUNT)"
     fi
   done
+
+  unset LIST
+
+  # If configuration is for plugin then execute it
+  if [[ $PLUGIN ]]; then
+    if [[ -f "$PLUGIN_DIR/$PLUGIN" ]]; then
+      . "$PLUGIN_DIR/$PLUGIN"
+    else
+      alert "Plugin $PLUGIN does not exist..contact the administrator."
+    fi
+    # Go back to menu_loop after
+    return 0
+  fi
 
   # Avoid launching last value of CONFIGURATION when user sends EOF
   [[ $MENU ]] || quit "Quit by user..."
