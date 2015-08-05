@@ -667,6 +667,7 @@ env_setup(){
 #   VIRTUSER        - from ISLET config files, user to become in container
 #   GLOBAL_ENV      - from global ISLET config, pass environment variables to all containers
 #   LOCAL_ENV       - from ISLET config files, pass per-image environment variables
+#   WORKDIR         - from ISLET config files, working directory in container
 #   CLIENT          - ip address of connecting user
 #   SRCPORT         - source port of connecting user
 #   SERVER          - ip address of islet server
@@ -699,19 +700,20 @@ start_container(){
   local CAP_OPT="$CAPABILITIES_OPTIONS"
   local LMT_OPT="$ULIMIT_OPTIONS"
   local MNT_OPT="$MOUNT"
-  local IMG_OPT="$REMOVE --interactive $IMAGE"
+  local DIR_OPT="--workdir ${WORKDIR:-/home/$VIRTUSER}"
   local ENV_OPT="$ENV_CMD"
+  local IMG_OPT="$REMOVE --interactive $IMAGE"
   local CMD_OPT="${COMMAND:-sudo -i -u $VIRTUSER}"
 
   # If debugging is yes
   is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"
-  is_debug "opt: docker run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $CAP_OPT $LMT_OPT $ENV_OPT $IMG_OPT $CMD_OPT"
+  is_debug "opt: docker run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $CAP_OPT $LMT_OPT $DIR_OPT $ENV_OPT $IMG_OPT $CMD_OPT"
 
   notice "Enjoy yourself!"
   mention "$MOTD"
 
   # Run container
-  eval timeout --foreground "$TIMEOUT" docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $CAP_OPT $LMT_OPT $MNT_OPT $ENV_OPT $IMG_OPT $CMD_OPT" "$INFOLEVEL"
+  eval timeout --foreground "$TIMEOUT" docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $CAP_OPT $LMT_OPT $MNT_OPT $DIR_OPT $ENV_OPT $IMG_OPT $CMD_OPT" "$INFOLEVEL"
   RESULT=$?
   [[ $RESULT -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
   [[ $RESULT -ne 0   ]] && [[ $DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode: DEBUG=yes in $CONFIG"
