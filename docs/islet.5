@@ -13,12 +13,13 @@ engine or to ISLET scripts to define the settings a training environment. An env
 
 There cannot be any whitespace between the variable name, the assignment operator, and the value.
 Also, quoting is not required but recommended for security and whitespace issues.
-ISLET has two types of configuration files that differ only with scope:
+ISLET has three types of configuration files that differ only with scope:
 .Bd -literal -offset indent
 Config        Description
 ------        --------------
 Global        Global values inherited by all images but optionally superseded in Image configurations
 Image         Per image configuration that are local to a specific image i.e. training environment
+Plugin        Plugin configurations are used to launch plugins
 .Ed
 
 The default locations for ISLET are
@@ -29,6 +30,7 @@ Location                      Description
 /opt/islet                    Installation directory
 /opt/islet/bin                ISLET scripts
 /opt/islet/cron               Maintainance scripts
+/opt/islet/plugins            Plugin directory
 /opt/islet/lib                Library
 .Ed
 
@@ -52,6 +54,7 @@ Variables used to configure containers are passed directly to
 # System Configuration
 CONFIG_DIR="/etc/islet"                           # Directory to search for configuration files, used by scripts.
 INSTALL_DIR="/opt/islet"                          # ISLET installation directory
+PLUGIN_DIR="INSTALL_DIR/plugins"                  # ISLET plugins directory
 LIBISLET="$INSTALL_DIR/lib/libislet"              # Common functions are stored in libislet
 SHELL="$INSTALL_DIR/bin/islet_shell"              # ISLET shell, displays login banner, menu, and then launches islet_login
 LAUNCH_CONTAINER="$INSTALL_DIR/bin/islet_login"   # User management script and container launcher
@@ -126,6 +129,17 @@ A place to try out Bro.
 
 ================================
 "
+.Ed
+
+.Ed
+.Sh EXAMPLE PLUGIN CONFIG FILE
+ISLET supports plugins which are any interpreted scripts that can be run as the ISLET user.
+A plugin configuration file describes the plugin. The most important setting being the variable PLUGIN which points to the script to execute.
+Plugin configuration files are placed in /etc/islet and the plugin scripts are located in /opt/islet/plugins.
+.Bd -literal
+ENABLE="yes"                           # Enable plugin
+DESCRIPTION="Restart ISLET session"    # Description of plugin
+PLUGIN="restart"                       # Filename of plugin to run
 .Ed
 
 .Sh SEE ALSO

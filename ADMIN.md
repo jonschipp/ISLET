@@ -40,11 +40,14 @@ vim /etc/islet/islet/gcc.conf
 ### Configuration
 
 * Global configuration file: */etc/islet/islet.conf*
-* Per-image configuration file: */etc/islet/$IMAGE.conf*
+* Per-image configuration files: */etc/islet/$IMAGE.conf*
+* Plugin configuration files: */etc/islet/$PLUGIN.conf*
 
 Per-image configs overwrite the variables specified in the global config file.
 For each Docker image you want available for use by ISLET, create an image file with a .conf extension and place it in the /etc/islet/ directory.
-These images will be selectable from the ISLET menu after authentication via SSH.
+These images will be selectable from the ISLET menu after authentication via
+SSH. Plugin configurations are also selectable from the ISLET menu and are
+intended to add funtionality by running scripts from the ISLET plugins directory.
 
 Common Tasks:
 
