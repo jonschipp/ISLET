@@ -703,7 +703,7 @@ start_container(){
   local DIR_OPT="--workdir ${WORKDIR:-/home/$VIRTUSER}"
   local ENV_OPT="$ENV_CMD"
   local IMG_OPT="$REMOVE --interactive $IMAGE"
-  local CMD_OPT="${COMMAND:-sudo -i -u $VIRTUSER}"
+  local CMD_OPT="${COMMAND:-su $VIRTUSER}"
 
   # If debugging is yes
   is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"
