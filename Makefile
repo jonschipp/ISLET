@@ -1,7 +1,7 @@
 .PHONY: default help install uninstall pull update logo mrproper package
 
 PROG 		= islet
-VERSION		= 1.3.0
+VERSION		= 1.3.2
 CONFIG_DIR 	= /etc/$(PROG)
 INSTALL_DIR 	= /opt/$(PROG)
 LIB_DIR		= $(INSTALL_DIR)/lib

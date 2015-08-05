@@ -631,6 +631,22 @@ check_ulimits(){
   [[ "$ULIMIT_STACK" ]]      && set_ulimits stack      $ULIMIT_STACK
 }
 
+##################################################################
+# Setup variables for inclusion by Docker
+# Globals:
+#   ENVS - Option in ISLET configuration files
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+
+env_setup(){
+  for i in $ENVS; do
+   ENV_CMD="${ENV_CMD} --env $i"
+  done
+}
+
 ###############################################################################################
 # Pass all options to Docker and replace this process with the container
 # Globals:
@@ -673,6 +689,7 @@ start_container(){
   port_forwarding_setup
   check_capabilities
   check_ulimits
+  env_setup
 
   local NAME_OPT="--name="${BASENAME}.${USERNAME}" --tty --hostname $HOSTNAME"
   local RES_OPT="--cpu-shares ${CPUSHARES:-$CPU} --cpuset-cpus ${CPUSET:-0} --memory ${MEMORY:-$RAM} --memory-swap ${SWAP:--1}"
@@ -683,17 +700,18 @@ start_container(){
   local LMT_OPT="$ULIMIT_OPTIONS"
   local MNT_OPT="$MOUNT"
   local IMG_OPT="$REMOVE --interactive $IMAGE"
-  local ENV_OPT="sudo -i -u $VIRTUSER $GLOBAL_ENV $LOCAL_ENV"
+  local ENV_OPT="$ENV_CMD"
+  local CMD_OPT="${COMMAND:-sudo -i -u $VIRTUSER}"
 
   # If debugging is yes
   is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"
-  is_debug "opt: docker run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $CAP_OPT $LMT_OPT $IMG_OPT $ENV_OPT"
+  is_debug "opt: docker run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $CAP_OPT $LMT_OPT $ENV_OPT $IMG_OPT $CMD_OPT"
 
   notice "Enjoy yourself!"
   mention "$MOTD"
 
   # Run container
-  eval timeout --foreground "$TIMEOUT" docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $CAP_OPT $LMT_OPT $MNT_OPT $IMG_OPT $ENV_OPT" "$INFOLEVEL"
+  eval timeout --foreground "$TIMEOUT" docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $CAP_OPT $LMT_OPT $MNT_OPT $ENV_OPT $IMG_OPT $CMD_OPT" "$INFOLEVEL"
   RESULT=$?
   [[ $RESULT -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
   [[ $RESULT -ne 0   ]] && [[ $DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode: DEBUG=yes in $CONFIG"

@@ -79,7 +79,7 @@ source "$CONFIG_DIR"/security.conf  # Detailed kernel security capabilities to a
 
 # Global Container Configuration
 GLOBAL_OPTIONS=""            # Apply options to all configs, line should not be present in per image configs
-GLOBAL_ENV="PLATFORM=islet"  # Variables that get passed to VIRTUSER's shell for all containers
+export PLATFORM=islet"       # Exported to container's environment. Made available using ENVS in per image config
 .Ed
 .Sh EXAMPLE IMAGE CONFIG FILE
 .Bd -literal
@@ -94,6 +94,7 @@ DAYS=3                                 # Container lifetime specified in days, r
 
 # Container Configuration
 VIRTUSER="demo"                        # Account used when container is entered (Must exist in container!)
+COMMAND="su $VIRTUSER"                 # Command to launch on container entry, typically used to get shell
 CPUSHARE=1024                          # Proportion of cpu share allocation per container (Option used to be CPU)
 MEMORY="256m"                          # Amount of memory allocated to each container (Option used to be RAM)
 SWAP="100m"                            # Amount of swap memory allocated to each container
@@ -104,7 +105,8 @@ MOUNT="-v /exercises:/exercises:ro"    # Mount point(s), sep. by -v: /src:/dst:a
 CAP_NET_ADMIN="yes"                    # Configure the network
 CAP_NET_RAW="yes"                      # Use RAW and PACKET sockets
 LOCAL_OPTIONS=""                       # Apply any other options you want passed to docker run here
-LOCAL_ENV=""                           # Variables that get passed to VIRTUSER's shell for container e.g. LOCAL_ENV="ISLET=1"
+export IMAGE                           # Export variables for container environment
+ENVS="PLATFORM IMAGE"                  # Make exported variables available in container
 
 # Branding & Information
 MOTD="Training materials are in /exercises" # Message of the day is displayed before entering container
