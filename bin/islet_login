@@ -653,6 +653,7 @@ env_setup(){
 #   BASENAME        - from ISLET config files, container prefix used to build container name
 #   USERNAME        - given username for login, container postfix, used to build container name
 #   HOSTNAME        - from ISLET config files, hostname of container
+#   COMMAND         - from ISLET config files, set entrypoint command for container
 #   CPUSHARES       - from ISLET config files, relative cpu share allocation per container
 #   CPUSET          - from ISLET config files, cpu's available for container
 #   MEMORY          - from ISLET config files, memory allocation per container
@@ -665,8 +666,7 @@ env_setup(){
 #   REMOVE          - from ISLET config files, remove container after exit
 #   IMAGE           - from ISLET config files, docker image to launch
 #   VIRTUSER        - from ISLET config files, user to become in container
-#   GLOBAL_ENV      - from global ISLET config, pass environment variables to all containers
-#   LOCAL_ENV       - from ISLET config files, pass per-image environment variables
+#   ENVS            - from ISLET config files, environment variables to set in container
 #   WORKDIR         - from ISLET config files, working directory in container
 #   CLIENT          - ip address of connecting user
 #   SRCPORT         - source port of connecting user

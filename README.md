@@ -12,10 +12,8 @@ configuration effort. The participation barrier is set very low, students only n
 
 #### Uses
 
-* Event training
-* Staff training
+* Event and staff training
 * Capture the flag competitions
-* Trying out tools in a containerized environment
 * Development environments
 
 ## Demo
@@ -123,7 +121,6 @@ It is designed to be a quick way to get a working system with a good configurati
 Install ISLET on the host:
 ```shell
 make install-docker	# Installs latest Docker
-make configure-docker   # Limits image and container sizes by rebuilding storage backend (Skip if using Docker 1.4+)
 make security-config    # Configure islet relevant security with sshd
 ```
 
