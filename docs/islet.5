@@ -142,6 +142,16 @@ DESCRIPTION="Restart ISLET session"    # Description of plugin
 PLUGIN="restart"                       # Filename of plugin to run
 .Ed
 
+ISLET ships with a few default plugins:
+.Bd -literal -offset indent
+Plugin        Description
+------        --------------
+restart       Restart the ISLET program without reconnecting
+del_user      Deletes the current users account from the database
+del_training  Deletes a users training environment, data contained will be lost
+clear         Used to clear the screen
+.Ed
+
 .Sh SEE ALSO
 .Xr docker-run 1 ,
 .Sh AUTHORS

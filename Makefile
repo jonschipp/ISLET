@@ -84,6 +84,8 @@ install-files:
 	install -o root -g root -m 644 config/security.conf $(CONFIG_DIR)/security.conf
 	install -o root -g root -m 644 config/1-restart.conf $(CONFIG_DIR)/1-restart.conf
 	install -o root -g root -m 644 config/2-del_user.conf $(CONFIG_DIR)/2-del_user.conf
+	install -o root -g root -m 644 config/3-del_training.conf $(CONFIG_DIR)/3-del_training.conf
+	install -o root -g root -m 644 config/4-clear.conf $(CONFIG_DIR)/4-clear.conf
 	install -o root -g root -m 644 lib/libislet $(LIB_DIR)/libislet
 	install -o root -g root -m 755 bin/islet_shell $(BIN_DIR)/$(PROG)_shell
 	install -o root -g root -m 755 bin/islet_login $(BIN_DIR)/$(PROG)_login
@@ -94,6 +96,8 @@ install-files:
 	install -o root -g root -m 750 cron/port_forward $(CRON_DIR)/port_forward
 	install -o root -g root -m 744 plugins/restart $(PLUGIN_DIR)/restart
 	install -o root -g root -m 744 plugins/del_user $(PLUGIN_DIR)/del_user
+	install -o root -g root -m 744 plugins/del_container $(PLUGIN_DIR)/del_container
+	install -o root -g root -m 744 plugins/clear $(PLUGIN_DIR)/clear
 	install -o root -g root -m 644 docs/islet.5 $(MAN_DIR)/man5/islet.5
 	install -o root -g root -m 440 config/islet.sudoers $(SUDOERS)/islet
 	$(Q)echo " $(bold)--> Configuration directory is$(normal) $(underline)$(CONFIG_DIR)$(normal)"

@@ -5,8 +5,9 @@ Isolated, Scalable, & Lightweight Environment for Training
 
 Make IT training a smoother process... <br>
 
-A container system for teaching Linux based software with minimal participation and <br>
-configuration effort. The participation barrier is set very low, students only need an SSH client.
+A container based system for teaching Linux based software with minimal participation and configuration effort.
+ISLET supports running many different training environments concurrently and has a plugin system for extending functionality.
+The participation barrier is set very low, students only need an SSH client to connect to ISLET.
 
 ![ISLET Screenshot](http://jonschipp.com/islet/islet.png)
 
@@ -113,44 +114,24 @@ The included installation scripts are designed to work with Debian/Ubuntu system
 
 **Note:** Installing ISLET as container (`make install-contained`) only requires Docker
 
-#### Ubuntu
+#### Debian/Ubuntu
 
-The following make targets will install docker and configure the system with security in mind for the Docker process.
+The following make targets will install ISLET and configure the system with security in mind for ISLET.
 It is designed to be a quick way to get a working system with a good configuration.
 
 Install ISLET on the host:
 ```shell
-make install-docker	# Installs latest Docker
+make install
 make security-config    # Configure islet relevant security with sshd
 ```
 
 Install ISLET as a container on the host:
 ```shell
-make install-docker	# Installs latest Docker
 make install-contained	# Installs ISLET as a container
 ```
 
-#### Manual
-
-For manual installation and configuration of dependencies to your liking i.e. not using the system make targets.
-
-* Install Docker:
-```shell
-apt-get install docker
-yum install docker
-```
-
-* Configure user account for training (this is given to students to login):
-```shell
-useradd --create-home --shell /opt/islet/bin/islet_shell training
-echo "training:training" | chpasswd
-groupadd docker
-groupadd islet
-gpasswd -a training docker
-gpasswd -a training islet
-```
-
-See the SECURITY file more information on manually securing the system.
+See the SECURITY file for more information on manually securing the system.
+See the ADMIN file for more information on administering the system.
 
 # Adding Training Environments
 
