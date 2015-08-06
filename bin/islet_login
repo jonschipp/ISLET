@@ -310,7 +310,7 @@ menu_loop(){
   do
     { [ -d "$CONFIG_DIR" ] && cd "$CONFIG_DIR"; } || quit "Unable to access ${CONFIG_DIR}!"
     LIST=()
-    clear && config_menu
+    config_menu
   done
 }
 

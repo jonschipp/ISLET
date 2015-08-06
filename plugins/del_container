@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+[[ -f "$DB" ]] || alert "$DB cannot be found..contact the administrator"
+
+get_user_images() {
+  image_list=$(sqlite3 "$DB" "SELECT image FROM images WHERE user='$USERNAME';")
+}
+
+get_image() {
+  container="$1"
+  image=$(sqlite3 "$DB" "SELECT image FROM images WHERE user='$USERNAME' AND image='$container';")
+}
+
+delete_image(){
+  notice "Removing existing container.."
+  sqlite3 "$DB" "pragma foreign_keys = on; DELETE FROM images WHERE user='$USERNAME' AND image='$container';"
+  docker stop "${i}.$USERNAME" 2>&1 > /dev/null
+  docker rm "${i}.$USERNAME" 2>&1 > /dev/null
+  alert "Container removed!"
+  sleep 1
+}
+
+delete_menu(){
+# Check for existing containers
+[[ $image_list ]] || { notice "There are no existing containers to delete" && return 0; }
+
+notice "Choose one of your existing containers to delete (0 for main menu):"
+PS3="${Y}[${N}${BF}Choice${N}${Y}]${N}: "
+# Here the user chooses which container to delete
+local count=0
+local failure_count=3
+
+select i in $image_list
+do
+  # Check user selected image against database
+  get_image $i
+
+  # Return to main menu if image was not in database (empty)
+  [[ $image ]] || return 0
+
+  # Execute delete_image if image in database matches user's choice
+  if [[ "$image" = "$i" ]]; then
+    delete_image
+    break
+  fi
+done
+}
+
+if file "$DB" 2>/dev/null | grep -q SQLite; then
+  get_user_images
+  delete_menu
+else
+  alert "There is a database issue..contact the administrator"
+fi
+# Cleanup
+unset image image_list
