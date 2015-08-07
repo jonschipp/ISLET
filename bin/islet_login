@@ -108,9 +108,14 @@ verify_group() {
 verify_backend() {
   local file
   local backend
+  { [[ -x "$DOCKER_DIR" ]] || [[ -r "$DOCKER_DIR/repositories-$STORAGE_BACKEND" ]]; } ||
+  quit "Cannot enter ${DOCKER_DIR}, ISLET administrator should try:
+    chown root:${GROUP} ${DOCKER_DIR}
+    chmod g+x ${DOCKER_DIR}
+    chmod g+r ${DOCKER_DIR}/repositories-*"
   for i in /var/lib/docker/repositories-{aufs,btrfs,devicemapper,vfs,overlayfs}
   do
-    file=$(sudo ls "$i" 2>/dev/null)
+    file=$(ls "$i" 2>/dev/null)
     [[ $file ]] && backend=${file#*-} && break
   done
   [[ "$backend" == "$STORAGE_BACKEND" ]] || quit "Fatal: Docker storage backend doesn't match value in $CONFIG"
@@ -132,7 +137,7 @@ enable_autocompletion(){
   [[ "$PWD" == "$TMP" ]] || { mkdir -p "$TMP" && cd "$TMP"; }
   [[ "$PWD" == "$TMP" ]] && touch {new,existing,yes,no}
   # Add this here for now
-  sudo cat /var/lib/docker/repositories-"${STORAGE_BACKEND}" > "$TMP/images"
+  cat /var/lib/docker/repositories-"${STORAGE_BACKEND}" > "$TMP/images"
 }
 
 #######################################
