@@ -3,14 +3,14 @@
 # If MAX_SIZE isn't set in per-image config then it's taken from islet.conf
 
 # Superseded by declarations in $CONFIG
-[ -d /var/lib/docker/aufs/mnt ] && CONTAINER_PATH=/var/lib/docker/aufs/mnt
-[ -d /var/lib/docker/devicemapper/mnt ] && CONTAINER_PATH=/var/lib/docker/devicemapper/mnt
+[[ -d /var/lib/docker/aufs/mnt ]] && CONTAINER_PATH=/var/lib/docker/aufs/mnt
+[[ -d /var/lib/docker/devicemapper/mnt ]] && CONTAINER_PATH=/var/lib/docker/devicemapper/mnt
 MAX_SIZE=1073741824 # Default if CONFIG not found
 METADATA="/var/lib/docker/containers/*/config.json"
 CONFIG=LOCATION
 
 # Get global variables
-if [ -f "$CONFIG" ]; then
+if [[ -f "$CONFIG" ]]; then
   . "$CONFIG"
   . "$LIBISLET"
   GLB_MAX_SIZE="$MAX_SIZE"
@@ -20,7 +20,7 @@ else
   logger -p local0.notice -t "islet" "$0: $CONFIG not found!"
 fi
 
-if [ ! -d "$CONTAINER_PATH" ]; then
+if [[ ! -d "$CONTAINER_PATH" ]]; then
   echo "$CONTAINER_PATH doesn't exist or is inaccessible, check or modify variable in $0"
   exit 1
 fi
@@ -40,7 +40,7 @@ do
     size="$(echo "$du" | awk '{ print $1 }')"
     path="$(echo "$du" | awk '{ print $2 }')"
 
-    if [ "$size" -ge "${MAX_SIZE:-$GLB_MAX_SIZE}" ]
+    if [[ "$size" -ge "${MAX_SIZE:-$GLB_MAX_SIZE}" ]]
     then
       echo 'echo "Warning: Max. disk space reached. Destroying container..."' | docker attach "$id"
       docker stop --time=3 "$id" 1>/dev/null

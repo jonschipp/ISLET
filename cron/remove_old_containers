@@ -7,7 +7,7 @@ METADATA="/var/lib/docker/containers/*/config.json"
 CONFIG=LOCATION
 
 # Get global variables
-if [ -f "$CONFIG" ]; then
+if [[ -f "$CONFIG" ]]; then
   . "$CONFIG"
   . "$LIBISLET"
   GLBDAYS="$DAYS"
@@ -31,7 +31,7 @@ do
     time="$(date --date=${tstamp} +"%s")"
     left="$((CURRENT-time))"
     delete="$((${DAYS:-GLBDAYS}*86400))"
-    if [ "$left" -gt "$delete" ]; then
+    if [[ "$left" -gt "$delete" ]]; then
       logger -t "$0" "Container $id was older than $DAYS day. Stopped"
       docker rm "$id"
     fi

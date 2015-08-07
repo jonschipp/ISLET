@@ -2,7 +2,7 @@
 # Removes PREROUTING rules no longer associated with running container for port forwarding
 CONFIG=LOCATION
 # Get global variables
-if [ -f "$CONFIG" ]; then
+if [[ -f "$CONFIG" ]]; then
   . "$CONFIG"
   . "$LIBISLET"
   readonly CONFIG LIBISLET USER INT BIND

@@ -74,6 +74,13 @@ if ! echo ${MISSING[@]} | grep -q docker; then
 fi
 }
 
+check_bash_version()
+{
+  echo -n "${BULLET} Checking bash version ... "
+  ! [[ "x$(which bash 2>/dev/null)" == "x" ]] && vers=$(bash -c 'echo $BASH_VERSION')
+  echo $vers | grep -q '^[45]' && echo "$YES 4.0+ found" || echo "$NO 4.0+ not found"
+}
+
 check_arch
 check_linux
 is_debian
@@ -84,6 +91,7 @@ do
 done
 
 check_docker_version
+check_bash_version
 
 if [ ${#MISSING[@]} -gt 0 ];
 then

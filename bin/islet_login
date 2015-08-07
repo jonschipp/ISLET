@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Global Variables
+
 CONFIG=LOCATION
 AVAILABLE_USER=1
 TIMEOUT="8h"
@@ -11,7 +12,7 @@ err(){
 }
 
 # Retrieve globals
-if [ -f "$CONFIG" ]; then
+if [[ -f "$CONFIG" ]]; then
   . "$CONFIG"
   . "$LIBISLET"
 else
@@ -110,7 +111,7 @@ verify_backend() {
   for i in /var/lib/docker/repositories-{aufs,btrfs,devicemapper,vfs,overlayfs}
   do
     file=$(sudo ls "$i" 2>/dev/null)
-    [ $file ] && backend=${file#*-} && break
+    [[ $file ]] && backend=${file#*-} && break
   done
   [[ "$backend" == "$STORAGE_BACKEND" ]] || quit "Fatal: Docker storage backend doesn't match value in $CONFIG"
 }
@@ -145,18 +146,20 @@ enable_autocompletion(){
 #######################################
 
 identify(){
-  local CHOICE
+  local choice
   enable_autocompletion
   ask "Are you a new or existing user? "
   option "new" "existing"
-  read -e -r CHOICE
+  read -e -r choice
+  # Normalize to lowercase
+  choice=${choice,,}
 
-  if [[ "$CHOICE" =~ ^[nN][eE][wW]$ ]] ||
-     [[ "$CHOICE" =~ ^[eE][xX][iI][sS][tT][iI][nN][gG]$ ]] ||
-     [[ "$CHOICE" =~ ^[nN]$ ]] || [[ "$CHOICE" =~ ^[eE]$ ]]
+  if [[ "$choice" =~ ^[n][e][w]$ ]] ||
+     [[ "$choice" =~ ^[e][x][i][s][t][i][n][g]$ ]] ||
+     [[ "$choice" =~ ^n$ ]] || [[ "$choice" =~ ^e$ ]]
   then
-    { [[ "$CHOICE" =~ ^[nN][eE][wW]$ ]] || [[ "$CHOICE" =~ ^[nN]$ ]]; } && new_user
-    { [[ "$CHOICE" =~ ^[eE][xX][iI][sS][tT][iI][nN][gG]$ ]] || [[ "$CHOICE" =~ ^[eE]$ ]]; } && existing_user
+    { [[ "$choice" =~ ^[n][e][w]$ ]] || [[ "$choice" =~ ^n$ ]]; } && new_user
+    { [[ "$choice" =~ ^[e][x][i][s][t][i][n][g]$ ]] || [[ "$choice" =~ ^e$ ]]; } && existing_user
   else
     try_again
   fi
@@ -219,14 +222,14 @@ choose_password(){
 ###################################################
 
 existing_user(){
-  local PASSWORD
-  local HASH
-  local AUTH
-  local EXISTS
-  local COUNT=0
+  local password
+  local hash
+  local auth
+  local exists
+  local count=1
   notice "Your previous account is only valid for the length of the event, after that you must create a new account"
   echo
-  while test "$COUNT" -lt "$FAILURE_COUNT"
+  while test "$count" -le "$FAILURE_COUNT"
   do
     ask "Username: "
     read -r USERNAME
@@ -235,14 +238,15 @@ existing_user(){
     read -r -s PASSWORD
     echo
 
-    HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
-    AUTH=$(sqlite3 $DB "SELECT user, password FROM accounts WHERE user='$USERNAME' AND password='$HASH';")
+    hash=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
+    auth=$(sqlite3 $DB "SELECT user, password FROM accounts WHERE user='$USERNAME' AND password='$hash';")
 
-    [ "$AUTH" ] && info "Success" && sleep 1 && break
-    notice "Login failed, try again ("$COUNT"/"$FAILURE_COUNT")."
-    let COUNT++
+    [[ "$auth" ]] && info "Success" && sleep 1 && break
+    notice "Login failed, try again ("$count"/"$FAILURE_COUNT")."
+    let count++
   done
-  [ $AUTH ] || quit "Too many failed attempts! ("$COUNT"/"$FAILURE_COUNT")."
+  let count--
+  [[ $auth ]] || quit "Too many failed attempts! ("$count"/"$FAILURE_COUNT")."
 }
 
 ###################################################
@@ -257,10 +261,9 @@ existing_user(){
 ###################################################
 
 verify_new_user(){
-  local EXISTS
+  local exists
   EXISTS=$(sqlite3 "$DB" "SELECT user FROM accounts WHERE user='$USERNAME';")
-  if [ "$EXISTS" ]
-  then
+  if [[ "$exists" ]]; then
     AVAILABLE_USER=1
     notice "User already exists! Try a different one."
   else
@@ -284,22 +287,22 @@ verify_new_user(){
 ###########################################################
 
 verify_new_password(){
-  local COUNT=0
-  local HASH
-  while [ "$PASSWORD" != "$PASSWORD_VERIFY" ] || [ "${#PASSWORD}" -lt "$MIN_PASSWD_LEN" ]
+  local count=1
+  local hash
+  while [[ "$PASSWORD" != "$PASSWORD_VERIFY" ]] || [[ "${#PASSWORD}" -lt "$MIN_PASSWD_LEN" ]]
   do
-    if [ "$COUNT" -lt "$FAILURE_COUNT" ]
+    if [[ "$count" -lt "$FAILURE_COUNT" ]]
     then
-      notice "Passwords do not match or meet length requirements (${BF}"${MIN_PASSWD_LEN}"${N}${Y}). Try again ("$COUNT"/"$FAILURE_COUNT")."
+      notice "Passwords do not match or meet length requirements (${BF}"${MIN_PASSWD_LEN}"${N}${Y}). Try again ("$count"/"$FAILURE_COUNT")."
       choose_password
     else
-      quit "Too many failed attempts! ("$COUNT"/"$FAILURE_COUNT")."
+      quit "Too many failed attempts! ("$count"/"$FAILURE_COUNT")."
     fi
-    let COUNT++
+    let count++
   done
 
-  readonly HASH=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
-  sqlite3 "$DB" "pragma foreign_keys = on; INSERT INTO accounts VALUES('"${USERNAME}"','${HASH}', strftime('%s', 'now'));" || quit "Couldn't write to $DB!"
+  readonly hash=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
+  sqlite3 "$DB" "pragma foreign_keys = on; INSERT INTO accounts VALUES('"${USERNAME}"','${hash}', strftime('%s', 'now'));" || quit "Couldn't write to $DB!"
   log "${USERNAME}: Account created from $CLIENT"
 
   echo "Your account will expire on ${MF}$EXPIRATION${N}"
@@ -308,27 +311,31 @@ verify_new_password(){
 menu_loop(){
   while true
   do
-    { [ -d "$CONFIG_DIR" ] && cd "$CONFIG_DIR"; } || quit "Unable to access ${CONFIG_DIR}!"
+    { [[ -d "$CONFIG_DIR" ]] && cd "$CONFIG_DIR"; } || quit "Unable to access ${CONFIG_DIR}!"
     LIST=()
     config_menu
   done
 }
 
 attach_container(){
+  local result
   # User is re-attaching to previous image
   log "${USERNAME}: Returning user from $CLIENT"
   notice "Welcome back!"
   mention "$MOTD"
   is_debug "opt: docker start ${BASENAME}.${USERNAME} && docker attach ${BASENAME}.${USERNAME}"
   docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && timeout --foreground "$TIMEOUT" docker attach "${BASENAME}.${USERNAME}"
-  RESULT=$?
-  [[ $RESULT -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
-  [[ $RESULT -ne 0   ]] && [[ DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode for more info: DEBUG=yes in $CONFIG"
+  result=$?
+  [[ $result -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
+  [[ $result -ne 0   ]] && [[ DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode for more info: DEBUG=yes in $CONFIG"
   # No errors, we made it
   return 0
 }
 
 config_menu(){
+  local count=0
+  local menu
+  local attach
   # Configuration menu
   notice "\t\t\t\tAvailable configurations:\n"
   printf '\t\t\t%-29s %-7s %-30s\n' "${B}Configuration${N}" "|" "${B}Description${N}"
@@ -356,16 +363,16 @@ config_menu(){
   # Inherit the variables from the config file after selection
   select CONFIGURATION in "${LIST[@]}"
   do
-    MENU=1
+    menu=1
     if [[ -f "$CONFIG_DIR/$CONFIGURATION" ]]; then
       . "$CONFIG_DIR/$CONFIGURATION"
       break
     else
-      let COUNT++
-      alert "Invalid choice! Try again ($COUNT/$FAILURE_COUNT)"
-    fi
-    if [[ "$COUNT" -ge "$FAILURE_COUNT" ]]; then
-      quit "Too many failed attempts! ($COUNT/$FAILURE_COUNT)"
+      let count++
+      if [[ "$count" -ge "$FAILURE_COUNT" ]]; then
+        quit "Too many failed attempts! ($count/$FAILURE_COUNT)"
+      fi
+      alert "Invalid choice! Try again ($count/$FAILURE_COUNT)"
     fi
   done
 
@@ -383,15 +390,15 @@ config_menu(){
   fi
 
   # Avoid launching last value of CONFIGURATION when user sends EOF
-  [[ $MENU ]] || quit "Quit by user..."
-  unset MENU
+  [[ $menu ]] || quit "Quit by user..."
+  unset menu
 
   # Display image banner
   [[ "$BANNER" ]] && clear && echo "$BANNER"
 
   # This is how we handle using the same account for multiple images
-  ATTACH=$(sqlite3 $DB "SELECT image FROM images WHERE user='$USERNAME' AND image='$BASENAME'";)
-  { [[ $ATTACH ]] && attach_container; } || start_container
+  attach=$(sqlite3 $DB "SELECT image FROM images WHERE user='$USERNAME' AND image='$BASENAME'";)
+  { [[ $attach ]] && attach_container; } || start_container
 }
 
 ###########################################################
@@ -405,13 +412,15 @@ config_menu(){
 ###########################################################
 
 try_again(){
-  local TRY
+  local try
   ask "I didn't understand your response. Would you like to try again? "
   option "yes" "no"
-  read -e -r TRY
-  if [[ "$TRY" =~ ^[YyNn]$ ]] || [[ "$TRY" =~ ^[yY][eE][sS]$ ]] || [[ "$TRY" =~ ^[nN][oO]$ ]]; then
-     [[ "$TRY" =~ ^[Yy]$   ]] || [[ "$TRY" =~ ^[yY][eE][sS]$ ]] && identify
-     [[ "$TRY" =~ ^[Nn]$   ]] || [[ "$TRY" =~ ^[nN][oO]$     ]] && quit "User decided to leave from try_again"
+  read -e -r try
+  # Normalize to lowercase
+  try=${try,,}
+  if [[ "$try" =~ ^[yn]$ ]] || [[ "$try" =~ ^[y][e][s]$ ]] || [[ "$try" =~ ^[n][o]$ ]]; then
+     [[ "$try" =~ ^y$   ]]  || [[ "$try" =~ ^[y][e][s]$ ]] && identify
+     [[ "$try" =~ ^n$   ]]  || [[ "$try" =~ ^[n][o]$    ]] && quit "user decided to leave from try_again"
   else
     quit "User forced to exit from try_again because of invalid response to question"
   fi
@@ -430,7 +439,6 @@ try_again(){
 does_image_exist(){
   local repo
   local tag
-  unset tag repo
   repo="$IMAGE"
   [[ "$repo" == *:* ]] && tag="${repo##*:}" && repo=${repo%%:*}
   [[ $tag ]] || tag=latest
@@ -439,6 +447,7 @@ does_image_exist(){
     notice "Image not found, trying Docker Hub..." && echo
     docker pull "$IMAGE" 2>/dev/null || quit "Image doesn't exist!"
   fi
+  unset tag repo
 }
 
 #################################################################################
@@ -463,7 +472,7 @@ does_image_exist(){
 
 port_forwarding_setup() {
   # Use HOST_PORT and CLIENT as a way to associate the user with a container port (VIRTUAL_PORT)
-  if [ "$VIRTUAL_PORT" ]; then
+  if [[ "$VIRTUAL_PORT" ]]; then
     # If host port is in use, find another to bind to
     while true
     do
@@ -504,7 +513,7 @@ port_forwarding_setup() {
 ######################################################################
 
 removal_setup(){
-  if [[ "$REMOVE" == "yes" ]] || [ "$VIRTUAL_PORT" ] # Re-attachment is impractical for port forwarding
+  if [[ "$REMOVE" == "yes" ]] || [[ "$VIRTUAL_PORT" ]] # Re-attachment is impractical for port forwarding
   then
     echo
     notice "This container is set to be terminated upon exit, work will not be saved."
@@ -698,6 +707,7 @@ env_setup(){
 ###############################################################################################
 
 start_container(){
+  local result
   does_image_exist
   removal_setup
   port_forwarding_setup
@@ -705,31 +715,31 @@ start_container(){
   check_ulimits
   env_setup
 
-  local NAME_OPT="--name="${BASENAME}.${USERNAME}" --tty --hostname $HOSTNAME"
-  local RES_OPT="--cpu-shares ${CPUSHARES:-$CPU} --cpuset-cpus ${CPUSET:-0} --memory ${MEMORY:-$RAM} --memory-swap ${SWAP:--1}"
-  local NET_OPT="$PUBLISH --net $NETWORK --dns $DNS --add-host $HOSTNAME:127.0.0.1"
-  local GLB_OPT="$GLOBAL_OPTIONS"
-  local OTH_OPT="$LOCAL_OPTIONS"
-  local CAP_OPT="$CAPABILITIES_OPTIONS"
-  local LMT_OPT="$ULIMIT_OPTIONS"
-  local MNT_OPT="$MOUNT"
-  local DIR_OPT="--workdir ${WORKDIR:-/home/$VIRTUSER}"
-  local ENV_OPT="$ENV_CMD"
-  local IMG_OPT="$REMOVE --interactive $IMAGE"
-  local CMD_OPT="${COMMAND:-su $VIRTUSER}"
+  local name_opt="--name="${BASENAME}.${USERNAME}" --tty --hostname $HOSTNAME"
+  local res_opt="--cpu-shares ${CPUSHARES:-$CPU} --cpuset-cpus ${CPUSET:-0} --memory ${MEMORY:-$RAM} --memory-swap ${SWAP:--1}"
+  local net_opt="$PUBLISH --net $NETWORK --dns $DNS --add-host $HOSTNAME:127.0.0.1"
+  local glb_opt="$GLOBAL_OPTIONS"
+  local oth_opt="$LOCAL_OPTIONS"
+  local cap_opt="$CAPABILITIES_OPTIONS"
+  local lmt_opt="$ULIMIT_OPTIONS"
+  local mnt_opt="$MOUNT"
+  local dir_opt="--workdir ${WORKDIR:-/home/$VIRTUSER}"
+  local env_opt="$ENV_CMD"
+  local img_opt="$REMOVE --interactive $IMAGE"
+  local cmd_opt="${COMMAND:-su $VIRTUSER}"
 
   # If debugging is yes
   is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"
-  is_debug "opt: docker run $NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $MNT_OPT $CAP_OPT $LMT_OPT $DIR_OPT $ENV_OPT $IMG_OPT $CMD_OPT"
+  is_debug "opt: docker run $name_opt $res_opt $net_opt $glb_opt $oth_opt $mnt_opt $cap_opt $lmt_opt $dir_opt $env_opt $img_opt $cmd_opt"
 
   notice "Enjoy yourself!"
   mention "$MOTD"
 
   # Run container
-  eval timeout --foreground "$TIMEOUT" docker run "$NAME_OPT $RES_OPT $NET_OPT $GLB_OPT $OTH_OPT $CAP_OPT $LMT_OPT $MNT_OPT $DIR_OPT $ENV_OPT $IMG_OPT $CMD_OPT" "$INFOLEVEL"
-  RESULT=$?
-  [[ $RESULT -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
-  [[ $RESULT -ne 0   ]] && [[ $DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode: DEBUG=yes in $CONFIG"
+  eval timeout --foreground "$TIMEOUT" docker run "$name_opt $res_opt $net_opt $glb_opt $oth_opt $cap_opt $lmt_opt $mnt_opt $dir_opt $env_opt $img_opt $cmd_opt" "$INFOLEVEL"
+  result=$?
+  [[ $result -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
+  [[ $result -ne 0   ]] && [[ $DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode: DEBUG=yes in $CONFIG"
 
   # Back to menu if we didn't hit $TIMEOUT
   menu_loop

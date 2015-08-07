@@ -35,15 +35,15 @@ UPSTART=/etc/init/docker.conf
 #printf "\n --> Logging stdout & stderr to ${LOGFILE}\n"
 
 die(){
-  if [ -f "${COWSAY:-none}" ]; then
+  if [[ -f "${COWSAY:-none}" ]]; then
     "$COWSAY" -d "$*"
   else
     printf "$(tput setaf 1)$*$(tput sgr0)\n"
   fi
-  if [ -f "$IRCSAY" ]; then
+  if [[ -f "$IRCSAY" ]]; then
     ( set +e; "$IRCSAY" "$IRC_CHAN" "$*" 2>/dev/null || true )
   fi
-  if [ -f "${MAIL:-none}" ]; then
+  if [[ -f "${MAIL:-none}" ]]; then
     echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" "$EMAIL"
   fi
 
@@ -51,15 +51,15 @@ die(){
 }
 
 hi(){
-  if [ -f "${COWSAY:-none}" ]; then
+  if [[ -f "${COWSAY:-none}" ]]; then
     "$COWSAY" "$*"
   else
     printf "$(tput setaf 3)$*$(tput sgr0)\n"
   fi
-  if [ -f "$IRCSAY" ]; then
+  if [[ -f "$IRCSAY" ]]; then
     ( set +e; "$IRCSAY" "$IRC_CHAN" "$*" 2>/dev/null || true )
   fi
-  if [ -f "${MAIL:-none}" ]; then
+  if [[ -f "${MAIL:-none}" ]]; then
     echo "$*" | mail -s "[vagrant] Bro Sandbox install information on $HOST" "$EMAIL"
   fi
 }
@@ -148,7 +148,7 @@ install_docker(){
   hi "  Installing Docker!\n"
 
   # Check that HTTPS transport is available to APT
-  if [ ! -e /usr/lib/apt/methods/https ]; then
+  if [[ ! -e /usr/lib/apt/methods/https ]]; then
     apt-get update -qq
     apt-get install -qy apt-transport-https
     echo
@@ -156,7 +156,7 @@ install_docker(){
 
   # Add the repository to your APT sources
   # Then import the repository key
-  if [ ! -e /etc/apt/sources.list.d/docker.list ]
+  if [[ ! -e /etc/apt/sources.list.d/docker.list ]]
   then
     echo deb https://get.docker.com/ubuntu docker main > /etc/apt/sources.list.d/docker.list
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
@@ -178,18 +178,18 @@ docker_configuration(){
   if command -v docker >/dev/null 2>&1
   then
     # Set devicemapper storage limit
-    [ -f /etc/init.d/docker ] && service docker stop 2>&1 >/dev/null || stop -q docker 2>/dev/null
+    [[ -f /etc/init.d/docker ]] && service docker stop 2>&1 >/dev/null || stop -q docker 2>/dev/null
     sleep 1
-    [ -d /var/lib/docker/aufs ] && umount /var/lib/docker/aufs
-    [ -d /var/lib/docker/devicemapper ] && umount /var/lib/docker/devicemapper
+    [[ -d /var/lib/docker/aufs ]] && umount /var/lib/docker/aufs
+    [[ -d /var/lib/docker/devicemapper ]] && umount /var/lib/docker/devicemapper
     rm -rf /var/lib/docker/* || die "Unable to remove /var/lib/docker!"
     docker -d --storage-driver=devicemapper --storage-opt dm.basesize="$SIZE" &
     sleep 3
     pkill docker
     sed -i '/DOCKER_OPTS/d' "$DEFAULT"
     echo DOCKER_OPTS=\"--storage-driver=devicemapper --storage-opt dm.basesize=$SIZE\" >> "$DEFAULT"
-    [ -f /etc/init.d/docker ] && RESTART=1 && service docker start || die "Docker did not start correctly!"
-    [ "$RESTART" -eq 0 ] && [ -f /etc/init/docker.conf ] && start -q docker || hi "Docker started!" && exit 0
+    [[ -f /etc/init.d/docker ]] && RESTART=1 && service docker start || die "Docker did not start correctly!"
+    [[ "$RESTART" -eq 0 ]] && [[ -f /etc/init/docker.conf ]] && start -q docker || hi "Docker started!" && exit 0
   else
      die "Docker is required for configuration!"
   fi
@@ -255,28 +255,28 @@ fi
     RESTART_SSH=1
   fi
 
-  if [ "$RESTART_SSH" -eq 1 ]
+  if [[ "$RESTART_SSH" -eq 1 ]]
   then
     if sshd -t 2>/dev/null
     then
-      [ -f /etc/init.d/sshd ] && service sshd restart 2>/dev/null
-      [ -f /etc/init.d/ssh ] && service ssh restart 2>/dev/null
+      [[ -f /etc/init.d/sshd ]] && service sshd restart 2>/dev/null
+      [[ -f /etc/init.d/ssh  ]] && service ssh restart 2>/dev/null
     else
       echo "Syntax error in ${SSH_CONFIG}."
     fi
     echo
   fi
 
-  if [ "$RESTART_DOCKER" -eq 1 ]
+  if [[ "$RESTART_DOCKER" -eq 1 ]]
   then
     local RESTART=0
-    [ -f /etc/init.d/docker ] && service docker stop 2>&1 >/dev/null || stop -q docker 2>/dev/null
+    [[ -f /etc/init.d/docker ]] && service docker stop 2>&1 >/dev/null || stop -q docker 2>/dev/null
     sleep 2
-    [ -f /etc/init.d/docker ] && RESTART=1 && service docker start || die "Docker did not start correctly!"
-    [ -f /etc/init/docker.conf ] && [ "$RESTART" -eq 0 ] && start -q docker
+    [[ -f /etc/init.d/docker ]] && RESTART=1 && service docker start || die "Docker did not start correctly!"
+    [[ -f /etc/init/docker.conf ]] && [[ "$RESTART" -eq 0 ]] && start -q docker
     echo
     PID="$(pgrep -f "docker -d")"
-    [ "$PID" ] && cat /proc/"$PID"/limits
+    [[ "$PID" ]] && cat /proc/"$PID"/limits
     echo
   fi
 }

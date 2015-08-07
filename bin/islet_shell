@@ -27,7 +27,7 @@ err(){
 }
 
 # Get global variables
-if [ -f "$CONFIG" ]; then
+if [[ -f "$CONFIG" ]]; then
   . "$CONFIG"
   . "$LIBISLET"
   readonly CONFIG
@@ -38,19 +38,14 @@ fi
 clear
 
 # Display ISLET Banner
-if [ "$ARG" != "nobanner" ]; then
+if [[ "$ARG" != "nobanner" ]]; then
   test -f "${ANIMATE:-notset}" && islet_banner | pv -qL "$ANIMATE_SPEED" || islet_banner
   # Press key to continue
   timecount $TMOUT
   clear && echo
 fi
 
-# Move to temp directory for islet_login
-[ -d /tmp ] && cd /tmp
-
-# Replace this process with islet_login which will
-# pass the config's variables and then launch the container
-
+# Replace this process with islet_login which does most of the work
 ####################################################
 exec "$LAUNCH_CONTAINER" "$CONFIGURATION"
 ####################################################

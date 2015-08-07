@@ -5,7 +5,7 @@ DB=/var/tmp/islet.db 	 # Overwritten by value in $CONFIG
 CONFIG=LOCATION
 
 # Get global variables
-if [ -f "$CONFIG" ]; then
+if [[ -f "$CONFIG" ]]; then
   . "$CONFIG"
   . "$LIBISLET"
   readonly CONFIG LIBISLET CURRENT DAYS DB

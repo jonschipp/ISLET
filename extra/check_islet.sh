@@ -60,17 +60,17 @@ EOF
 
 argcheck() {
 # if less than n argument
-if [ $ARGC -lt $1 ]; then
+if [[ $ARGC -lt $1 ]]; then
         echo "Missing arguments! Use \`\`-h'' for help."
         exit 1
 fi
 }
 
 check_values(){
-if [ ${1:-$MISSING} -gt $CRIT ]; then
+if [[ ${1:-$MISSING} -gt $CRIT ]]; then
 	echo "CRITICAL: Failed item count of ${1:-$MISSING} is greater than $CRIT"
         exit $CRITICAL
-elif [ ${1:-$MISSING} -gt $WARN ]; then
+elif [[ ${1:-$MISSING} -gt $WARN ]]; then
 	echo "WARNING: Failed item count of ${1:-$MISSING} is greater than $WARN"
         exit $WARNING
 else
@@ -124,7 +124,7 @@ do
              ;;
          T)
              if [[ "$OPTARG" == status ]]; then
-                        STATUS_CHECK=1 
+                        STATUS_CHECK=1
 	     elif [[ "$OPTARG" == size ]]; then
                         SIZE_CHECK=1
              elif [[ "$OPTARG" == available ]]; then
@@ -152,7 +152,7 @@ do
 done
 
 
-if [ -f $CONFIG ];
+if [[ -f $CONFIG ]];
 then
 	source $CONFIG
 else
@@ -160,7 +160,7 @@ else
          exit $UNKNOWN
 fi
 
-if [ $UNAVAILABLE_CHECK -eq 1 ]; then
+if [[ $UNAVAILABLE_CHECK -eq 1 ]]; then
 	for config in $(find $CONFIG_DIR -type f -name "*.conf")
 	do
 		name=$(basename $CONFIG_DIR/$config)
@@ -173,7 +173,7 @@ if [ $UNAVAILABLE_CHECK -eq 1 ]; then
 			fi
 		done
 
-		if [ $CONTINUE -eq 1 ]; then
+		if [[ $CONTINUE -eq 1 ]]; then
 			continue
 		fi
 
@@ -184,14 +184,14 @@ if [ $UNAVAILABLE_CHECK -eq 1 ]; then
 		fi
 	done
 
-	if [ $COUNT -gt 0 ]; then
+	if [[ $COUNT -gt 0 ]]; then
 		echo "Invisible items: ${LIST[@]}"
 	fi
 
 	check_values $COUNT
 fi
 
-if [ $AVAILABLE_CHECK -eq 1 ]; then
+if [[ $AVAILABLE_CHECK -eq 1 ]]; then
 	for config in $(find $CONFIG_DIR -type f -name "*.conf")
 	do
 		name=$(basename $CONFIG_DIR/$config)
@@ -204,13 +204,13 @@ if [ $AVAILABLE_CHECK -eq 1 ]; then
 			fi
 		done
 
-		if [ $CONTINUE -eq 1 ]; then
+		if [[ $CONTINUE -eq 1 ]]; then
 			continue
 		fi
 
 		source $config
 		docker images $IMAGE | grep -q $IMAGE
-		if [ $? -eq 0 ];
+		if [[ $? -eq 0 ]];
 		then
 			echo "Image is available for $name"
 		else
@@ -222,11 +222,11 @@ if [ $AVAILABLE_CHECK -eq 1 ]; then
 	check_values
 fi
 
-if [ $STATUS_CHECK -eq 1 ]; then
+if [[ $STATUS_CHECK -eq 1 ]]; then
 
 	for dir in $CONFIG_DIR $INSTALL_DIR $CONTAINER_PATH
 	do
-		if [ ! -d $dir ]
+		if [[ ! -d $dir ]]
 		then
 			echo "Error: $dir does not exist or is not accessible!"
 			let MISSING++
@@ -235,7 +235,7 @@ if [ $STATUS_CHECK -eq 1 ]; then
 
 	for file in $LIBISLET $SHELL $LAUNCH_CONTAINER $DB
 	do
-		if [ ! -f $file ]
+		if [[ ! -f $file ]]
 		then
 			echo "Error: $file does not exist or is not accessible!"
 			let MISSING++
@@ -263,9 +263,9 @@ if [ $STATUS_CHECK -eq 1 ]; then
 	check_values
 fi
 
-if [ $SIZE_CHECK -eq 1 ]; then
+if [[ $SIZE_CHECK -eq 1 ]]; then
 
-	if [ ! -d $CONTAINER_PATH ]; then
+	if [[ ! -d $CONTAINER_PATH ]]; then
                 echo "$CONTAINER_PATH doesn't exist or is inaccessible, check or modify variable in $0"
                 exit $UNKNOWN
         fi
@@ -277,17 +277,17 @@ if [ $SIZE_CHECK -eq 1 ]; then
                 APATH=$(echo "$fs" | awk '{ print $2 }')
                 CONTAINER=$(basename "$APATH" | awk '{ print substr($0,0,12) }')
 
-                if [ $SIZE -ge $CRIT ]; then
+                if [[ $SIZE -ge $CRIT ]]; then
                         echo "CRITICAL: $CONTAINER size greater than $CRIT bytes"
                         let MISSING++
-                elif [ $SIZE -ge $WARN ]; then
+                elif [[ $SIZE -ge $WARN ]]; then
                         echo "WARNING: $CONTAINER size is greater than $WARN bytes"
                 else
                         :
                 fi
         done
 
-        if [ $MISSING -ne 0 ]
+        if [[ $MISSING -ne 0 ]]
         then
                 exit $CRITICAL
         else
@@ -296,16 +296,16 @@ if [ $SIZE_CHECK -eq 1 ]; then
         fi
 fi
 
-if [ $DATABASE_CHECK -eq 1 ]; then
+if [[ $DATABASE_CHECK -eq 1 ]]; then
 
-  [ -e $DB ] || { echo "CRITICAL: $DB not found"; exit $CRITICAL; }
+  [[ -e $DB ]] || { echo "CRITICAL: $DB not found"; exit $CRITICAL; }
 
   user=$(stat -c "%U" $DB)
   group=$(stat -c "%G" $DB)
   file=$(file -b /var/tmp/islet.db)
 
-  [ "$USER"  = "$user" ]   || { let MISSING++; echo "$USER does not own $DB"; }
-  [ "$GROUP"  = "$group" ]   || { let MISSING++; echo "$GROUP does not group own $DB"; }
+  [[ "$USER"   = "$user" ]]   || { let MISSING++; echo "$USER does not own $DB"; }
+  [[ "$GROUP"  = "$group" ]]   || { let MISSING++; echo "$GROUP does not group own $DB"; }
   echo "$file" | grep -q "SQLite 3" || { let MISSING++; echo "$DB is not a SQLite 3 database"; }
 
   check_values
