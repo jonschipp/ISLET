@@ -110,9 +110,9 @@ configuration:
 	visudo -c
 	sed -i "s|LOCATION|$(CRON_DIR)|g" $(CRON)/$(PROG)
 	sed -i "s|LOCATION|$(CONFIG_DIR)/$(PROG).conf|g" $(BIN_DIR)/* $(CRON_DIR)/*
-	test -d /var/lib/docker && chown root:$(GROUP) /var/lib/docker /var/lib/docker/repositories-*
-	test -d /var/lib/docker && chmod g+x /var/lib/docker
-	test -d /var/lib/docker && chmod g+r /var/lib/docker/repositories-*
+	test -d /var/lib/docker && chown root:$(GROUP) /var/lib/docker /var/lib/docker/repositories-* || true
+	test -d /var/lib/docker && chmod g+x /var/lib/docker || true
+	test -d /var/lib/docker && chmod g+r /var/lib/docker/repositories-* || true
 
 uninstall:
 	$(Q)echo " $(yellow)Uninstalling $(PROG)$(normal)"
