@@ -1,11 +1,11 @@
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=""
 
 # m h dom mon dow user  command
 
 # Don't run at the same time, causes problems
-@daily   	 root    LOCATION/remove_old_containers
-* * * * *        root    LOCATION/remove_old_users
-* * * * *        root    LOCATION/port_forward
-@hourly   	 root    LOCATION/disk_limit
-@hourly          root    LOCATION/upload_container
+@daily   	 root    LOCATION/remove_old_containers 1> /dev/null
+* * * * *        root    LOCATION/remove_old_users 1> /dev/null
+* * * * *        root    LOCATION/port_forward 1> /dev/null
+@hourly   	 root    LOCATION/disk_limit 1> /dev/null
