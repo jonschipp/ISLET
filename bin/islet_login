@@ -110,7 +110,7 @@ verify_backend() {
   local backend
   { [[ -x "$DOCKER_DIR" ]] || [[ -r "$DOCKER_DIR/repositories-$STORAGE_BACKEND" ]]; } ||
   quit "Cannot enter ${DOCKER_DIR}, ISLET administrator should try:
-    chown root:${GROUP} ${DOCKER_DIR}
+    chown root:${GROUP} ${DOCKER_DIR} ${DOCKER_DIR}/repositories-*
     chmod g+x ${DOCKER_DIR}
     chmod g+r ${DOCKER_DIR}/repositories-*"
   for i in /var/lib/docker/repositories-{aufs,btrfs,devicemapper,vfs,overlayfs}
