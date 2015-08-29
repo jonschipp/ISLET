@@ -267,7 +267,7 @@ existing_user(){
 
 verify_new_user(){
   local exists
-  EXISTS=$(sqlite3 "$DB" "SELECT user FROM accounts WHERE user='$USERNAME';")
+  exists=$(sqlite3 "$DB" "SELECT user FROM accounts WHERE user='$USERNAME';")
   if [[ "$exists" ]]; then
     AVAILABLE_USER=1
     notice "User already exists! Try a different one."
@@ -307,7 +307,7 @@ verify_new_password(){
   done
 
   readonly hash=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
-  sqlite3 "$DB" "pragma foreign_keys = on; INSERT INTO accounts VALUES('"${USERNAME}"','${hash}', strftime('%s', 'now'));" || quit "Couldn't write to $DB!"
+  sqlite3 "$DB" "pragma foreign_keys = on; INSERT INTO accounts VALUES('"${USERNAME}"','${hash}', strftime('%s', 'now'));" 2>/dev/null || quit "Couldn't write to $DB!"
   log "${USERNAME}: Account created from $CLIENT"
 
   echo "Your account will expire on ${MF}$EXPIRATION${N}"
