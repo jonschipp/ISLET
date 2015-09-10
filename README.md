@@ -122,7 +122,11 @@ It is designed to be a quick way to get a working system with a good configurati
 Install ISLET on the host:
 ```shell
 make install
+make user-config
 make security-config    # Configure islet relevant security with sshd
+chown root:islet /var/lib/docker /var/lib/docker/repositories-*
+chmod g+x /var/lib/docker
+chmod g+r /var/lib/docker/repositories-*
 ```
 
 Install ISLET as a container on the host:
