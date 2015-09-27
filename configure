@@ -70,7 +70,7 @@ check_docker_version()
 {
 if ! echo ${MISSING[@]} | grep -q docker; then
   echo -n "${BULLET} Checking docker version... "
-  docker version | grep -q 'Server version: 1.[7-9]' && echo "$YES 1.7+ found"|| echo "$NO 1.7+ not found"
+  docker version | egrep -q 'Server version: 1.[7-9]|Version:      1.[7-9]' && echo "$YES 1.7+ found"|| echo "$NO 1.7+ not found"
 fi
 }
 
