@@ -332,7 +332,7 @@ attach_container(){
   docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && timeout --foreground "$TIMEOUT" docker attach "${BASENAME}.${USERNAME}"
   result=$?
   [[ $result -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
-  [[ $result -ne 0   ]] && [[ DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode for more info: DEBUG=yes in $CONFIG"
+  [[ $result -ne 0   ]] && [[ $result -ne 130  ]] && [[ DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode for more info: DEBUG=yes in $CONFIG"
   # No errors, we made it
   return 0
 }
@@ -744,7 +744,7 @@ start_container(){
   eval timeout --foreground "$TIMEOUT" docker run "$name_opt $res_opt $net_opt $glb_opt $oth_opt $cap_opt $lmt_opt $mnt_opt $dir_opt $env_opt $img_opt $cmd_opt" "$INFOLEVEL"
   result=$?
   [[ $result -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
-  [[ $result -ne 0   ]] && [[ $DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode: DEBUG=yes in $CONFIG"
+  [[ $result -ne 0   ]] && [[ $result -ne 130  ]] && [[ $DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode: DEBUG=yes in $CONFIG"
 
   # Back to menu if we didn't hit $TIMEOUT
   menu_loop
