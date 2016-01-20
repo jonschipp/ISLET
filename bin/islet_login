@@ -731,17 +731,17 @@ start_container(){
   local dir_opt="--workdir ${WORKDIR:-/home/$VIRTUSER}"
   local env_opt="$ENV_CMD"
   local img_opt="$REMOVE --interactive $IMAGE"
-  local cmd_opt="${COMMAND:-su $VIRTUSER}"
+  local cmd_opt="$COMMAND"
 
   # If debugging is yes
   is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"
-  is_debug "opt: docker run $name_opt $res_opt $net_opt $glb_opt $oth_opt $mnt_opt $cap_opt $lmt_opt $dir_opt $env_opt $img_opt $cmd_opt"
+  is_debug "opt: docker run $name_opt $res_opt $net_opt $glb_opt $oth_opt $mnt_opt $cap_opt $lmt_opt $dir_opt $env_opt -u $VIRTUSER $img_opt $cmd_opt"
 
   notice "Enjoy yourself!"
   mention "$MOTD"
 
   # Run container
-  eval timeout --foreground "$TIMEOUT" docker run "$name_opt $res_opt $net_opt $glb_opt $oth_opt $cap_opt $lmt_opt $mnt_opt $dir_opt $env_opt $img_opt $cmd_opt" "$INFOLEVEL"
+  eval timeout --foreground "$TIMEOUT" docker run "$name_opt $res_opt $net_opt $glb_opt $oth_opt $cap_opt $lmt_opt $mnt_opt $dir_opt $env_opt -u $VIRTUSER $img_opt $cmd_opt" "$INFOLEVEL"
   result=$?
   [[ $result -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
   [[ $result -ne 0   ]] && [[ $DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode: DEBUG=yes in $CONFIG"
