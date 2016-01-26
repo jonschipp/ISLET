@@ -249,6 +249,17 @@ EOF
 RESTART_SSH=1
 fi
 
+
+if [[ -d /var/lib/docker ]]; then
+  group=islet
+  dir=/var/lib/docker
+  { [[ $(stat -c %G ${dir}) == "$group" ]]                || chown :"$group" "$dir" 2>/dev/null; } || quit "Fatal: cannot set group ${group} on ${dir}, do you have permission?"
+  { [[ $(stat -c %G ${dir}/repositories-*) == "$group" ]] || chown :"$group" "$dir" 2>/dev/null; } || quit "Fatal: cannot set group ${group} on ${dir}, do you have permission?"
+  { [[ $(stat -c %a ${dir}) == 660      ]]                || chmod g+x "$dir" 2>/dev/null; }       || quit "Fatal: cannot set modes 660 on ${dir}, do you have permission?"
+  { [[ $(stat -c %a ${dir}/repositores-*) == 660 ]]       || chmod g+r "$dir" 2>/dev/null; }       || quit "Fatal: cannot set modes 660 on ${dir}, do you have permission?"
+fi
+
+
   if grep -q '^Subsystem sftp' "$SSH_CONFIG"
   then
     sed -i '/Subsystem.*sftp/s/^/#/' "$SSH_CONFIG"
