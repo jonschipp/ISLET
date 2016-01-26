@@ -235,16 +235,16 @@ security_configuration(){
 if ! grep -q "Match User $USER" "$SSH_CONFIG"; then
 cat <<EOF >> "$SSH_CONFIG"
 Match User "$USER"
-	ForceCommand "$SHELL"
-	PasswordAuthentication yes
-	X11Forwarding no
-	AllowTcpForwarding no
-	GatewayPorts no
-	PermitTunnel no
-	MaxAuthTries 3
-	MaxSessions 1
-	AllowAgentForwarding no
-	PermitEmptyPasswords no
+    ForceCommand "$SHELL"
+    PasswordAuthentication yes
+    X11Forwarding no
+    AllowTcpForwarding no
+    GatewayPorts no
+    PermitTunnel no
+    MaxAuthTries 3
+    MaxSessions 1
+    AllowAgentForwarding no
+    PermitEmptyPasswords no
 EOF
 RESTART_SSH=1
 fi
