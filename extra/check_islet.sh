@@ -233,7 +233,7 @@ if [[ $STATUS_CHECK -eq 1 ]]; then
 		fi
 	done
 
-	for file in $LIBISLET $SHELL $LAUNCH_CONTAINER $DB
+	for file in $LIBISLET $SHELL $DB
 	do
 		if [[ ! -f $file ]]
 		then

@@ -21,7 +21,7 @@ CONTAINER_DESTINATION= 		# Put containers on another volume e.g. /dev/sdb1 (opti
 FS="ext4"			# Filesystem type for CONTAINER_DESTINATION, used for mounting
 INSTALL_DIR=/opt/islet	 	# ISLET component directory
 BIN_DIR="$INSTALL_DIR/bin"   	# Directory to install islet scripts
-SHELL="$BIN_DIR/islet_shell"	# $USER's shell: displays login banner then launches islet_login
+SHELL="$BIN_DIR/islet_shell"	# $USER's shell and container launcher
 
 # Other Declarations
 RESTART_SSH=0

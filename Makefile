@@ -88,7 +88,6 @@ install-files:
 	install -o root -g root -m 644 config/4-clear.conf $(CONFIG_DIR)/4-clear.conf
 	install -o root -g root -m 644 lib/libislet $(LIB_DIR)/libislet
 	install -o root -g root -m 755 bin/islet_shell $(BIN_DIR)/$(PROG)_shell
-	install -o root -g root -m 755 bin/islet_login $(BIN_DIR)/$(PROG)_login
 	install -o root -g root -m 644 cron/islet.crontab $(CRON)/$(PROG)
 	install -o root -g root -m 750 cron/remove_old_containers $(CRON_DIR)/remove_old_containers
 	install -o root -g root -m 750 cron/remove_old_users $(CRON_DIR)/remove_old_users
