@@ -61,7 +61,7 @@ yellow()  { notice; }
 magenta() { info; }
 white()   { ask; }
 
-alert()   { printf "${redf}$*${normal}\n" >2; }
+alert()   { printf "${redf}$*${normal}\n" >&2; }
 notice()  { printf "${yellow}$*${normal}\n"; }
 info()    { printf "${magentaf}$*${normal}\n"; }
 ask()     { printf "${whitef}$*${normal}"; }
