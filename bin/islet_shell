@@ -8,6 +8,8 @@ LIST=()
 ANIMATE=$(which pv 2>/dev/null)
 ANIMATE_SPEED=90
 DOCKER_VERSION="$(docker version | awk -F : '/Server version/ { print substr($2, 2, 3) }')"
+AVAILABLE_USER=1
+TIMEOUT="8h"
 
 # Store some stuff, these can be referenced from config files
 read CLIENT SRCPORT SERVER DSTPORT <<<"${SSH_CONNECTION}"
@@ -45,7 +47,756 @@ if [[ "$ARG" != "nobanner" ]]; then
   clear && echo
 fi
 
-# Replace this process with islet_login which does most of the work
-####################################################
-exec "$LAUNCH_CONTAINER" "$CONFIGURATION"
-####################################################
+err(){
+  MESSAGE="$1"
+  logger -s -p local0.notice -t "islet" "$0: $MESSAGE"
+  exit 1
+}
+
+# Retrieve globals
+if [[ -f "$CONFIG" ]]; then
+  . "$CONFIG"
+  . "$LIBISLET"
+else
+  err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
+  exit 1
+fi
+
+readonly TIME=$(date +"%s")
+readonly EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
+
+#######################################
+# Create SQLite database
+# Globals:
+#   DB   - Location of database file
+#   USER - Owner of database file
+#   GROUp - Group of database file
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+
+create_db() {
+sqlite3 "$DB" <<EOF
+PRAGMA foreign_keys = ON;
+CREATE TABLE accounts (
+        user VARCHAR PRIMARY KEY,
+        password VARCHAR,
+        ts TIMESTAMP
+);
+CREATE TABLE images (
+        user VARCHAR REFERENCES accounts(user) ON DELETE CASCADE,
+        image VARCHAR
+);
+CREATE UNIQUE INDEX idx_images_user_image ON images(user, image);
+EOF
+return 0
+}
+
+#######################################
+# Recreate database if it's not SQLite
+# Old versions of ISLET used text file
+# Globals:
+#   DB   - Location of database file
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+
+is_sqlite() {
+  local file
+  file=$(which sqlite3)
+  [[ -f $file ]] || quit "Fatal: sqlite3 not found, is it installed and in the PATH?"
+  if ! file "$DB" 2>/dev/null | grep -q SQLite; then
+    rm -f "$DB" 2>/dev/null
+    create_db
+    test $? -eq 0 && return 0 || quit "Unable to create $DB"
+  fi
+  { [[ $(stat -c %U ${DB}) == "$USER"  ]] || chown "$USER"     "$DB" 2>/dev/null; } || quit "Fatal: cannot set owner ${USER} on ${DB}, do you have permission?"
+  { [[ $(stat -c %G ${DB}) == "$GROUP" ]] || chown :"${GROUP}" "$DB" 2>/dev/null; } || quit "Fatal: cannot set group ${GROUP} on ${DB}, do you have permission?"
+  { [[ $(stat -c %a ${DB}) == 660      ]] || chmod 660         "$DB" 2>/dev/null; } || quit "Fatal: cannot set modes 660 on ${DB}, do you have permission?"
+}
+
+#######################################
+# Verify group settings
+# ISLET configuration
+# Globals:
+#  $USER - System user that runs Docker
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+
+verify_group() {
+  getent group docker 1>/dev/null 2>&1 || quit "Fatal: docker group doesn't exist!"
+  getent group docker 2>/dev/null | grep -q $USER || quit "Fatal: $USER user not in docker group"
+}
+
+#######################################
+# Verify that storage backend matches
+# ISLET configuration
+# Globals:
+#   STORAGE_BACKEND - Backend location
+#   CONFIG          - ISLET config file
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+
+verify_backend() {
+  local file
+  local backend
+  { [[ -x "$DOCKER_DIR" ]] || [[ -r "$DOCKER_DIR/repositories-$STORAGE_BACKEND" ]]; } ||
+  quit "Cannot enter ${DOCKER_DIR}, ISLET administrator should try:
+    chown root:${GROUP} ${DOCKER_DIR} ${DOCKER_DIR}/repositories-*
+    chmod g+x ${DOCKER_DIR}
+    chmod g+r ${DOCKER_DIR}/repositories-*"
+  for i in /var/lib/docker/repositories-{aufs,btrfs,devicemapper,vfs,overlayfs}
+  do
+    file=$(ls "$i" 2>/dev/null)
+    [[ $file ]] && backend=${file#*-} && break
+  done
+  [[ "$backend" == "$STORAGE_BACKEND" ]] || quit "Fatal: Docker storage backend doesn't match value in $CONFIG"
+}
+
+#######################################
+# Configures autocompletion
+# Globals:
+#   TMP - Temporary directory
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+
+enable_autocompletion(){
+  # Hackish way
+  TMP="/tmp/islet"
+  [[ "$PWD" == "$TMP" ]] || { mkdir -p "$TMP" && cd "$TMP"; }
+  [[ "$PWD" == "$TMP" ]] && touch {new,existing,yes,no}
+  # Add this here for now
+  cat /var/lib/docker/repositories-"${STORAGE_BACKEND}" > "$TMP/images"
+}
+
+#######################################
+# Prompt user if they're new or existing
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+
+identify(){
+  local choice
+  enable_autocompletion
+  ask "Are you a new or existing user? "
+  option "new" "existing"
+  read -e -r choice
+  # Normalize to lowercase
+  choice=${choice,,}
+
+  if [[ "$choice" =~ ^[n][e][w]$ ]] ||
+     [[ "$choice" =~ ^[e][x][i][s][t][i][n][g]$ ]] ||
+     [[ "$choice" =~ ^n$ ]] || [[ "$choice" =~ ^e$ ]]
+  then
+    { [[ "$choice" =~ ^[n][e][w]$ ]] || [[ "$choice" =~ ^n$ ]]; } && new_user
+    { [[ "$choice" =~ ^[e][x][i][s][t][i][n][g]$ ]] || [[ "$choice" =~ ^e$ ]]; } && existing_user
+  else
+    try_again
+  fi
+}
+
+###################################################
+# Get username and password for new user
+# Globals:
+#   AVAILABLE_USER - 1 if user already exists in DB
+# Arguments:
+#   None
+# Returns:
+#   None
+###################################################
+
+new_user(){
+  notice "A temporary account will be created so that you can resume your session."
+  echo
+
+  until test "$AVAILABLE_USER" -ne 1
+  do
+    choose_username && verify_new_user
+  done
+
+  until [[ "$PASSWORD" ]] && [[ "$PASSWORD_VERIFY" ]]
+  do
+    choose_password && verify_new_password
+  done
+}
+
+choose_username(){
+  ask "Choose a username: "
+  option "a-zA-Z0-9"
+  read -r USERNAME
+  [[ "$USERNAME" ]] || { alert "Empty value not permitted" && return 1; }
+  USERNAME=$(sanitize "$USERNAME") && return 0
+}
+
+choose_password(){
+  ask "Choose a password: "
+  option "a-zA-Z0-9{${MIN_PASSWD_LEN},}"
+  read -r -s PASSWORD
+  [[ "$PASSWORD" ]] || { alert "\nEmpty value not permitted" && return 1; }
+  echo
+  ask "Verify your password: "
+  read -r -s PASSWORD_VERIFY
+  [[ "$PASSWORD_VERIFY" ]] || { alert "\nEmpty value not permitted" && return 1; }
+  echo
+}
+
+###################################################
+# Handles container reattachment for existing users
+# Globals:
+#   FAILURE_COUNT - Max # of authentication failures
+#   BASENAME      - Container name prefix
+# Arguments:
+#   None
+# Returns:
+#   None
+###################################################
+
+existing_user(){
+  local password
+  local hash
+  local auth
+  local exists
+  local count=1
+  notice "Your previous account is only valid for the length of the event, after that you must create a new account"
+  echo
+  while test "$count" -le "$FAILURE_COUNT"
+  do
+    ask "Username: "
+    read -r USERNAME
+    USERNAME=$(sanitize $USERNAME)
+    ask "Password: "
+    read -r -s PASSWORD
+    echo
+
+    hash=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
+    auth=$(sqlite3 $DB "SELECT user, password FROM accounts WHERE user='$USERNAME' AND password='$hash';")
+
+    [[ "$auth" ]] && info "Success" && sleep 1 && break
+    notice "Login failed, try again ("$count"/"$FAILURE_COUNT")."
+    let count++
+  done
+  let count--
+  [[ $auth ]] || quit "Too many failed attempts! ("$count"/"$FAILURE_COUNT")."
+}
+
+###################################################
+# Checks if user already exists in database
+# Globals:
+#   USERNAME - Username to validate
+#   AVAILABLE_USER - 0 if username is note taken
+# Arguments:
+#   None
+# Returns:
+#   None
+###################################################
+
+verify_new_user(){
+  local exists
+  exists=$(sqlite3 "$DB" "SELECT user FROM accounts WHERE user='$USERNAME';")
+  if [[ "$exists" ]]; then
+    AVAILABLE_USER=1
+    notice "User already exists! Try a different one."
+  else
+    AVAILABLE_USER=0
+    echo "Your username is ${MF}$USERNAME${N}"
+  fi
+}
+
+###########################################################
+# Validate password, hash, and write account to database
+# Globals:
+#   PASSWORD      - Password to validate and store in db
+#   USERNAME      - Used to create account in database
+#   FAILURE_COUNT - Max # of authentication failures
+#   CLIENT        - IP address of connecting user
+#   EXPIRATION    - Date/time account expires
+# Arguments:
+#   None
+# Returns:
+#   None
+###########################################################
+
+verify_new_password(){
+  local count=1
+  local hash
+  while [[ "$PASSWORD" != "$PASSWORD_VERIFY" ]] || [[ "${#PASSWORD}" -lt "$MIN_PASSWD_LEN" ]]
+  do
+    if [[ "$count" -lt "$FAILURE_COUNT" ]]
+    then
+      notice "Passwords do not match or meet length requirements (${BF}"${MIN_PASSWD_LEN}"${N}${Y}). Try again ("$count"/"$FAILURE_COUNT")."
+      choose_password
+    else
+      quit "Too many failed attempts! ("$count"/"$FAILURE_COUNT")."
+    fi
+    let count++
+  done
+
+  readonly hash=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
+  sqlite3 "$DB" "pragma foreign_keys = on; INSERT INTO accounts VALUES('"${USERNAME}"','${hash}', strftime('%s', 'now'));" 2>/dev/null || quit "Couldn't write to $DB!"
+  log "${USERNAME}: Account created from $CLIENT"
+
+  echo "Your account will expire on ${MF}$EXPIRATION${N}"
+}
+
+menu_loop(){
+  while true
+  do
+    { [[ -d "$CONFIG_DIR" ]] && cd "$CONFIG_DIR"; } || quit "Unable to access ${CONFIG_DIR}!"
+    LIST=()
+    config_menu
+  done
+}
+
+attach_container(){
+  local result
+  # User is re-attaching to previous image
+  log "${USERNAME}: Returning user from $CLIENT"
+  notice "Welcome back!"
+  mention "$MOTD"
+  is_debug "opt: docker start ${BASENAME}.${USERNAME} && docker attach ${BASENAME}.${USERNAME}"
+  docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && timeout --foreground "$TIMEOUT" docker attach "${BASENAME}.${USERNAME}"
+  result=$?
+  [[ $result -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
+  [[ $result -ne 0   ]] && [[ DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode for more info: DEBUG=yes in $CONFIG"
+  # No errors, we made it
+  return 0
+}
+
+config_menu(){
+  local count=0
+  local menu
+  local attach
+  # Configuration menu
+  notice "\t\t\t\tAvailable configurations:\n"
+  printf '\t\t\t%-29s %-7s %-30s\n' "${B}Configuration${N}" "|" "${B}Description${N}"
+  printf '\t\t\t%-30s %-7s %-30s\n' "${BF}$SPACER1${N}" "|" "${BF}$SPACER1${N}"
+
+  # Iterate over configuration files in $CONFIG_DIR and display them as options
+  # It prints the config file ($config) and its description ($DESCRIPTION)
+  for config in *.conf
+  do
+    . "$config"
+    if [[ "$VISIBLE" = "yes" || "$ENABLE" = "yes" ]]; then
+      printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config${N}" "|" "${U}$DESCRIPTION${N}"
+      LIST+=("$config")
+    fi
+    unset BANNER VISIBLE ENABLE PLUGIN config
+  done
+
+  # Quit if there are no config files present
+  [[ "${#LIST[@]}" -eq 0 ]] && quit "\t\t\tNo configurations available!"
+  echo && unset BANNER
+  notice "Choose a number to load the configuration (or ^C to exit):"
+
+  PS3="${Y}[${N}${BF}Choice${N}${Y}]${N}: "
+  # Here the user chooses the configuration from the menu
+  # Inherit the variables from the config file after selection
+  select CONFIGURATION in "${LIST[@]}"
+  do
+    menu=1
+    if [[ -f "$CONFIG_DIR/$CONFIGURATION" ]]; then
+      . "$CONFIG_DIR/$CONFIGURATION"
+      break
+    else
+      let count++
+      if [[ "$count" -ge "$FAILURE_COUNT" ]]; then
+        quit "Too many failed attempts! ($count/$FAILURE_COUNT)"
+      fi
+      alert "Invalid choice! Try again ($count/$FAILURE_COUNT)"
+    fi
+  done
+
+  unset LIST
+
+  # If configuration is for plugin then execute it
+  if [[ $PLUGIN ]]; then
+    if [[ -f "$PLUGIN_DIR/$PLUGIN" ]]; then
+      . "$PLUGIN_DIR/$PLUGIN"
+    else
+      alert "Plugin $PLUGIN does not exist..contact the administrator."
+    fi
+    # Go back to menu_loop after
+    return 0
+  fi
+
+  # Avoid launching last value of CONFIGURATION when user sends EOF
+  [[ $menu ]] || quit "Quit by user..."
+  unset menu
+
+  # Display image banner
+  [[ "$BANNER" ]] && clear && echo "$BANNER"
+
+  # This is how we handle using the same account for multiple images
+  attach=$(sqlite3 $DB "SELECT image FROM images WHERE user='$USERNAME' AND image='$BASENAME'";)
+  { [[ $attach ]] && attach_container; } || start_container
+}
+
+###########################################################
+# Reprompt if user did not select new or existing user
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+###########################################################
+
+try_again(){
+  local try
+  ask "I didn't understand your response. Would you like to try again? "
+  option "yes" "no"
+  read -e -r try
+  # Normalize to lowercase
+  try=${try,,}
+  if [[ "$try" =~ ^[yn]$ ]] || [[ "$try" =~ ^[y][e][s]$ ]] || [[ "$try" =~ ^[n][o]$ ]]; then
+     [[ "$try" =~ ^y$   ]]  || [[ "$try" =~ ^[y][e][s]$ ]] && identify
+     [[ "$try" =~ ^n$   ]]  || [[ "$try" =~ ^[n][o]$    ]] && quit "user decided to leave from try_again"
+  else
+    quit "User forced to exit from try_again because of invalid response to question"
+  fi
+}
+
+######################################################################
+# Check if image exists before using it, try pulling it or fail out
+# Globals:
+#   IMAGE         - from ISLET configuration, docker image to launch
+# Arguments:
+#   None
+# Returns:
+#   None
+######################################################################
+
+does_image_exist(){
+  local repo
+  local tag
+  repo="$IMAGE"
+  [[ "$repo" == *:* ]] && tag="${repo##*:}" && repo=${repo%%:*}
+  [[ $tag ]] || tag=latest
+  if ! awk 'BEGIN { RS="}," } { print }' "$TMP/images" | fgrep "$repo" | fgrep -q "$tag"
+  then
+    notice "Image not found, trying Docker Hub..." && echo
+    docker pull "$IMAGE" 2>/dev/null || quit "Image doesn't exist!"
+  fi
+  unset tag repo
+}
+
+#################################################################################
+# Create iptables rules for port forwarding to container
+# Used to access ports on a user's container to do things
+# like web interface training. Use PPID of session (sshd) as
+# the port to use for forwarding, that way we can keep track
+# of each user's session to iptables rule.
+# Globals:
+#   VIRTUAL_PORT - Port running inside container to access
+#   HOST_PORT    - Port from host that's forwarded to container (VIRTUAL_PORT)
+#   BIND         - IP address to use to access containers
+#   CLIENT       - IP address of client provided by sshd
+#   INTERFACE    - Network interface to apply iptables rule
+#   USER         - Used for logging
+#   PUBLISH      - Combination of above to set the Docker forwarding rule
+# Arguments:
+#   None
+# Returns:
+#   None
+#################################################################################
+
+port_forwarding_setup() {
+  # Use HOST_PORT and CLIENT as a way to associate the user with a container port (VIRTUAL_PORT)
+  if [[ "$VIRTUAL_PORT" ]]; then
+    # If host port is in use, find another to bind to
+    while true
+    do
+      if ! netstat -nalt | fgrep -q ":$HOST_PORT"
+      then
+        break
+      fi
+      let HOST_PORT++
+    done
+
+    readonly PUBLISH="--publish $BIND:$HOST_PORT:$VIRTUAL_PORT"
+
+    if [[ "$BIND" == "127.0.0.1" ]]; then
+      sudo sysctl -w net.ipv4.conf."${INTERFACE}".route_localnet=1 2>/dev/null
+      did_it_work "sysctl command failed to execute, check ${USER}'s permissions"
+    fi
+    # Client will be able to connect to an exposed container port via $SERVER:$PPID
+    sudo iptables -t nat -I PREROUTING -i "$INTERFACE" \
+      -p tcp --source "$CLIENT" --dport "$HOST_PORT" -j DNAT --to "${BIND}:${HOST_PORT}" 2>/dev/null
+    did_it_work "iptables command failed to execute, check ${USER}'s permissions"
+  fi
+}
+
+######################################################################
+# Remove container if set to remove or port forwarding is used.
+# Removal means no reattachment and is useful in some training cases
+# e.g. limited storage, resource constraints, confidential data, and
+# port forwarding where we cannot guarentee the same port or client IP
+# Globals:
+#   REMOVE        - Option in ISLET configuration files for removal
+#   VIRTUAL_PORT  - If set pass the remove option to Docker
+#   DB            - Database to write to
+#   BASENAME      - Add image to database for account if no removal
+# Arguments:
+#   None
+# Returns:
+#   None
+######################################################################
+
+removal_setup(){
+  if [[ "$REMOVE" == "yes" ]] || [[ "$VIRTUAL_PORT" ]] # Re-attachment is impractical for port forwarding
+  then
+    echo
+    notice "This container is set to be terminated upon exit, work will not be saved."
+    REMOVE="--rm"
+  else
+    # Don't remove, instead keep track of the user's container for re-attachment
+    sqlite3 "$DB" "pragma foreign_keys = on; INSERT INTO images(user, image) values ('$USERNAME', '$BASENAME');" 2>/dev/null
+    REMOVE=""
+  fi
+}
+
+#####################################################################
+# Build command line options for container capabilities
+# Globals:
+#  CAPABILITIES_OPTIONS - Stores Docker capabilities cmd-line options
+# Arguments:
+#   cap       - Capability name
+#   enabled   - Whether capability is enabled or not (yes/no)
+# Returns:
+#   None
+#####################################################################
+
+set_capabilities(){
+  local cap="$1"
+  local enabled="$2"
+
+  [[ "$enabled" = yes ]] && CAPABILITIES_OPTIONS="${CAPABILITIES_OPTIONS} --cap-add $cap"
+  [[ "$enabled" = no ]]  && CAPABILITIES_OPTIONS="${CAPABILITIES_OPTIONS} --cap-drop $cap"
+}
+
+##################################################################
+# Check and set value of capabilities values
+# Globals:
+#   capabilities variables - Option in ISLET configuration files
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+
+check_capabilities(){
+  unset CAPABILITIES_OPTIONS
+  # Set all capabilities per container
+  [[ "$DROP_ALL" = "yes" ]] && CAPABILITIES_OPTIONS="--cap-drop all" && return 0
+  [[ "$ADD_ALL"  = "yes" ]] && CAPABILITIES_OPTIONS="--cap-add  all" && return 0
+
+
+## Enabled by default in Docker (we disable them for improved security)
+  AUDIT_WRITE="${CAP_AUDIT_WRITE:-no}"           && set_capabilities AUDIT_WRITE $AUDIT_WRITE
+  CHOWN="${CAP_CHOWN:-no}"                       && set_capabilities CHOWN $CHOWN
+  DAC_OVERRIDE="${CAP_DAC_OVERRIDE:-no}"         && set_capabilities DAC_OVERRIDE $DAC_OVERRIDE
+  FOWNER="${CAP_FOWNER:-no}"                     && set_capabilities FOWNER $FOWNER
+  FSETID="${CAP_FSETID:-no}"                     && set_capabilities FSETID $FSETID
+  MAC_OVERRIDE="${CAP_MAC_OVERRIDE:-no}"         && set_capabilities MAC_OVERRIDE $MAC_OVERRIDE
+  MKNOD="${CAP_MKNOD:-no}"                       && set_capabilities MKNOD $MKNOD
+  NET_BIND_SERVICE="${CAP_NET_BIND_SERVICE:-no}" && set_capabilities NET_BIND_SERVICE $NET_BIND_SERVICE
+  NET_RAW="${CAP_NET_RAW:-no}"                   && set_capabilities NET_RAW $NET_RAW
+  SETPCAP="${CAP_SETPCAP:-no}"                   && set_capabilities SECPCAP $SECPCAP
+  SYSLOG="${CAP_SYSLOG:-no}"                     && set_capabilities SYSLOG $SYSLOG
+  SYS_ADMIN="${CAP_SYS_ADMIN:-no}"               && set_capabilities SYS_ADMIN $SYS_ADMIN
+  SYS_CHROOT="${CAP_SYS_CHROOT:-no}"             && set_capabilities SYS_CHROOT $SYS_CHROOT
+  KILL="${CAP_KILL:-no}"                         && set_capabilities KILL $KILL
+  # Enabled by default for ISLET (subset of Docker defaults) for improved security
+  SETFCAP="${CAP_SETFCAP:-yes}"                  && set_capabilities SETFCAP $SETFCAP
+  SETUID="${CAP_SETUID:-yes}"                    && set_capabilities SETUID $SETUID
+  SETGID="${CAP_SETGID:-yes}"                    && set_capabilities SETGID $SETGID
+
+  ## Enabled/Others
+  AUDIT_CONTROL="${CAP_AUDIT_CONTROL:-no}"       && set_capabilities AUDIT_CONTROL $AUDIT_CONTROL
+  BLOCK_SUSPEND="${CAP_BLOCK_SUSPEND:-no}"       && set_capabilities BLOCK_SUSPEND $BLOCK_SUSPEND
+  DAC_READ_SEARCH="${CAP_DAC_READ_SEARCH:-no}"   && set_capabilities DAC_READ_SEARCH $DAC_READ_SEARCH
+  IPC_LOCK="${CAP_IPC_LOCK:-no}"                 && set_capabilities IPC_LOCK $IPC_LOCK
+  IPC_OWNER="${CAP_IPC_OWNER:-no}"               && set_capabilities IPC_OWNER $IPC_OWNER
+  LEASE="${CAP_LEASE:-no}"                       && set_capabilities LEASE $LEASE
+  LINUX_IMMUTABLE="${CAP_LINUX_IMMUTABLE:-no}"   && set_capabilities LINUX_IMMUTABLE $LINUX_IMMUTABLE
+  NET_ADMIN="${CAP_NET_ADMIN:-no}"               && set_capabilities NET_ADMIN $NET_ADMIN
+  NET_BROADCAST="${CAP_NET_BROADCAST:-no}"       && set_capabilities NET_BROADCAST $NET_BROADCAST
+  SYS_BOOT="${CAP_SYS_BOOT:-no}"                 && set_capabilities SYS_BOOT $SYS_BOOT
+  SYS_MODULE="${CAP_SYS_MODULE:-no}"             && set_capabilities SYS_MODULE $SYS_MODULE
+  SYS_PACCT="${CAP_SYS_PACCT:-no}"               && set_capabilities SYS_PACCT $SYS_PACCT
+  SYS_PTRACE="${CAP_SYS_PTRACE:-no}"             && set_capabilities SYS_PTRACE $SYS_PTRACE
+  SYS_NICE="${CAP_SYS_NICE:-no}"                 && set_capabilities SYS_NICE $SYS_NICE
+  SYS_RAWIO="${CAP_SYS_RAWIO:-no}"               && set_capabilities SYS_RAWIO $SYS_RAWIO
+  SYS_RESOURCE="${CAP_SYS_RESOURCE:-no}"         && set_capabilities SYS_RESOURCE $SYS_RESOURCE
+  SYS_TIME="${CAP_SYS_TIME:-no}"                 && set_capabilities SYS_TIME $SYS_TIME
+  SYS_TTY_CONFIG="${CAP_SYS_TTY_CONFIG:-no}"     && set_capabilities SYS_TTY_CONFIG $SYS_TTY_CONFIG
+  WAKE_ALARM="${CAP_SYS_PTRACE:-no}"             && set_capabilities WAKE_ALARM $WAKE_ALARM
+}
+
+#####################################################################
+# Build command line options for ulimit settings
+# Globals:
+#  ULIMIT_OPTIONS - Stores Docker ulimit cmd-line options
+# Arguments:
+#   limit       - Ulimit name
+#   value       - Value of ulimit settings
+# Returns:
+#   None
+#####################################################################
+
+set_ulimits(){
+  local limit="$1"
+  local value="$2"
+
+  [[ "$value" = "no" ]] || ULIMIT_OPTIONS="${ULIMIT_OPTIONS} --ulimit ${limit}=${value}"
+}
+
+##################################################################
+# Check and set value of ulimits per container
+# Globals:
+#   ulimit variables - Option in ISLET configuration files
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+
+check_ulimits(){
+  [[ "$DOCKER_VERSION" =~ 1.[6-9]+ ]] || return
+  unset ULIMIT_OPTIONS
+
+  # Set ulimits per container
+  [[ "$ULIMIT_CORE" ]]       && set_ulimits core       $ULIMIT_CORE
+  [[ "$ULIMIT_CPU"  ]]       && set_ulimits cpu        $ULIMIT_CPU
+  [[ "$ULIMIT_DATA" ]]       && set_ulimits data       $ULIMIT_DATA
+  [[ "$ULIMIT_FSIZE" ]]      && set_ulimits fsize      $ULIMIT_FSIZE
+  [[ "$ULIMIT_LOCKS" ]]      && set_ulimits locks      $ULIMIT_LOCKS
+  [[ "$ULIMIT_MEMLOCK" ]]    && set_ulimits memlock    $ULIMIT_MEMLOCK
+  [[ "$ULIMIT_MSGQUEUE" ]]   && set_ulimits msgqueue   $ULIMIT_MSGQUEUE
+  [[ "$ULIMIT_NICE" ]]       && set_ulimits nice       $ULIMIT_NICE
+  [[ "$ULIMIT_NOFILE" ]]     && set_ulimits nofile     $ULIMIT_NOFILE
+  [[ "$ULIMIT_NPROC" ]]      && set_ulimits nproc      $ULIMIT_NPROC
+  [[ "$ULIMIT_RSS" ]]        && set_ulimits rss        $ULIMIT_RSS
+  [[ "$ULIMIT_RTPRIO" ]]     && set_ulimits rtprio     $ULIMIT_RTPRIO
+  [[ "$ULIMIT_RTTIME" ]]     && set_ulimits rttime     $ULIMIT_RTTIME
+  [[ "$ULIMIT_SIGPENDING" ]] && set_ulimits sigpending $ULIMIT_SIGPENDING
+  [[ "$ULIMIT_STACK" ]]      && set_ulimits stack      $ULIMIT_STACK
+}
+
+##################################################################
+# Setup variables for inclusion by Docker
+# Globals:
+#   ENVS - Option in ISLET configuration files
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+
+env_setup(){
+  for i in $ENVS; do
+   ENV_CMD="${ENV_CMD} --env $i"
+  done
+}
+
+###############################################################################################
+# Pass all options to Docker and replace this process with the container
+# Globals:
+#   BASENAME        - from ISLET config files, container prefix used to build container name
+#   USERNAME        - given username for login, container postfix, used to build container name
+#   HOSTNAME        - from ISLET config files, hostname of container
+#   COMMAND         - from ISLET config files, set entrypoint command for container
+#   CPUSHARES       - from ISLET config files, relative cpu share allocation per container
+#   CPUSET          - from ISLET config files, cpu's available for container
+#   MEMORY          - from ISLET config files, memory allocation per container
+#   SWAP            - from ISLET config files, swap memory allocation per container
+#   NETWORK         - from ISLET config files, network settings for container
+#   DNS             - from ISLET config files, nameservers for container
+#   GLOBAL_OPTIONS  - from ISLET config files, pass docker options to all containers
+#   LOCAL_OPTIONS   - from ISLET config files, pass per-image docker options
+#   MOUNT           - from ISLET config files, pass mount options to docker
+#   REMOVE          - from ISLET config files, remove container after exit
+#   IMAGE           - from ISLET config files, docker image to launch
+#   VIRTUSER        - from ISLET config files, user to become in container
+#   ENVS            - from ISLET config files, environment variables to set in container
+#   WORKDIR         - from ISLET config files, working directory in container
+#   CLIENT          - ip address of connecting user
+#   SRCPORT         - source port of connecting user
+#   SERVER          - ip address of islet server
+#   DSTPORT         - ssh destination port of islet server
+#   SSH_TTY         - name of the tty associated with the current shell
+#   TERM            - terminal used
+#   PPID            - pid of the sshd process of the user's session
+#   TMOUT           - shell's timeout value
+#   TIMEOUT         - from ISLET config files, max time container can run
+#   INFOLEVEL       - from ISLET config files, DEBUG'ing information
+# Arguments:
+#   None
+# Returns:
+#   None
+###############################################################################################
+
+start_container(){
+  local result
+  does_image_exist
+  removal_setup
+  port_forwarding_setup
+  check_capabilities
+  check_ulimits
+  env_setup
+
+  local name_opt="--name="${BASENAME}.${USERNAME}" --tty --hostname $HOSTNAME"
+  local res_opt="--cpu-shares ${CPUSHARES:-$CPU} --cpuset-cpus ${CPUSET:-0} --memory ${MEMORY:-$RAM} --memory-swap ${SWAP:--1}"
+  local net_opt="$PUBLISH --net $NETWORK --dns $DNS --add-host $HOSTNAME:127.0.0.1"
+  local glb_opt="$GLOBAL_OPTIONS"
+  local oth_opt="$LOCAL_OPTIONS"
+  local cap_opt="$CAPABILITIES_OPTIONS"
+  local lmt_opt="$ULIMIT_OPTIONS"
+  local mnt_opt="$MOUNT"
+  local dir_opt="--workdir ${WORKDIR:-/home/$VIRTUSER}"
+  local env_opt="$ENV_CMD"
+  local img_opt="$REMOVE --interactive $IMAGE"
+  local cmd_opt="${COMMAND:-su $VIRTUSER}"
+
+  # If debugging is yes
+  is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"
+  is_debug "opt: docker run $name_opt $res_opt $net_opt $glb_opt $oth_opt $mnt_opt $cap_opt $lmt_opt $dir_opt $env_opt $img_opt $cmd_opt"
+
+  notice "Enjoy yourself!"
+  mention "$MOTD"
+
+  # Run container
+  eval timeout --foreground "$TIMEOUT" docker run "$name_opt $res_opt $net_opt $glb_opt $oth_opt $cap_opt $lmt_opt $mnt_opt $dir_opt $env_opt $img_opt $cmd_opt" "$INFOLEVEL"
+  result=$?
+  [[ $result -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
+  [[ $result -ne 0   ]] && [[ $DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode: DEBUG=yes in $CONFIG"
+
+  # Back to menu if we didn't hit $TIMEOUT
+  menu_loop
+}
+
+trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
+# It all begins here
+is_sqlite
+verify_group
+verify_backend
+identify
+menu_loop
+exit
