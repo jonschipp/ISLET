@@ -8,6 +8,7 @@ LIB_DIR		= $(INSTALL_DIR)/lib
 CRON_DIR 	= $(INSTALL_DIR)/cron
 BIN_DIR 	= $(INSTALL_DIR)/bin
 PLUGIN_DIR 	= $(INSTALL_DIR)/plugins
+MODULE_DIR	= $(INSTALL_DIR)/modules
 MAN_DIR 	= /usr/share/man
 CRON 		= /etc/cron.d
 FUNCTIONS 	= ./functions.sh
@@ -80,6 +81,7 @@ install-files:
 	mkdir -m 755 -p $(CRON_DIR)
 	mkdir -m 755 -p $(BIN_DIR)
 	mkdir -m 755 -p $(PLUGIN_DIR)
+	mkdir -m 755 -p $(MODULE_DIR)
 	install -o root -g root -m 644 config/islet.conf $(CONFIG_DIR)/$(PROG).conf
 	install -o root -g root -m 644 config/security.conf $(CONFIG_DIR)/security.conf
 	install -o root -g root -m 644 config/1-restart.conf $(CONFIG_DIR)/1-restart.conf
@@ -97,6 +99,7 @@ install-files:
 	install -o root -g root -m 744 plugins/del_user $(PLUGIN_DIR)/del_user
 	install -o root -g root -m 744 plugins/del_container $(PLUGIN_DIR)/del_container
 	install -o root -g root -m 744 plugins/clear $(PLUGIN_DIR)/clear
+	install -o root -g root -m 744 modules/docker $(MODULE_DIR)/docker
 	install -o root -g root -m 644 docs/islet.5 $(MAN_DIR)/man5/islet.5
 	install -o root -g root -m 440 config/islet.sudoers $(SUDOERS)/islet
 	$(Q)echo " $(bold)--> Configuration directory is$(normal) $(underline)$(CONFIG_DIR)$(normal)"
