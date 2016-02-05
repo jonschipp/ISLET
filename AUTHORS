@@ -8,12 +8,13 @@ Major contributors (> 30 commits):
 
 Minor contributors (<= 30 commits):
 
- * None
+ * Mike Downey <michael.downey01@gmail.com>
 
 Special thanks:
 
  * NCSA (Adam Slagell, Warren Raquel, Jeannette Dopheide) - for supporting the effort
  * CITES (Wayland Morgan) - for promoting and using it for digital forensics courses at UIUC
+ * CriticalStack (Liam Randall) - for promoting and using it
 
 Notes:
 
@@ -21,4 +22,4 @@ Want to join the team? Submit enough great patches over a long time,
 implement what's available in the Github issues and show an ongoing,
 active interest in supporting ISLET. What's in it for you? Being involved
 in a useful project that helps things like hacker conferences and user group
-events, plus I'll buy you a beer and t-shirt or something.
+events, plus I'll buy you a beer, meal, or something.
