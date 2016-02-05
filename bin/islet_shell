@@ -21,8 +21,9 @@ export TMOUT=60
 readonly CLIENT SRCPORT SERVER DSTPORT SSH_TTY TERM PPID TMOUT
 
 err(){
-  MESSAGE="$1"
-  logger -s -p local0.notice -t "islet" "$0: $MESSAGE"
+  local message
+  message="$1"
+  logger -s -p local0.notice -t "islet" "$0: $message"
   exit 1
 }
 
