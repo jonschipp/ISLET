@@ -5,12 +5,10 @@ VERSION		= 1.3.7
 CONFIG_DIR 	= /etc/$(PROG)
 INSTALL_DIR 	= /opt/$(PROG)
 LIB_DIR		= $(INSTALL_DIR)/lib
-CRON_DIR 	= $(INSTALL_DIR)/cron
 BIN_DIR 	= $(INSTALL_DIR)/bin
 PLUGIN_DIR 	= $(INSTALL_DIR)/plugins
 MODULE_DIR	= $(INSTALL_DIR)/modules
 MAN_DIR 	= /usr/share/man
-CRON 		= /etc/cron.d
 FUNCTIONS 	= ./functions.sh
 USER		= demo
 PASS		= demo
@@ -60,7 +58,6 @@ install-contained:
 	install -o root -g root -m 644 config/islet.conf $(CONFIG_DIR)/$(PROG).conf
 	sed -i "s|ISLETVERS|$(VERSION)|" $(CONFIG_DIR)/islet.conf
 	sed -i "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
-	install -o root -g root -m 644 config/security.conf $(CONFIG_DIR)/security.conf
 	docker run -d --name="islet" \
 								-v /usr/bin/docker:/usr/bin/docker:ro \
 								-v /var/lib/docker/:/var/lib/docker:rw \
@@ -76,29 +73,27 @@ install-contained:
 
 install-files:
 	$(Q)echo " $(yellow)Installing $(PROG)$(normal)"
-	mkdir -m 755 -p $(CONFIG_DIR)
+	mkdir -m 755 -p $(CONFIG_DIR)/modules $(CONFIG_DIR)/environments $(CONFIG_DIR)/plugins
+	#mkdir -m 755 -p $(CONFIG_DIR)/modules
+	#mkdir -m 755 -p $(CONIG_DIR)/environments
+	#mkdir -m 755 -p $(CONFIG_DIR)/plugins
 	mkdir -m 755 -p $(LIB_DIR)
-	mkdir -m 755 -p $(CRON_DIR)
 	mkdir -m 755 -p $(BIN_DIR)
 	mkdir -m 755 -p $(PLUGIN_DIR)
 	mkdir -m 755 -p $(MODULE_DIR)
 	install -o root -g root -m 644 config/islet.conf $(CONFIG_DIR)/$(PROG).conf
-	install -o root -g root -m 644 config/security.conf $(CONFIG_DIR)/security.conf
-	install -o root -g root -m 644 config/1-restart.conf $(CONFIG_DIR)/1-restart.conf
-	install -o root -g root -m 644 config/2-del_user.conf $(CONFIG_DIR)/2-del_user.conf
-	install -o root -g root -m 644 config/3-del_training.conf $(CONFIG_DIR)/3-del_training.conf
-	install -o root -g root -m 644 config/4-clear.conf $(CONFIG_DIR)/4-clear.conf
+	install -o root -g root -m 644 config/plugins/restart.conf $(CONFIG_DIR)/plugins/restart.conf
+	install -o root -g root -m 644 config/plugins/del_user.conf $(CONFIG_DIR)/plugins/del_user.conf
+	install -o root -g root -m 644 config/plugins/del_training.conf $(CONFIG_DIR)/plugins/del_training.conf
+	install -o root -g root -m 644 config/plugins/clear.conf $(CONFIG_DIR)/plugins/clear.conf
 	install -o root -g root -m 644 lib/libislet $(LIB_DIR)/libislet
 	install -o root -g root -m 755 bin/islet_shell $(BIN_DIR)/$(PROG)_shell
-	install -o root -g root -m 644 cron/islet.crontab $(CRON)/$(PROG)
-	install -o root -g root -m 750 cron/remove_old_containers $(CRON_DIR)/remove_old_containers
-	install -o root -g root -m 750 cron/remove_old_users $(CRON_DIR)/remove_old_users
-	install -o root -g root -m 750 cron/disk_limit $(CRON_DIR)/disk_limit
-	install -o root -g root -m 750 cron/port_forward $(CRON_DIR)/port_forward
+	install -o root -g root -m 755 bin/isletd $(BIN_DIR)/$(PROG)d
 	install -o root -g root -m 744 plugins/restart $(PLUGIN_DIR)/restart
 	install -o root -g root -m 744 plugins/del_user $(PLUGIN_DIR)/del_user
 	install -o root -g root -m 744 plugins/del_container $(PLUGIN_DIR)/del_container
 	install -o root -g root -m 744 plugins/clear $(PLUGIN_DIR)/clear
+	install -o root -g root -m 744 config/modules/docker.conf $(CONFIG_DIR)/modules/docker.conf
 	install -o root -g root -m 744 modules/docker $(MODULE_DIR)/docker
 	install -o root -g root -m 644 docs/islet.5 $(MAN_DIR)/man5/islet.5
 	install -o root -g root -m 440 config/islet.sudoers $(SUDOERS)/islet
@@ -110,8 +105,7 @@ configuration:
 	sed -i "s|ISLETVERS|$(VERSION)|" $(CONFIG_DIR)/islet.conf
 	sed -i "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
 	visudo -c
-	sed -i "s|LOCATION|$(CRON_DIR)|g" $(CRON)/$(PROG)
-	sed -i "s|LOCATION|$(CONFIG_DIR)/$(PROG).conf|g" $(BIN_DIR)/* $(CRON_DIR)/*
+	sed -i "s|LOCATION|$(CONFIG_DIR)/$(PROG).conf|g" $(BIN_DIR)/*
 	test -d /var/lib/docker && chown root:$(GROUP) /var/lib/docker /var/lib/docker/repositories-* || true
 	test -d /var/lib/docker && chmod g+x /var/lib/docker || true
 	test -d /var/lib/docker && chmod g+r /var/lib/docker/repositories-* || true
@@ -120,7 +114,6 @@ uninstall:
 	$(Q)echo " $(yellow)Uninstalling $(PROG)$(normal)"
 	rm -rf $(CONFIG_DIR)
 	rm -rf $(INSTALL_DIR)
-	rm -f $(CRON)/$(PROG)
 	rm -f /var/tmp/$(PROG)_db
 	rm -f /etc/security/limits.d/islet.conf
 	rm -f $(SUDOERS)/islet
@@ -143,8 +136,8 @@ update: pull
 
 install-brolive-config:
 	$(FUNCTIONS) install_sample_configuration
-	mkdir -m 755 -p $(CONFIG_DIR)
-	install -o root -g root -m 644 extra/brolive.conf $(CONFIG_DIR)/brolive.conf
+	mkdir -m 755 -p $(CONFIG_DIR)/environments
+	install -o root -g root -m 644 extra/brolive.conf $(CONFIG_DIR)/environments/brolive.conf
 	$(Q)echo " $(yellow)Try it out: ssh demo@<ip>$(normal)"
 
 install-sample-nsm: install-sample-nsm-configs
@@ -153,17 +146,17 @@ install-sample-nsm: install-sample-nsm-configs
 
 install-sample-nsm-configs:
 	mkdir -m 755 -p $(CONFIG_DIR)
-	install -o root -g root -m 644 extra/brolive.conf $(CONFIG_DIR)/brolive.conf
-	install -o root -g root -m 644 extra/ids.conf $(CONFIG_DIR)/ids.conf
-	install -o root -g root -m 644 extra/argus.conf $(CONFIG_DIR)/argus.conf
-	install -o root -g root -m 644 extra/tcpdump.conf $(CONFIG_DIR)/tcpdump.conf
-	install -o root -g root -m 644 extra/netsniff-ng.conf $(CONFIG_DIR)/netsniff-ng.conf
-	install -o root -g root -m 644 extra/volatility.conf $(CONFIG_DIR)/volatility.conf
-	install -o root -g root -m 644 extra/sagan.conf $(CONFIG_DIR)/sagan.conf
+	install -o root -g root -m 644 extra/brolive.conf $(CONFIG_DIR)/environments/brolive.conf
+	install -o root -g root -m 644 extra/ids.conf $(CONFIG_DIR)/environments/ids.conf
+	install -o root -g root -m 644 extra/argus.conf $(CONFIG_DIR)/environments/argus.conf
+	install -o root -g root -m 644 extra/tcpdump.conf $(CONFIG_DIR)/environments/tcpdump.conf
+	install -o root -g root -m 644 extra/netsniff-ng.conf $(CONFIG_DIR)/environments/netsniff-ng.conf
+	install -o root -g root -m 644 extra/volatility.conf $(CONFIG_DIR)/environments/volatility.conf
+	install -o root -g root -m 644 extra/sagan.conf $(CONFIG_DIR)/environments/sagan.conf
 
 install-sample-distros:
 	$(FUNCTIONS) install_sample_distributions
-	mkdir -m 755 -p $(CONFIG_DIR)
+	mkdir -m 755 -p $(CONFIG_DIR)/environments
 
 install-sample-cadvisor:
 	docker run -d -v /var/run:/var/run:rw -v /sys:/sys:ro -v /var/lib/docker/:/var/lib/docker:ro -p 8080:8080 --name="cadvisor" google/cadvisor:latest

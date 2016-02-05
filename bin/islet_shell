@@ -38,11 +38,11 @@ fi
 
 clear
 
+# Import Module
+. "$INSTALL_DIR/modules/$MODULE"
+
 readonly TIME=$(date +"%s")
 readonly EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
-
-# Import Module
-. "$MODULE"
 
 # Display ISLET Banner
 if [[ "$ARG" != "nobanner" ]]; then
@@ -121,8 +121,6 @@ enable_autocompletion(){
   TMP="/tmp/islet"
   [[ "$PWD" == "$TMP" ]] || { mkdir -p "$TMP" && cd "$TMP"; }
   [[ "$PWD" == "$TMP" ]] && touch {new,existing,yes,no}
-  # Add this here for now
-  [[ "$MODULE" == *"docker" ]] && cat /var/lib/docker/repositories-"${STORAGE_BACKEND}" > "$TMP/images"
 }
 
 #######################################
@@ -318,9 +316,9 @@ config_menu(){
 
   # Iterate over configuration files in $CONFIG_DIR and display them as options
   # It prints the config file ($config) and its description ($DESCRIPTION)
-  for config in *.conf
+  for config in environments/*.conf plugins/*.conf
   do
-    . "$config"
+    [[ -f "$config" ]] && . "$config"
     if [[ "$VISIBLE" = "yes" || "$ENABLE" = "yes" ]]; then
       printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config${N}" "|" "${U}$DESCRIPTION${N}"
       LIST+=("$config")
@@ -355,8 +353,8 @@ config_menu(){
 
   # If configuration is for plugin then execute it
   if [[ $PLUGIN ]]; then
-    if [[ -f "$PLUGIN_DIR/$PLUGIN" ]]; then
-      . "$PLUGIN_DIR/$PLUGIN"
+    if [[ -f "$INSTALL_DIR/plugins/$PLUGIN" ]]; then
+      . "$INSTALL_DIR/plugins/$PLUGIN"
     else
       alert "Plugin $PLUGIN does not exist..contact the administrator."
     fi

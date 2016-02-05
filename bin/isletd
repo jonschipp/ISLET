@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+# Global Declarations
+CONFIG=LOCATION
+
+###################################################
+# Error and log
+# Globals:
+#   None
+# Arguments:
+#   message - Message to write out and log 
+# Returns:
+#   None
+###################################################
+
+err(){
+  local message
+  message="$1"
+  logger -s -p local0.notice -t "islet" "$0: $message"
+  exit 1
+}
+
+###################################################
+# Load variables from configuration files
+# Globals:
+#   CONFIG - Main configuration file
+#   LIBISLET - Load library containing functions
+#   MODULE - Runtime configuration file 
+# Arguments:
+#   None
+# Returns:
+#   None
+###################################################
+
+load_config(){
+  # Get global variables
+  if [[ -f "$CONFIG" ]]; then
+    . "$CONFIG"
+    . "$LIBISLET"
+    . "$CONFIG_DIR/modules/${MODULE}.conf"
+  else
+    err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
+    exit 1
+  fi
+}
+
+###################################################
+# Clean up variables after each iteration
+# Globals:
+#   Many
+# Arguments:
+#   None
+# Returns:
+#   None
+###################################################
+
+clear_vers(){
+  # Main globals
+  unset CONFIG LIBISLET
+  #
+  unset DAYS CURRENT DB
+}
+
+###################################################
+# Get time for time based tasks
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+###################################################
+
+get_time(){
+  TIME=$(date +"%s")
+  EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
+}
+
+###################################################
+# Remove users older than days
+# Globals:
+#   DB
+# Arguments:
+#   days - Value of DAYS, option in config file
+# Returns:
+#   None
+###################################################
+
+remove_users(){
+  local days
+  days="$1"
+  if file "$DB" 2>/dev/null | grep -q SQLite; then
+    sqlite3 "$DB" "pragma foreign_keys = on; DELETE FROM accounts WHERE (strftime('%s','now') - ts) >= (${days}*86400);"
+  fi
+}
+
+###################################################
+# Daemonize, run indefinitely every 60 seconds
+# Globals:
+#   Many
+# Arguments:
+#   None
+# Returns:
+#   None
+###################################################
+
+main(){
+  # We're a daemon, we don't end
+  while true; do
+    # Obtain latest settings
+    load_config
+    ## Main tasks
+    # 1. Remove users which are older than $DAYS days
+    [[ "$DAYS" ]] && remove_users "$DAYS"
+    # 2. Remove days containers with size greater than $MAX_SIZE
+    [[ "$MAX_SIZE" ]] && check_container_size "$MAX_SIZE"
+    # 3.
+    # Clear variables
+    clear_vars
+    sleep 60
+  done
+}
+
+main
