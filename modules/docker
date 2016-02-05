@@ -408,7 +408,7 @@ module_start(){
 #   None
 ##################################################################
 
-module_check_container_size(){
+cleanup_container_size(){
   # Stop and remove containers which grows to MAX_SIZE our more.
   # If MAX_SIZE isn't set in per-image config then it's taken from islet.conf
   local max_size
@@ -461,7 +461,7 @@ module_check_container_size(){
 #   None
 ##################################################################
 
-module_remove_containers(){
+cleanup_container_date(){
   # Remove containers which are older than x DAYS, per-image config
   local days
   local id
@@ -507,7 +507,7 @@ module_remove_containers(){
 #   None
 ##################################################################
 
-module_firewall_cleanup(){
+cleanup_port_forward(){
   # Removes PREROUTING rules no longer associated with running container for port forwarding
 
   local id
