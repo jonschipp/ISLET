@@ -321,7 +321,8 @@ config_menu(){
   do
     [[ -f "$config" ]] && . "$config"
     if [[ "$VISIBLE" = "yes" || "$ENABLE" = "yes" ]]; then
-      printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config${N}" "|" "${U}$DESCRIPTION${N}"
+      config_name="$(basename $config)"
+      printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config_name${N}" "|" "${U}$DESCRIPTION${N}"
       LIST+=("$config")
     fi
     unset BANNER VISIBLE ENABLE PLUGIN config
