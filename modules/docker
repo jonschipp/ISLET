@@ -68,11 +68,16 @@ module_attach(){
   log "${USERNAME}: Returning user from $CLIENT"
   notice "Welcome back!"
   mention "$MOTD"
-  is_debug "opt: docker start ${BASENAME}.${USERNAME} && docker attach ${BASENAME}.${USERNAME}"
-  docker start "${BASENAME}.${USERNAME}" > /dev/null 2>&1 && timeout --foreground "$TIMEOUT" docker attach "${BASENAME}.${USERNAME}"
+  is_debug "opt: docker start -i ${BASENAME}.${USERNAME}"
+  timeout --foreground "$TIMEOUT" docker start -i "${BASENAME}.${USERNAME}"
   result=$?
   [[ $result -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
-  [[ $result -ne 0   ]] && [[ DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode for more info: DEBUG=yes in $CONFIG"
+  [[ $result -eq 127 ]] && return 0 # Value 127 is last given command is not found
+  [[ $result -eq 130 ]] && return 0 # Value 130 SIGINT (^C) was sent, probably by user
+  if [[ $result -ne 0 ]]
+  then
+    [[ DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode for more info: DEBUG=yes in $CONFIG"
+  fi
   # No errors, we made it
   return 0
 }
