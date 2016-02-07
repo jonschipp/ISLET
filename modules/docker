@@ -93,7 +93,7 @@ does_image_exist(){
   repo="$IMAGE"
   [[ "$repo" == *:* ]] && tag="${repo##*:}" && repo=${repo%%:*}
   [[ $tag ]] || tag=latest
-  if ! awk 'BEGIN { RS="}," } { print }' "$TMP/images" | fgrep "$repo" | fgrep -q "$tag"
+  if ! docker images | fgrep -w "$repo" | fgrep -w -q "$tag"
   then
     notice "Image not found, trying Docker Hub..." && echo
     docker pull "$IMAGE" 2>/dev/null || quit "Image doesn't exist!"
