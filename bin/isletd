@@ -32,14 +32,15 @@ err(){
 ###################################################
 
 load_config(){
-  # Get global variables
+  local environment="$1"
   if [[ -f "$CONFIG" ]]; then
     . "$CONFIG"
     . "$LIBISLET"
     . "$CONFIG_DIR/modules/${MODULE}.conf"
+    . "$environment"
   else
-    err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
-    exit 1
+    logger -s -p local0.notice -t "islet" "$0: Unable to read $CONFIG"
+    return 1
   fi
 }
 
@@ -55,9 +56,9 @@ load_config(){
 
 clear_vers(){
   # Main globals
-  unset CONFIG LIBISLET
-  #
-  unset DAYS CURRENT DB
+  unset CONFIG LIBISLET DB
+  # Cleanup variables
+  unset MAX_SIZE DAYS
 }
 
 ###################################################
@@ -106,24 +107,23 @@ remove_users(){
 main(){
   # We're a daemon, we don't end
   while true; do
-    # Obtain latest settings
-    load_config
-    ## Main tasks
-    # 1. Remove users which are older than $DAYS days
+    ## Global tasks
+    # Remove users which are older than $DAYS days
     [[ "$DAYS" ]] && cleanup_users "$DAYS"
-    # Make this work some way
-    for i in $CONFIG_DIR/environments/*.conf $CONFIG_DIR/islet.conf; do
-      # 2. Remove containers with size greater than $MAX_SIZE
-      [[ "$MAX_SIZE" ]] && cleanup_container_size "$MAX_SIZE"
-      # 3. Remove containers with date older than $DAYS
-      [[ "$DAYS" ]] && cleanup_container_date "$DAYS"
-      # 4. Remove old port forward rules
-      [[ "$VIRTUAL_PORT" ]] && cleanup_port_forward
+    ## Per config tasks
+    for environment in $CONFIG_DIR/environments/*.conf $CONFIG_DIR/islet.conf; do
+      clear_vars
+      if [[ -r "$environment" ]]; then
+        # Obtain configurations
+        load_config "$environment" || continue
+        # Remove containers with size greater than $MAX_SIZE
+        [[ "$MAX_SIZE" ]] && cleanup_container_size "$MAX_SIZE"
+        # Remove containers with date older than $DAYS
+        [[ "$DAYS" ]] && cleanup_container_date "$DAYS"
+        # Remove old port forward rules
+        [[ "$VIRTUAL_PORT" ]] && cleanup_port_forward
+      fi
     done
-
-    # Clear variables
-    clear_vars
-
     sleep 60
   done
 }
