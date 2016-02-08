@@ -53,6 +53,27 @@ get_backend(){
   echo "$backend"
 }
 
+#######################################
+# Handle exit codes
+# Globals:
+#   None
+# Arguments:
+#   result
+# Returns:
+#   None
+#######################################
+
+exit_handler(){
+  local result
+  result="$1"
+  [[ $result -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
+  [[ $result -eq 127 ]] && return 0 # Value 127 is last given command is not found
+  [[ $result -eq 130 ]] && return 0 # Value 130 SIGINT (^C) was sent, probably by user
+  if [[ $result -ne 0 ]]; then
+    [[ DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode for more info: DEBUG=yes in $CONFIG"
+  fi
+}
+
 module_attach(){
   local result
   # User is re-attaching to previous image
@@ -61,13 +82,7 @@ module_attach(){
   mention "$MOTD"
   is_debug "opt: docker start -i ${BASENAME}.${USERNAME}"
   timeout --foreground "$TIMEOUT" docker start -i "${BASENAME}.${USERNAME}"
-  result=$?
-  [[ $result -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
-  [[ $result -eq 127 ]] && return 0 # Value 127 is last given command is not found
-  [[ $result -eq 130 ]] && return 0 # Value 130 SIGINT (^C) was sent, probably by user
-  if [[ $result -ne 0 ]]; then
-    [[ DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode for more info: DEBUG=yes in $CONFIG"
-  fi
+  exit_handler $? || return 1
   # No errors, we made it
   return 0
 }
@@ -379,9 +394,7 @@ module_start(){
 
   # Run container
   eval timeout --foreground "$TIMEOUT" docker run "$name_opt $res_opt $net_opt $glb_opt $oth_opt $cap_opt $lmt_opt $mnt_opt $dir_opt $env_opt $img_opt $cmd_opt" "$INFOLEVEL"
-  result=$?
-  [[ $result -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
-  [[ $result -ne 0   ]] && [[ $DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode: DEBUG=yes in $CONFIG"
+  exit_handler $?
 
   # Back to menu if we didn't hit $TIMEOUT
   menu_loop
