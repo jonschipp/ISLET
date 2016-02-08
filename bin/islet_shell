@@ -218,8 +218,7 @@ existing_user(){
   local count=1
   notice "Your previous account is only valid for the length of the event, after that you must create a new account"
   echo
-  while test "$count" -le "$FAILURE_COUNT"
-  do
+  while test "$count" -le "$FAILURE_COUNT"; do
     ask "Username: "
     read -r USERNAME
     USERNAME=$(sanitize $USERNAME)
@@ -278,10 +277,8 @@ verify_new_user(){
 verify_new_password(){
   local count=1
   local hash
-  while [[ "$PASSWORD" != "$PASSWORD_VERIFY" ]] || [[ "${#PASSWORD}" -lt "$MIN_PASSWD_LEN" ]]
-  do
-    if [[ "$count" -lt "$FAILURE_COUNT" ]]
-    then
+  while [[ "$PASSWORD" != "$PASSWORD_VERIFY" ]] || [[ "${#PASSWORD}" -lt "$MIN_PASSWD_LEN" ]]; do
+    if [[ "$count" -lt "$FAILURE_COUNT" ]]; then
       notice "Passwords do not match or meet length requirements (${BF}"${MIN_PASSWD_LEN}"${N}${Y}). Try again ("$count"/"$FAILURE_COUNT")."
       choose_password
     else
@@ -298,8 +295,7 @@ verify_new_password(){
 }
 
 menu_loop(){
-  while true
-  do
+  while true; do
     { [[ -d "$CONFIG_DIR" ]] && cd "$CONFIG_DIR"; } || quit "Unable to access ${CONFIG_DIR}!"
     LIST=()
     config_menu
@@ -317,8 +313,7 @@ config_menu(){
 
   # Iterate over configuration files in $CONFIG_DIR and display them as options
   # It prints the config file ($config) and its description ($DESCRIPTION)
-  for config in environments/*.conf plugins/*.conf
-  do
+  for config in environments/*.conf plugins/*.conf; do
     [[ -f "$config" ]] && . "$config"
     if [[ "$VISIBLE" = "yes" || "$ENABLE" = "yes" ]]; then
       config_name="$(basename $config)"

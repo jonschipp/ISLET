@@ -22,7 +22,7 @@ check_arch()
 {
   echo -n "${BULLET} Checking arch ... "
   ARCH=$(getconf LONG_BIT)
-  if [ $ARCH -ne 64 ] ; then
+  if [ $ARCH -ne 64 ]; then
     echo "$NO Not a 64-bit system"
     MISSING+=('64-bit')
   else
@@ -34,7 +34,7 @@ check_linux()
 {
   echo -n "${BULLET} Checking Linux ... "
 
-  if [[ "$(uname)" != "Linux" ]] ; then
+  if [[ "$(uname)" != "Linux" ]]; then
     echo "$NO Linux not found"
     MISSING+=('Linux')
   else
@@ -52,7 +52,7 @@ check_dependencies()
   local depends=$1
   echo -n "${BULLET} Checking $depends ... "
 
-  if [[ "x$(which $depends 2>/dev/null)" == "x" ]] ; then
+  if [[ "x$(which $depends 2>/dev/null)" == "x" ]]; then
     MISSING+=("$depends")
   else
       echo "$YES $depends found"
@@ -77,12 +77,10 @@ done
 
 check_bash_version
 
-if [ ${#MISSING[@]} -gt 0 ];
-then
+if [ ${#MISSING[@]} -gt 0 ]; then
   count=$(echo ${#MISSING[@]})
   echo -n "${Y}[${N}${RF}!${N}${Y}]${N} Missing dependencies: "
-  for (( i=0; i<${count}; i++ ));
-  do
+  for (( i=0; i<${count}; i++ )); do
     echo -n "${MISSING[$i]} "
   done
   echo

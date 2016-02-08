@@ -209,8 +209,7 @@ is_timeout(){ test "$?" -eq 124 && quit "$1"; }
 
 is_debug(){
   local message="$1"
-  if [[ "$DEBUG" == "yes" ]];
-  then
+  if [[ "$DEBUG" == "yes" ]]; then
     INFOLEVEL=""
     alert "$message"
     log "$message"

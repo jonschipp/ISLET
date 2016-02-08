@@ -65,8 +65,7 @@ module_attach(){
   [[ $result -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
   [[ $result -eq 127 ]] && return 0 # Value 127 is last given command is not found
   [[ $result -eq 130 ]] && return 0 # Value 130 SIGINT (^C) was sent, probably by user
-  if [[ $result -ne 0 ]]
-  then
+  if [[ $result -ne 0 ]]; then
     [[ DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode for more info: DEBUG=yes in $CONFIG"
   fi
   # No errors, we made it
@@ -89,8 +88,7 @@ does_image_exist(){
   repo="$IMAGE"
   [[ "$repo" == *:* ]] && tag="${repo##*:}" && repo=${repo%%:*}
   [[ $tag ]] || tag=latest
-  if ! docker images | fgrep -w "$repo" | fgrep -w -q "$tag"
-  then
+  if ! docker images | fgrep -w "$repo" | fgrep -w -q "$tag"; then
     notice "Image not found, trying Docker Hub..." && echo
     docker pull "$IMAGE" 2>/dev/null || quit "Image doesn't exist!"
   fi
@@ -121,10 +119,8 @@ port_forwarding_setup() {
   # Use HOST_PORT and CLIENT as a way to associate the user with a container port (VIRTUAL_PORT)
   if [[ "$VIRTUAL_PORT" ]]; then
     # If host port is in use, find another to bind to
-    while true
-    do
-      if ! netstat -nalt | fgrep -q ":$HOST_PORT"
-      then
+    while true; do
+      if ! netstat -nalt | fgrep -q ":$HOST_PORT"; then
         break
       fi
       let HOST_PORT++
@@ -160,8 +156,8 @@ port_forwarding_setup() {
 ######################################################################
 
 removal_setup(){
-  if [[ "$REMOVE" == "yes" ]] || [[ "$VIRTUAL_PORT" ]] # Re-attachment is impractical for port forwarding
-  then
+  if [[ "$REMOVE" == "yes" ]] || [[ "$VIRTUAL_PORT" ]]; then
+    # Re-attachment is impractical for port forwarding
     echo
     notice "This container is set to be terminated upon exit, work will not be saved."
     REMOVE="--rm"
@@ -423,11 +419,9 @@ cleanup_container_size(){
     return 1
   fi
 
-  for config in $CONFIG_DIR/environments/*.conf
-  do
+  for config in $CONFIG_DIR/environments/*.conf; do
     [[ -f "$config" ]] && . "$config"
-    for file in $METADATA
-    do
+    for file in $METADATA; do
       id="$(basename $(dirname $file))"
       if ! grep -q "$BASENAME" "$file"; then
         continue
@@ -437,8 +431,7 @@ cleanup_container_size(){
       size="$(echo "$du" | awk '{ print $1 }')"
       path="$(echo "$du" | awk '{ print $2 }')"
 
-      if [[ "$size" -ge "${max_size:-$glb_max_size}" ]]
-      then
+      if [[ "$size" -ge "${max_size:-$glb_max_size}" ]]; then
         printf 'echo "Warning: Max. disk space reached. Destroying container..."\n' | docker attach "$id"
         docker stop --time=3 "$id" 1>/dev/null
         docker rm -f "$id" 1>/dev/null
@@ -472,11 +465,9 @@ cleanup_container_date(){
   current="$(date +"%s")"
   
   # Load variables from per-image configs
-  for config in $CONFIG_DIR/environments/*.conf
-  do
+  for config in $CONFIG_DIR/environments/*.conf; do
     [[ -f "$config" ]] && . "$config"
-    for file in $METADATA
-    do
+    for file in $METADATA; do
       id="$(basename $(dirname $file))"
       if ! grep -q "$BASENAME" "$file"; then
         continue
@@ -511,11 +502,9 @@ cleanup_port_forward(){
 
   local id
   IFS=$'\n'
-  for rule in $(iptables -t nat --list-rules PREROUTING | grep "${INT}.*${BIND}")
-  do
+  for rule in $(iptables -t nat --list-rules PREROUTING | grep "${INT}.*${BIND}"); do
     id="$(echo "$rule" | awk -F : '{ print $2 }')"
-    if ! ps -U "$USER" -o ppid,command --no-headers | awk '/docker/ { print $1 }' | grep -q "$id"
-    then
+    if ! ps -U "$USER" -o ppid,command --no-headers | awk '/docker/ { print $1 }' | grep -q "$id"; then
       eval iptables -t nat "$(echo $rule | sed 's/^-./-D/')"
       log "Removing rule: iptables -t nat $(echo $rule | sed 's/^-./-D/')"
     fi

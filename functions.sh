@@ -137,8 +137,7 @@ EOF
 }
 
 is_ubuntu(){
-  if ! lsb_release -s -d 2>/dev/null | egrep -q 'Ubuntu|Debian'
-  then
+  if ! lsb_release -s -d 2>/dev/null | egrep -q 'Ubuntu|Debian'; then
     die "Debian or Ubuntu Linux is required for installation!"
   fi
 }
@@ -156,16 +155,14 @@ install_docker(){
 
   # Add the repository to your APT sources
   # Then import the repository key
-  if [[ ! -e /etc/apt/sources.list.d/docker.list ]]
-  then
+  if [[ ! -e /etc/apt/sources.list.d/docker.list ]]; then
     echo deb https://get.docker.com/ubuntu docker main > /etc/apt/sources.list.d/docker.list
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
     echo
   fi
 
   # Install docker
-  if ! command -v docker >/dev/null 2>&1
-  then
+  if ! command -v docker >/dev/null 2>&1; then
     apt-get update -qq
     apt-get install -qy --no-install-recommends lxc-docker cgroup-lite
     #apt-get install -qy lxc-docker linux-image-extra-$(uname -r) aufs-tools
@@ -175,8 +172,7 @@ install_docker(){
 docker_configuration(){
   local RESTART=0
   local SIZE="${1:-$SIZE}"
-  if command -v docker >/dev/null 2>&1
-  then
+  if command -v docker >/dev/null 2>&1; then
     # Set devicemapper storage limit
     [[ -f /etc/init.d/docker ]] && service docker stop 2>&1 >/dev/null || stop -q docker 2>/dev/null
     sleep 1
@@ -202,20 +198,17 @@ user_configuration(){
   local SHELL="${4:-$SHELL}"
   hi "  Configuring the $USER user account!\n"
 
-  if ! getent passwd "$USER" 1>/dev/null
-  then
+  if ! getent passwd "$USER" 1>/dev/null; then
     useradd --create-home --shell "$SHELL" "$USER"
     echo "$USER:$PASS" | chpasswd
   fi
 
-  if ! getent group "$GROUP" | grep -q "$USER" 1>/dev/null
-  then
+  if ! getent group "$GROUP" | grep -q "$USER" 1>/dev/null; then
     groupadd "$GROUP" 2>/dev/null
     gpasswd -a "$USER" "$GROUP" 2>/dev/null
   fi
 
-  if ! getent group docker | grep -q "$USER" 1>/dev/null
-  then
+  if ! getent group docker | grep -q "$USER" 1>/dev/null; then
     groupadd docker 2>/dev/null
     gpasswd -a "$USER" docker 2>/dev/null
   fi
@@ -226,8 +219,7 @@ security_configuration(){
   local SHELL="${2:-$SHELL}"
   hi "  Configuring the system with security in mind!\n"
 
-  if ! grep -q "ClientAliveInterval 15" "$SSH_CONFIG"
-  then
+  if ! grep -q "ClientAliveInterval 15" "$SSH_CONFIG"; then
     printf "\nClientAliveInterval 600\nClientAliveCountMax 3\n" >> "$SSH_CONFIG"
     RESTART_SSH=1
   fi
@@ -249,16 +241,13 @@ EOF
 RESTART_SSH=1
 fi
 
-  if grep -q '^Subsystem sftp' "$SSH_CONFIG"
-  then
+  if grep -q '^Subsystem sftp' "$SSH_CONFIG"; then
     sed -i '/Subsystem.*sftp/s/^/#/' "$SSH_CONFIG"
     RESTART_SSH=1
   fi
 
-  if [[ "$RESTART_SSH" -eq 1 ]]
-  then
-    if sshd -t 2>/dev/null
-    then
+  if [[ "$RESTART_SSH" -eq 1 ]]; then
+    if sshd -t 2>/dev/null; then
       [[ -f /etc/init.d/sshd ]] && service sshd restart 2>/dev/null
       [[ -f /etc/init.d/ssh  ]] && service ssh restart 2>/dev/null
     else
@@ -267,8 +256,7 @@ fi
     echo
   fi
 
-  if [[ "$RESTART_DOCKER" -eq 1 ]]
-  then
+  if [[ "$RESTART_DOCKER" -eq 1 ]]; then
     local RESTART=0
     [[ -f /etc/init.d/docker ]] && service docker stop 2>&1 >/dev/null || stop -q docker 2>/dev/null
     sleep 2
@@ -283,8 +271,7 @@ fi
 
 install_sample_configuration(){
   hi "  Installing sample training image for Bro!\n"
-  if ! docker images | grep -q brolive
-  then
+  if ! docker images | grep -q brolive; then
     docker pull broplatform/brolive
   fi
 }
@@ -293,11 +280,9 @@ install_nsm_configurations(){
 
   install_sample_configuration
 
-  for file in $(git ls-files extra/*.conf | grep -v brolive.conf)
-  do
+  for file in $(git ls-files extra/*.conf | grep -v brolive.conf); do
     F="$(basename $file .conf)"
-    if ! docker images | grep -q "$F"
-    then
+    if ! docker images | grep -q "$F"; then
       hi "  Installing sample training image for ${F}\n"
       docker pull jonschipp/islet-"${F}"
     fi
@@ -306,10 +291,8 @@ install_nsm_configurations(){
 
 install_sample_distributions(){
   DISTRO="ubuntu debian fedora centos"
-  for image in "$DISTRO"
-  do
-    if ! docker images | grep -q "$image"
-    then
+  for image in "$DISTRO"; do
+    if ! docker images | grep -q "$image"; then
       hi "  Installing distribution image for ${image}\n"
       docker pull "$image"
     fi
