@@ -38,8 +38,6 @@ help:
 	$(Q)echo " $(red)update$(normal)               		- Update code and reinstall islet"
 	$(Q)echo " $(red)mrproper$(normal)                     	- Remove all files not in source distribution"
 	$(Q)echo "$(bold)System configuration targets$(bold):$(normal)"
-	$(Q)echo " $(red)install-docker$(normal)               	- Install docker ($(normal)$(yellow)Debian/Ubuntu only$(normal))"
-	$(Q)echo " $(red)docker-config$(normal)                  - Configure docker storage backend ($(normal)$(yellow)Debian/Ubuntu only$(normal))($(red)Unstable$(normal))"
 	$(Q)echo " $(red)user-config$(normal)               	- Configure demo user for islet"
 	$(Q)echo " $(red)security-config$(normal)               	- Configure security controls (sshd_config)"
 	$(Q)echo " $(red)iptables-config$(normal)               	- Install iptables rules (def: /etc/network/if-pre-up.d/)"
@@ -161,9 +159,6 @@ install-sample-cadvisor:
 
 install-docker:
 	$(FUNCTIONS) install_docker
-
-docker-config:
-	$(FUNCTIONS) docker_configuration $(SIZE)
 
 user-config:
 	$(FUNCTIONS) user_configuration $(USER) $(PASS) $(GROUP) $(BIN_DIR)/$(PROG)_shell
