@@ -72,10 +72,7 @@ install-contained:
 install-files:
 	$(Q)echo " $(yellow)Installing $(PROG)$(normal)"
 	mkdir -m 755 -p $(CONFIG_DIR)/modules $(CONFIG_DIR)/environments $(CONFIG_DIR)/plugins
-	mkdir -m 755 -p $(LIB_DIR)
-	mkdir -m 755 -p $(BIN_DIR)
-	mkdir -m 755 -p $(PLUGIN_DIR)
-	mkdir -m 755 -p $(MODULE_DIR)
+	mkdir -m 755 -p $(LIB_DIR) $(BIN_DIR) $(PLUGIN_DIR) $(MODULE_DIR)
 	install -o root -g root -m 644 config/islet.conf $(CONFIG_DIR)/
 	install -o root -g root -m 644 config/plugins/*.conf $(CONFIG_DIR)/plugins/
 	install -o root -g root -m 644 config/modules/*.conf $(CONFIG_DIR)/modules/
