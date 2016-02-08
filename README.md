@@ -124,9 +124,6 @@ Install ISLET on the host:
 make install
 make user-config
 make security-config    # Configure islet relevant security with sshd
-chown root:islet /var/lib/docker /var/lib/docker/repositories-*
-chmod g+x /var/lib/docker
-chmod g+r /var/lib/docker/repositories-*
 ```
 
 Install ISLET as a container on the host:
