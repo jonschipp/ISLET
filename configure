@@ -11,7 +11,7 @@ LIBISLET=lib/libislet
 # Global Declarations
 OK=0
 CRITICAL=1
-DEPENDS="bash cron make sshd docker sqlite3"
+DEPENDS="bash make sshd sqlite3"
 MISSING=()
 DEBIAN=0
 NO="${Y}[${N}${RF}NO${N}${Y}]${N}"
@@ -53,25 +53,10 @@ check_dependencies()
   echo -n "${BULLET} Checking $depends ... "
 
   if [[ "x$(which $depends 2>/dev/null)" == "x" ]] ; then
-
-    [ "$depends" = "docker" ] && test $DEBIAN -eq 1 &&
-    echo -n "$NO $depends not found, try "  &&
-    notice "\`\`make install-docker''" 	||
-      echo "$NO $depends not found"
-
     MISSING+=("$depends")
-
   else
       echo "$YES $depends found"
   fi
-}
-
-check_docker_version()
-{
-if ! echo ${MISSING[@]} | grep -q docker; then
-  echo -n "${BULLET} Checking docker version... "
-  docker version 2>/dev/null | egrep -q 'Server version: 1.[7-9]|Version:      1.[7-9]' 2>/dev/null && echo "$YES 1.7+ found"|| echo "$NO 1.7+ not found"
-fi
 }
 
 check_bash_version()
@@ -90,7 +75,6 @@ do
   check_dependencies $i
 done
 
-check_docker_version
 check_bash_version
 
 if [ ${#MISSING[@]} -gt 0 ];
