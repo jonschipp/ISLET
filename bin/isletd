@@ -13,8 +13,7 @@ CONFIG=LOCATION
 ###################################################
 
 err(){
-  local message
-  message="$1"
+  local message="$1"
   logger -s -p local0.notice -t "islet" "$0: $message"
   exit 1
 }
@@ -87,8 +86,7 @@ get_time(){
 ###################################################
 
 remove_users(){
-  local days
-  days="$1"
+  local days="$1"
   if file "$DB" 2>/dev/null | grep -q SQLite; then
     sqlite3 "$DB" "pragma foreign_keys = on; DELETE FROM accounts WHERE (strftime('%s','now') - ts) >= (${days}*86400);"
   fi

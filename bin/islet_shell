@@ -21,8 +21,7 @@ export TMOUT=60
 readonly CLIENT SRCPORT SERVER DSTPORT SSH_TTY TERM PPID TMOUT
 
 err(){
-  local message
-  message="$1"
+  local message="$1"
   logger -s -p local0.notice -t "islet" "$0: $message"
   exit 1
 }
@@ -94,9 +93,8 @@ return 0
 #######################################
 
 is_sqlite() {
-  local file
-  file=$(which sqlite3)
-  [[ -f $file ]] || quit "Fatal: sqlite3 not found, is it installed and in the PATH?"
+  local file="$(which sqlite3)"
+  [[ -f "$file" ]] || quit "Fatal: sqlite3 not found, is it installed and in the PATH?"
   if ! file "$DB" 2>/dev/null | grep -q SQLite; then
     rm -f "$DB" 2>/dev/null
     create_db
@@ -249,8 +247,7 @@ existing_user(){
 ###################################################
 
 verify_new_user(){
-  local exists
-  exists=$(sqlite3 "$DB" "SELECT user FROM accounts WHERE user='$USERNAME';")
+  local exists="$(sqlite3 "$DB" "SELECT user FROM accounts WHERE user='$USERNAME';")"
   if [[ "$exists" ]]; then
     AVAILABLE_USER=1
     notice "User already exists! Try a different one."

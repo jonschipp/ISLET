@@ -45,10 +45,8 @@ verify_group() {
 #######################################
 
 get_backend(){
-  local line
-  local backend
-  line="$(docker info 2>/dev/null | fgrep -i 'storage')"
-  backend="${line##* }"
+  local line="$(docker info 2>/dev/null | fgrep -i 'storage')"
+  local backend="${line##* }"
   [[ "$backend" ]] || quit "Fatal: Docker storage backend wasn't found"
   echo "$backend"
 }
@@ -64,8 +62,7 @@ get_backend(){
 #######################################
 
 exit_handler(){
-  local result
-  result="$1"
+  local result="$1"
   [[ $result -eq 124 ]] && quit "Inactive timer expired in menu, exiting..."
   [[ $result -eq 127 ]] && return 0 # Value 127 is last given command is not found
   [[ $result -eq 130 ]] && return 0 # Value 130 SIGINT (^C) was sent, probably by user
@@ -98,9 +95,8 @@ module_attach(){
 ######################################################################
 
 does_image_exist(){
-  local repo
   local tag
-  repo="$IMAGE"
+  local repo="$IMAGE"
   [[ "$repo" == *:* ]] && tag="${repo##*:}" && repo=${repo%%:*}
   [[ $tag ]] || tag=latest
   if ! docker images | fgrep -w "$repo" | fgrep -w -q "$tag"; then
@@ -415,16 +411,13 @@ module_start(){
 cleanup_container_size(){
   # Stop and remove containers which grows to MAX_SIZE our more.
   # If MAX_SIZE isn't set in per-image config then it's taken from islet.conf
-  local max_size
-  local glb_max_size
+  local max_size="$1"
+  local glb_max_size="$max_size"
+  local backend=$(get_backend)
   local size
   local path
   local id
-  local backend
   local container_path
-  max_size="$1"
-  glb_max_size="$max_size"
-  backend=$(get_backend)
 
   container_path="$DOCKER_DIR/$backend/mnt"
   if [[ ! -d "$container_path" ]]; then
@@ -468,13 +461,12 @@ cleanup_container_size(){
 
 cleanup_container_date(){
   # Remove containers which are older than x DAYS, per-image config
-  local days
+  local days="$1"
   local id
   local stamp
   local time
   local left
   local delete
-  days="$1"
   current="$(date +"%s")"
   
   # Load variables from per-image configs
