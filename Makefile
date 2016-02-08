@@ -72,27 +72,18 @@ install-contained:
 install-files:
 	$(Q)echo " $(yellow)Installing $(PROG)$(normal)"
 	mkdir -m 755 -p $(CONFIG_DIR)/modules $(CONFIG_DIR)/environments $(CONFIG_DIR)/plugins
-	#mkdir -m 755 -p $(CONFIG_DIR)/modules
-	#mkdir -m 755 -p $(CONIG_DIR)/environments
-	#mkdir -m 755 -p $(CONFIG_DIR)/plugins
 	mkdir -m 755 -p $(LIB_DIR)
 	mkdir -m 755 -p $(BIN_DIR)
 	mkdir -m 755 -p $(PLUGIN_DIR)
 	mkdir -m 755 -p $(MODULE_DIR)
-	install -o root -g root -m 644 config/islet.conf $(CONFIG_DIR)/$(PROG).conf
-	install -o root -g root -m 644 config/plugins/restart.conf $(CONFIG_DIR)/plugins/restart.conf
-	install -o root -g root -m 644 config/plugins/del_user.conf $(CONFIG_DIR)/plugins/del_user.conf
-	install -o root -g root -m 644 config/plugins/del_training.conf $(CONFIG_DIR)/plugins/del_training.conf
-	install -o root -g root -m 644 config/plugins/clear.conf $(CONFIG_DIR)/plugins/clear.conf
+	install -o root -g root -m 644 config/islet.conf $(CONFIG_DIR)/
+	install -o root -g root -m 644 config/plugins/*.conf $(CONFIG_DIR)/plugins/
+	install -o root -g root -m 644 config/modules/*.conf $(CONFIG_DIR)/modules/
 	install -o root -g root -m 644 lib/libislet $(LIB_DIR)/libislet
 	install -o root -g root -m 755 bin/islet_shell $(BIN_DIR)/$(PROG)_shell
 	install -o root -g root -m 755 bin/isletd $(BIN_DIR)/$(PROG)d
-	install -o root -g root -m 744 plugins/restart $(PLUGIN_DIR)/restart
-	install -o root -g root -m 744 plugins/del_user $(PLUGIN_DIR)/del_user
-	install -o root -g root -m 744 plugins/del_container $(PLUGIN_DIR)/del_container
-	install -o root -g root -m 744 plugins/clear $(PLUGIN_DIR)/clear
-	install -o root -g root -m 744 config/modules/docker.conf $(CONFIG_DIR)/modules/docker.conf
-	install -o root -g root -m 744 modules/docker $(MODULE_DIR)/docker
+	install -o root -g root -m 755 plugins/* $(PLUGIN_DIR)/
+	install -o root -g root -m 755 modules/* $(MODULE_DIR)/
 	install -o root -g root -m 644 docs/islet.5 $(MAN_DIR)/man5/islet.5
 	install -o root -g root -m 440 config/islet.sudoers $(SUDOERS)/islet
 	$(Q)echo " $(bold)--> Configuration directory is$(normal) $(underline)$(CONFIG_DIR)$(normal)"
