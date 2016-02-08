@@ -5,15 +5,11 @@ Administration Guide
 
 Post-installation first steps
 
-1. Set STORAGE_BACKEND in /etc/islet/islet.conf to match your Docker storage driver
-```
-docker info | grep Storage
-```
-2. Change the password for the islet user (default: demo)
+1. Change the password for the islet user (default: demo)
 ```
 passwd demo
 ```
-3. Create a Docker image for your training environment (see Adding Training Environments)
+2. Create a Docker image for your training environment (see Adding Training Environments)
 ```
 cat <<EOF > Dockerfile
 # Build image for C programming
@@ -29,7 +25,7 @@ EOF
 
 docker build -t gcc-training - < Dockerfile
 ```
-4. Create an ISLET configuration file for the Docker image (see Adding Training Environments)
+3. Create an ISLET configuration file for the Docker image (see Adding Training Environments)
 ```
 make template > /etc/islet/gcc.conf
 vim /etc/islet/islet/gcc.conf

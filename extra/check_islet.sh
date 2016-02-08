@@ -224,7 +224,7 @@ fi
 
 if [[ $STATUS_CHECK -eq 1 ]]; then
 
-	for dir in $CONFIG_DIR $INSTALL_DIR $CONTAINER_PATH
+	for dir in $CONFIG_DIR $INSTALL_DIR
 	do
 		if [[ ! -d $dir ]]
 		then
@@ -261,39 +261,6 @@ if [[ $STATUS_CHECK -eq 1 ]]; then
 	fi
 
 	check_values
-fi
-
-if [[ $SIZE_CHECK -eq 1 ]]; then
-
-	if [[ ! -d $CONTAINER_PATH ]]; then
-                echo "$CONTAINER_PATH doesn't exist or is inaccessible, check or modify variable in $0"
-                exit $UNKNOWN
-        fi
-
-        IFS=$'\n'
-        for fs in $(find $CONTAINER_PATH/* -maxdepth 0 -type d -exec du -b -s '{}' \;);
-        do
-                SIZE=$(echo "$fs" | awk '{ print $1 }')
-                APATH=$(echo "$fs" | awk '{ print $2 }')
-                CONTAINER=$(basename "$APATH" | awk '{ print substr($0,0,12) }')
-
-                if [[ $SIZE -ge $CRIT ]]; then
-                        echo "CRITICAL: $CONTAINER size greater than $CRIT bytes"
-                        let MISSING++
-                elif [[ $SIZE -ge $WARN ]]; then
-                        echo "WARNING: $CONTAINER size is greater than $WARN bytes"
-                else
-                        :
-                fi
-        done
-
-        if [[ $MISSING -ne 0 ]]
-        then
-                exit $CRITICAL
-        else
-                echo "OK: Container sizes are looking good"
-                exit $OK
-        fi
 fi
 
 if [[ $DATABASE_CHECK -eq 1 ]]; then

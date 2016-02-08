@@ -14,7 +14,6 @@
 
 module_verify() {
   verify_group
-  verify_backend
   return 0
 }
 
@@ -35,31 +34,23 @@ verify_group() {
 }
 
 #######################################
-# Verify that storage backend matches
+# Get storage backend name
 # ISLET configuration
 # Globals:
-#   STORAGE_BACKEND - Backend location
-#   CONFIG          - ISLET config file
+#   None
 # Arguments:
 #   None
 # Returns:
 #   None
 #######################################
 
-verify_backend() {
-  local file
+get_backend(){
+  local line
   local backend
-  { [[ -x "$DOCKER_DIR" ]] || [[ -r "$DOCKER_DIR/repositories-$STORAGE_BACKEND" ]]; } ||
-  quit "Cannot enter ${DOCKER_DIR}, ISLET administrator should try:
-    chown root:${GROUP} ${DOCKER_DIR} ${DOCKER_DIR}/repositories-*
-    chmod g+x ${DOCKER_DIR}
-    chmod g+r ${DOCKER_DIR}/repositories-*"
-  for i in /var/lib/docker/repositories-{aufs,btrfs,devicemapper,vfs,overlayfs}
-  do
-    file=$(ls "$i" 2>/dev/null)
-    [[ $file ]] && backend=${file#*-} && break
-  done
-  [[ "$backend" == "$STORAGE_BACKEND" ]] || quit "Fatal: Docker storage backend doesn't match value in $CONFIG"
+  line="$(docker info 2>/dev/null | fgrep -i 'storage')"
+  backend="${line##* }"
+  [[ "$backend" ]] || quit "Fatal: Docker storage backend wasn't found"
+  echo "$backend"
 }
 
 module_attach(){
@@ -403,7 +394,6 @@ module_start(){
 ##################################################################
 # Check size of containers, delete if larger than MAX_SIZE
 # Globals:
-#   CONTAINER_PATH - Path to Docker storage backend
 #   METADATA - Option in ISLET configuration files
 #   BASENAME - Name of user's image, image we check size of
 #   CONFIG_DIR - Path to configuration files
@@ -421,11 +411,15 @@ cleanup_container_size(){
   local size
   local path
   local id
+  local backend
+  local container_path
   max_size="$1"
   glb_max_size="$max_size"
+  backend=$(get_backend)
 
-  if [[ ! -d "$CONTAINER_PATH" ]]; then
-    printf "$CONTAINER_PATH doesn't exist or is inaccessible, check or modify variable in $0\n"
+  container_path="$DOCKER_DIR/$backend/mnt"
+  if [[ ! -d "$container_path" ]]; then
+    printf "$container_path doesn't exist or is inaccessible\n"
     return 1
   fi
 
@@ -439,7 +433,7 @@ cleanup_container_size(){
         continue
       fi
 
-      du="$(du -bs $CONTAINER_PATH/$id)"
+      du="$(du -bs $container_path/$id)"
       size="$(echo "$du" | awk '{ print $1 }')"
       path="$(echo "$du" | awk '{ print $2 }')"
 

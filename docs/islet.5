@@ -58,8 +58,6 @@ PLUGIN_DIR="INSTALL_DIR/plugins"                  # ISLET plugins directory
 LIBISLET="$INSTALL_DIR/lib/libislet"              # Common functions are stored in libislet
 DB="/var/tmp/islet.db"                            # Credentials database. Must be readable by $USER
 DOCKER_DIR="/var/lib/docker"                      # Location of Docker directory
-STORAGE_BACKEND="devicemapper"                    # Docker storage backend, used to check if image exist
-CONTAINER_PATH="$DOCKER_DIR/$STORAGE_BACKEND/mnt" # Path to container storage location, used by disk_limit
 USER="demo"                                       # Linux system user created for ssh'ing to ISLET, give account to trainees
 DEBUG="no"                                        # Enable debugging info to stdout and syslog
 
