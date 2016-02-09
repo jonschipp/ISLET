@@ -217,3 +217,35 @@ is_debug(){
     INFOLEVEL="2>/dev/null"
   fi
 }
+
+######################################
+# Get global variables when available
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   Message to stdout on failure
+######################################
+
+import_configs(){
+  if [[ -f "$CONFIG" ]]; then
+    . "$CONFIG"
+    . "$LIBISLET"
+    readonly CONFIG
+  else
+    err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
+    exit 1
+  fi
+
+  if [[ -f "$CONFIG_DIR/modules/${MODULE}.conf" ]]; then
+    . "$CONFIG_DIR/modules/${MODULE}.conf"
+  else
+    err "Error: ${MODULE:-module} config not found!"
+    exit 1
+  fi
+
+  if [[ -f "$CONFIG_DIR/$CONFIGURATION" ]]; then
+    . "$CONFIG_DIR/$CONFIGURATION"
+  fi
+}

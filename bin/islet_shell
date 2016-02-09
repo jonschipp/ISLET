@@ -36,9 +36,12 @@ else
   exit 1
 fi
 
+# Export import_configs function to use in modules
+export -f import_configs
+
 clear
 
-# Import Module
+# Import Module. This will soon be removed.
 . "$INSTALL_DIR/modules/$MODULE"
 
 readonly TIME=$(date +"%s")
@@ -333,6 +336,8 @@ config_menu(){
     menu=1
     if [[ -f "$CONFIG_DIR/$CONFIGURATION" ]]; then
       . "$CONFIG_DIR/$CONFIGURATION"
+      # Export $CONFIGURATION for use in modules
+      export $CONFIGURATION
       break
     else
       let count++
