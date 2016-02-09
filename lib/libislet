@@ -234,18 +234,17 @@ import_configs(){
     . "$LIBISLET"
     readonly CONFIG
   else
-    err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
-    exit 1
+    quit "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
   fi
 
   if [[ -f "$CONFIG_DIR/modules/${MODULE}.conf" ]]; then
     . "$CONFIG_DIR/modules/${MODULE}.conf"
   else
-    err "Error: ${MODULE:-module} config not found!"
-    exit 1
+    quit "Error: ${MODULE:-module} config not found!"
   fi
 
   if [[ -f "$CONFIG_DIR/$CONFIGURATION" ]]; then
     . "$CONFIG_DIR/$CONFIGURATION"
+    quit "Error: ${CONFIGURATION:-environment} config not found!"
   fi
 }

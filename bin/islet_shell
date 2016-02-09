@@ -33,7 +33,6 @@ if [[ -f "$CONFIG" ]]; then
   readonly CONFIG
 else
   err "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
-  exit 1
 fi
 
 # Export import_configs function to use in modules
