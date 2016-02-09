@@ -336,7 +336,7 @@ config_menu(){
     if [[ -f "$CONFIG_DIR/$CONFIGURATION" ]]; then
       . "$CONFIG_DIR/$CONFIGURATION"
       # Export $CONFIGURATION for use in modules
-      export $CONFIGURATION
+      export CONFIGURATION
       break
     else
       let count++
