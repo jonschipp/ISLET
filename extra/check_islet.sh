@@ -209,7 +209,7 @@ if [[ $AVAILABLE_CHECK -eq 1 ]]; then
 		fi
 
 		source $config
-		docker images $IMAGE | grep -q $IMAGE
+		docker images $ENVIRONMENT | grep -q $ENVIRONMENT
 		if [[ $? -eq 0 ]];
 		then
 			echo "Image is available for $name"

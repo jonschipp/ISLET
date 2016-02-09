@@ -74,11 +74,11 @@ CREATE TABLE accounts (
         password VARCHAR,
         ts TIMESTAMP
 );
-CREATE TABLE images (
+CREATE TABLE environments (
         user VARCHAR REFERENCES accounts(user) ON DELETE CASCADE,
-        image VARCHAR
+        environment VARCHAR
 );
-CREATE UNIQUE INDEX idx_images_user_image ON images(user, image);
+CREATE UNIQUE INDEX idx_environments_user_environment ON environments(user, environment);
 EOF
 return 0
 }
@@ -364,11 +364,11 @@ config_menu(){
   [[ $menu ]] || quit "Quit by user..."
   unset menu
 
-  # Display image banner
+  # Display environmen banner
   [[ "$BANNER" ]] && clear && echo "$BANNER"
 
-  # This is how we handle using the same account for multiple images
-  attach=$(sqlite3 $DB "SELECT image FROM images WHERE user='$USERNAME' AND image='$BASENAME'";)
+  # This is how we handle using the same account for multiple environments
+  attach=$(sqlite3 $DB "SELECT environment FROM environments WHERE user='$USERNAME' AND environment='$BASENAME'";)
   { [[ $attach ]] && module_attach; } || module_start
 }
 

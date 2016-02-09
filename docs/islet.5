@@ -5,8 +5,8 @@
 .Nm Isolated, Scalable, and Lightweight Environment for Training
 .Nd Configuration details
 .Sh DESCRIPTION
-An ISLET config file consists of shell variables that will be passed to either the docker
-engine or to ISLET scripts to define the settings a training environment. An environment setting is of the form,
+An ISLET config file consists of variables that will be passed to the backend.
+These settings define the operation of the training environments. An environment setting is of the form,
 .Bd -literal
     NAME="value"
 .Ed
@@ -17,8 +17,9 @@ ISLET has three types of configuration files that differ only with scope:
 .Bd -literal -offset indent
 Config        Description
 ------        --------------
-Global        Global values inherited by all images but optionally superseded in Image configurations
-Image         Per image configuration that are local to a specific image i.e. training environment
+Global        Global values inherited by all environments but optionally superseded by module and environment configuration
+Module        Defines behavior of software that creates the environments but optionally superseded by environment configuration
+Environment   Environment configuration are specific to a training environment
 Plugin        Plugin configurations are used to launch plugins
 .Ed
 
@@ -27,22 +28,25 @@ The default locations for ISLET are
 Location                      Description
 --------                      --------------
 /etc/islet                    Configuration directory
+/etc/islet/modules            Module configuration directory
+/etc/islet/plugins            Plugin configuration directory
+/etc/islet/environments       Environment configuration directory
 /opt/islet                    Installation directory
 /opt/islet/bin                ISLET scripts
-/opt/islet/cron               Maintainance scripts
+/opt/islet/modules            Modules directory
 /opt/islet/plugins            Plugin directory
 /opt/islet/lib                Library
 .Ed
 
 .Pa /etc/islet/islet.conf
 is the global configuration file and must exist.
-Settings in this file are sourced from all ISLET scripts. Image configuration files only pertain
-to a specific Docker image and are sourced after the global file overriding any variables of the
-same name giving granular control to your training environments. ``source'' can be used inside any
-config file to include variables from other config files. These Image files are also to be placed in the
-ISLET configuration directory. At the very least an Image configuration must contain the variable
-IMAGE set to the name of docker image as matched in the output of ``docker images''.
-Variables used to configure containers are passed directly to
+Settings in this file are inherited into all ISLET scripts. Environment configuration files only pertain
+to a specific training environment and are inherited last overriding any variables of the module and global
+configuration files. 
+
+At the very least an environment configuration must contain the variable ENVIRONMENT set to the name of the training environment as used by the backend. 
+For example, when using the Docker Engine backend, the value of ENVIRONMENT must match the name of an image from ``docker images''.
+Variables used to configure environments are passed directly to the backend e.g.
 .Xr docker-run 1
 .Pp
 .Sh EXAMPLE GLOBAL CONFIG FILE
@@ -54,36 +58,28 @@ Variables used to configure containers are passed directly to
 # System Configuration
 CONFIG_DIR="/etc/islet"                           # Directory to search for configuration files, used by scripts.
 INSTALL_DIR="/opt/islet"                          # ISLET installation directory
-PLUGIN_DIR="INSTALL_DIR/plugins"                  # ISLET plugins directory
 LIBISLET="$INSTALL_DIR/lib/libislet"              # Common functions are stored in libislet
 DB="/var/tmp/islet.db"                            # Credentials database. Must be readable by $USER
-DOCKER_DIR="/var/lib/docker"                      # Location of Docker directory
+
+MODULE="docker"                                   # Training environment runtime system
 USER="demo"                                       # Linux system user created for ssh'ing to ISLET, give account to trainees
 DEBUG="no"                                        # Enable debugging info to stdout and syslog
-
-# Network Configuration
-INTERFACE="eth0"        # Physical interface packets are arriving on
-BIND="172.17.42.1"      # IP address to use to access services on containers (def: docker0)
 
 # Security Configuration
 VISIBLE="no"            # This config file is visible from config selection menu
 ENABLE="no"             # Same as VISIBLE
 FAILURE_COUNT=3         # Number of failed choice attempts before exiting (username, password, config)
 DAYS=3                  # Container+user lifetime specified in days. Removed after # days by cron jobs
-MAX_SIZE=1073741824     # Maximum size in bytes of container before it's purged by disk_limit
-REMOVE="no"             # Container is removed after exit, user cannot re-attach and resume work
-TIMEOUT="8h"            # Max runtime of containers, accepts timeout(1) arguments
-
-source "$CONFIG_DIR"/security.conf  # Detailed kernel security capabilities to apply to containers
+TIMEOUT="8h"            # Max runtime of environment, accepts timeout(1) arguments
 
 # Global Container Configuration
-GLOBAL_OPTIONS=""            # Apply options to all configs, line should not be present in per image configs
-export PLATFORM=islet"       # Exported to container's environment. Made available using ENVS in per image config
+GLOBAL_OPTIONS=""            # Apply options to all configs, line should not be present in environment configs
+export PLATFORM=islet"       # Exported to container's environment. Made available using ENVS in environment configuration.
 .Ed
-.Sh EXAMPLE IMAGE CONFIG FILE
+.Sh EXAMPLE ENVIRONMENT CONFIG FILE
 .Bd -literal
 # Environment Configuration
-IMAGE="broplatform/brolive"            # Launch containers from this Docker image, must match name in ``docker images''
+ENVIRONMENT="broplatform/brolive"            # Launch containers from this Docker image, must match name in ``docker images''
 DESCRIPTION="Bro 2.3.1 training image" # Brief description of image, listed in islet_shell selection menu
 BASENAME="bro"                         # Container prefix as $BASENAME.$USERNAME (set in islet_shell). Used for re-attachment.
 
@@ -105,8 +101,8 @@ MOUNT="-v /exercises:/exercises:ro"    # Mount point(s), sep. by -v: /src:/dst:a
 CAP_NET_ADMIN="yes"                    # Configure the network
 CAP_NET_RAW="yes"                      # Use RAW and PACKET sockets
 LOCAL_OPTIONS=""                       # Apply any other options you want passed to docker run here
-export IMAGE                           # Export variables for container environment
-ENVS="PLATFORM IMAGE"                  # Make exported variables available in container
+export ENVIRONMENT                           # Export variables for container environment
+ENVS="PLATFORM ENVIRONMENT"                  # Make exported variables available in container
 
 # Branding & Information
 MOTD="Training materials are in /exercises" # Message of the day is displayed before entering container
@@ -131,7 +127,7 @@ A place to try out Bro.
 .Sh EXAMPLE PLUGIN CONFIG FILE
 ISLET supports plugins which are any interpreted scripts that can be run as the ISLET user.
 A plugin configuration file describes the plugin. The most important setting being the variable PLUGIN which points to the script to execute.
-Plugin configuration files are placed in /etc/islet and the plugin scripts are located in /opt/islet/plugins.
+Plugin configuration files are placed in /etc/islet/plugins and the plugin scripts are located in /opt/islet/plugins.
 .Bd -literal
 ENABLE="yes"                           # Enable plugin
 DESCRIPTION="Restart ISLET session"    # Description of plugin

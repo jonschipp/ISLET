@@ -32,8 +32,8 @@ Match User training
 
 * Drop capabilities in containers:
 
-ISLET includes security.conf which can be used to easily add or drop kernel capabilities(7)
-(and apply ulimit values to containers)  globally. They can be set in any ISLET configuration file.
+ISLET includes security options in `$CONFIG_DIR/modules/docker.conf` which can be used to easily add or drop kernel capabilities(7)
+(and apply ulimit values to containers) to all Docker environments. They can be set in any ISLET configuration file.
 Only add what you need to run the software in the container.
 
 * ulimit contraints
@@ -70,14 +70,6 @@ Switching storage backends to devicemapper allows for disk quotas.
 Set dm.basesize to the maximum size the container can grow to (def: 10G)
 
 **Note:** Currently unstable, and all existing container and image data will be lost.
-
-Automatic:
-
-```
-make docker-config SIZE=3G
-```
-
-Manual:
 
 ```
 service docker stop

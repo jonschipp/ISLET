@@ -5,9 +5,7 @@ Isolated, Scalable, & Lightweight Environment for Training
 
 Make IT training a smoother process... <br>
 
-A container based system for teaching Linux based software with minimal participation and configuration effort.
-ISLET supports running many different training environments concurrently and has a plugin system for extending functionality.
-The participation barrier is set very low, students only need an SSH client to connect to ISLET.
+A container based system for teaching Linux based software with minimal participation and configuration effort. ISLET supports running many different training environments concurrently and has a plugin system for extending functionality. The participation barrier is set very low, students only need an SSH client to connect to ISLET.
 
 ![ISLET Screenshot](http://jonschipp.com/islet/islet.png)
 
@@ -34,15 +32,31 @@ ssh demo@islet2.jonschipp.com
 
 ## Installation
 
-Installation of ISLET is very simple and it can be done in two ways:
+Installation of ISLET is very simple, first grab the dependencies and then
+install ISLET.
 
-On the host operation system
+### Dependencies
+
+* Linux, Bash, Cron, OpenSSH, Make, SQLite, and Docker Engine
+
+The configure script will check for dependencies (except docker)
 ```shell
-make install
+./configure
 ```
-Or as a Docker container which requires little to no modification to the host
+
+![ISLET Configure Screenshot](http://jonschipp.com/islet/islet_configure.png)
+
+Typically all you need is make, sqlite, and docker engine (for Debian/Ubuntu):
 ```shell
-make install-contained
+apt-get install make sqlite
+```
+See Docker's documentation for installation instructions.
+
+### Install
+
+After installing the dependencie, run
+```shell
+make user-config && make install && make security-config
 ```
 
 ![ISLET Make Screenshot](http://jonschipp.com/islet/islet_make.png)
@@ -50,103 +64,55 @@ make install-contained
 Target:         |    Description:
 ----------------|----------------
 install         | Install ISLET: install-files + configuration
-install-contained | Install ISLET as a container, no modification to host system
 update		| Downloads and install new code (custom changes to default files will be overwritten)
 uninstall       | Uninstall ISLET (Recommended to backup your stuff first)
 mrproper 	| Removes files that did not come with the source
-install-docker  | Installs latest Docker from Docker repo (Debian/Ubuntu only)
-docker-config   | Reconfigures Docker storage backend to limit container and image sizes
-user-config     | Configures a user account called demo w/ password dem
+user-config     | Configures a user account called demo w/ password demo
 security-config | Configures sshd with islet relevant security in mind
 iptables-config | Installs iptables ruleset
 
 GNU make accepts arguments if you want a customized installation (*not supported*):
 ```shell
-make install INSTALL_DIR=/usr/local/islet USER=training
 make user-config INSTALL_DIR=/usr/local/islet USER=training PASS=training
+make install INSTALL_DIR=/usr/local/islet USER=training
 make security-config INSTALL_DIR=/usr/local/islet USER=training
 make uninstall INSTALL_DIR=/usr/local/islet USER=training
 ```
 
 Variable:       |    Description:
 ----------------|----------------
-CONFIG_DIR      | ISLET config files directory (def: /etc/islet)
+CONFIG_DIR      | ISLET configuration directory (def: /etc/islet)
 INSTALL_DIR     | ISLET installation directory (def: /opt/islet)
-CRON		| Directory to place islet crontab file (def: /etc/cron.d)
 USER		| User account created with user-config target (def: demo)
 PASS		| User account password created with user-config target (def: demo)
-SIZE		| Maximum container and image size with configure-docker target (def: 2G)
 IPTABLES	| Iptables ruleset (def: /etc/network/if-pre-up.d/iptables-rules)
-NAGIOS      | Location of nagios plugins (def: /usr/local/nagios/libexec)
-PORT        | The SSH port on the host when installing ISLET as a container (def: 2222)
-PACKAGE     | Type of package to build for `make package` (def: deb)
 
 ## Updating
 
 Updating an existing ISLET installation is very simple:
 
-For an existing host installation (`make install`):
 ```shell
+tar zcf islet_config.tgz /etc/islet # Backup configs
 make update
+tar zxf islet_config.tgz -C /       # Restore configs
 ```
-For an existing container installation (`make install-contained`):
-```shell
-docker pull jonschipp/islet
-```
-### Dependencies
-
-* Linux, Bash, Cron, OpenSSH, Make, SQLite, and Docker
-
-The configure script will check for dependencies
-```shell
-./configure
-```
-
-![ISLET Configure Screenshot](http://jonschipp.com/islet/islet_configure.png)
-
-Typically all you need is make, sqlite, and docker (for Debian/Ubuntu):
-```shell
-apt-get install make sqlite
-make install-docker
-```
-
-The included installation scripts are designed to work with Debian/Ubuntu systems.
-
-**Note:** Installing ISLET as container (`make install-contained`) only requires Docker
-
-#### Debian/Ubuntu
-
-The following make targets will install ISLET and configure the system with security in mind for ISLET.
-It is designed to be a quick way to get a working system with a good configuration.
-
-Install ISLET on the host:
-```shell
-make install
-make user-config
-make security-config    # Configure islet relevant security with sshd
-```
-
-Install ISLET as a container on the host:
-```shell
-make install-contained	# Installs ISLET as a container
-```
-
-See the SECURITY file for more information on manually securing the system.
-See the ADMIN file for more information on administering the system.
 
 # Adding Training Environments
+
 
 See Docker's [image documentation](http://docs.docker.com/userguide/dockerimages)
 
  1. Build or pull in a new Docker image
 
- 2. Create an ISLET config file for that image. You can use `make template` for an example.
+ 2. Create an ISLET config file for that image (training environment). You can use `make template` for an example.
 
- 3. Place it in /etc/islet with a .conf extension.
+ 3. Place it in /etc/islet/environments with a .conf extension.
 
  It should now be available from the selection menu upon login.
 
 ![ISLET Configs Screenshot](http://jonschipp.com/islet/islet_configs.png)
 
 More info:
+See the SECURITY file for more information on manually securing the system.
+See the ADMIN file for more information on administering the system.
 [Mailing List] (https://groups.google.com/d/forum/islet)

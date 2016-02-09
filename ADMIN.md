@@ -9,6 +9,7 @@ Post-installation first steps
 ```
 passwd demo
 ```
+
 2. Create a Docker image for your training environment (see Adding Training Environments)
 ```
 cat <<EOF > Dockerfile
@@ -29,31 +30,37 @@ docker build -t gcc-training - < Dockerfile
 ```
 make template > /etc/islet/gcc.conf
 vim /etc/islet/islet/gcc.conf
-# Set IMAGE variable to name of docker image (e.g. gcc-training)
+# Set ENVIRONMENT variable to name of training environment (e.g. gcc-training)
 # Set VIRTUSER variable to name of user in docker image that the student will become (e.g. demo)
 ```
 
 ### Configuration
 
+In order of variable precedence
 * Global configuration file: */etc/islet/islet.conf*
-* Per-image configuration files: */etc/islet/$IMAGE.conf*
-* Plugin configuration files: */etc/islet/$PLUGIN.conf*
+* Module configuration files: */etc/islet/modules/$MODULE.conf*
+* Environments configuration files: */etc/islet/environments/$ENVIRONMENT.conf*
+* Plugin configuration files: */etc/islet/plugins/$PLUGIN.conf*
 
-Per-image configs overwrite the variables specified in the global config file.
-For each Docker image you want available for use by ISLET, create an image file with a .conf extension and place it in the /etc/islet/ directory.
-These images will be selectable from the ISLET menu after authentication via
-SSH. Plugin configurations are also selectable from the ISLET menu and are
-intended to add funtionality by running scripts from the ISLET plugins directory.
+Settings in the global configuration file are overridden by those in module
+config file, and finally those in the environment config file. This means that
+you set global defaults and can get more granular with specific environments.
+
+For each training environment you want available for use by ISLET, create a
+a environment configuration file with the necessary settings and place it in the
+*/etc/islet/environments* directory. These images will be selectable from the ISLET
+menu after authentication via SSH. Plugin configurations are also selectable from the menu
+and are intended to add functionality.
 
 Common Tasks:
 
-* Add another system account for ISLET (used to remotely access e.g. ssh)
+* Add another training account for ISLET (used to remotely access e.g. ssh)
 
 ```
 useradd --create-home --shell /opt/islet/bin/islet_shell training
 echo "training:training" | chpasswd
-gpasswd -a training docker
-gpasswd -a training islet
+gpasswd -a training docker # User needs to be in the docker grouip
+gpasswd -a training islet  # User needs to be in the islet group
 ```
 
 * Change the password of a container user (Not a system account).
@@ -82,7 +89,7 @@ gpasswd -a training islet
   - System and use case dependent
 
 ```
-    $ grep -A 5 "Container config /etc/islet/brolive.conf
+    $ grep -A 5 "Container config /etc/islet/environments/brolive.conf
 	# Container Configuration
 	VIRTUSER="demo"                                         # Account used when container is entered (Must exist in container!)
 	CPUSHARES="1024"                                        # Proportion of cpu share allocation per container

@@ -87,7 +87,7 @@ module_attach(){
 ######################################################################
 # Check if image exists before using it, try pulling it or fail out
 # Globals:
-#   IMAGE         - from ISLET configuration, docker image to launch
+#   ENVIRONMENT         - from ISLET configuration, docker image to launch
 # Arguments:
 #   None
 # Returns:
@@ -96,12 +96,12 @@ module_attach(){
 
 does_image_exist(){
   local tag
-  local repo="$IMAGE"
+  local repo="$ENVIRONMENT"
   [[ "$repo" == *:* ]] && tag="${repo##*:}" && repo=${repo%%:*}
   [[ $tag ]] || tag=latest
   if ! docker images | fgrep -w "$repo" | fgrep -w -q "$tag"; then
     notice "Image not found, trying Docker Hub..." && echo
-    docker pull "$IMAGE" 2>/dev/null || quit "Image doesn't exist!"
+    docker pull "$ENVIRONMENT" 2>/dev/null || quit "Image doesn't exist!"
   fi
   unset tag repo
 }
@@ -174,7 +174,7 @@ removal_setup(){
     REMOVE="--rm"
   else
     # Don't remove, instead keep track of the user's container for re-attachment
-    sqlite3 "$DB" "pragma foreign_keys = on; INSERT INTO images(user, image) values ('$USERNAME', '$BASENAME');" 2>/dev/null
+    sqlite3 "$DB" "pragma foreign_keys = on; INSERT INTO environments(user, environment) values ('$USERNAME', '$BASENAME');" 2>/dev/null
     REMOVE=""
   fi
 }
@@ -336,10 +336,10 @@ env_setup(){
 #   NETWORK         - from ISLET config files, network settings for container
 #   DNS             - from ISLET config files, nameservers for container
 #   GLOBAL_OPTIONS  - from ISLET config files, pass docker options to all containers
-#   LOCAL_OPTIONS   - from ISLET config files, pass per-image docker options
+#   LOCAL_OPTIONS   - from ISLET config files, pass per-environment docker options
 #   MOUNT           - from ISLET config files, pass mount options to docker
 #   REMOVE          - from ISLET config files, remove container after exit
-#   IMAGE           - from ISLET config files, docker image to launch
+#   ENVIRONMENT           - from ISLET config files, docker image to launch
 #   VIRTUSER        - from ISLET config files, user to become in container
 #   ENVS            - from ISLET config files, environment variables to set in container
 #   WORKDIR         - from ISLET config files, working directory in container
@@ -378,7 +378,7 @@ module_start(){
   local mnt_opt="$MOUNT"
   local dir_opt="--workdir ${WORKDIR:-/home/$VIRTUSER}"
   local env_opt="$ENV_CMD"
-  local img_opt="$REMOVE --interactive $IMAGE"
+  local img_opt="$REMOVE --interactive $ENVIRONMENT"
   local cmd_opt="${COMMAND:-su $VIRTUSER}"
 
   # If debugging is yes
@@ -400,7 +400,7 @@ module_start(){
 # Check size of containers, delete if larger than MAX_SIZE
 # Globals:
 #   METADATA - Option in ISLET configuration files
-#   BASENAME - Name of user's image, image we check size of
+#   BASENAME - Name of user's environment, environment we check size of
 #   CONFIG_DIR - Path to configuration files
 # Arguments:
 #   MAX_SIZE - Option in ISLET configuration files
@@ -410,7 +410,7 @@ module_start(){
 
 cleanup_container_size(){
   # Stop and remove containers which grows to MAX_SIZE our more.
-  # If MAX_SIZE isn't set in per-image config then it's taken from islet.conf
+  # If MAX_SIZE isn't set in per-environment config then it's taken from islet.conf
   local max_size="$1"
   local glb_max_size="$max_size"
   local backend=$(get_backend)
@@ -452,7 +452,7 @@ cleanup_container_size(){
 # Remove containers older than DAYS
 # Globals:
 #   METADATA - Option in ISLET configuration files
-#   BASENAME - Name of user's image, image we check date of
+#   BASENAME - Name of user's environment, environment we check date of
 # Arguments:
 #   days - Max DAYS for container lifetime
 # Returns:
@@ -460,7 +460,7 @@ cleanup_container_size(){
 ##################################################################
 
 cleanup_container_date(){
-  # Remove containers which are older than x DAYS, per-image config
+  # Remove containers which are older than x DAYS, per-environment config
   local days="$1"
   local id
   local stamp
@@ -469,7 +469,7 @@ cleanup_container_date(){
   local delete
   current="$(date +"%s")"
   
-  # Load variables from per-image configs
+  # Load variables from per-environment configs
   for config in $CONFIG_DIR/environments/*.conf; do
     [[ -f "$config" ]] && . "$config"
     for file in $METADATA; do

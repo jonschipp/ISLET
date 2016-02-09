@@ -67,7 +67,7 @@ hi(){
 template(){
 cat <<"EOF"
 # System Configuration
-IMAGE="jonschipp/islet-netsniff-ng"                     # Launch containers from this image, must match name in Docker exactly.
+ENVIRONMENT="jonschipp/islet-netsniff-ng"                     # Launch containers from this image, must match name in Docker exactly.
 DESCRIPTION="Netsniff-NG Toolkit training image"        # Brief description of image, shown in selection menu
 BASENAME="netsniff-ng"                                  # Container prefix as $BASENAME.$USERNAME, used for re-attachment.
 
