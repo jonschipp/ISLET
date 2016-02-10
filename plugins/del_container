@@ -2,17 +2,17 @@
 [[ -f "$DB" ]] || alert "$DB cannot be found..contact the administrator"
 
 get_user_images() {
-  image_list=$(sqlite3 "$DB" "SELECT image FROM images WHERE user='$USERNAME';")
+  image_list=$(sqlite3 "$DB" "SELECT environment FROM environments WHERE user='$USERNAME';")
 }
 
 get_image() {
   container="$1"
-  image=$(sqlite3 "$DB" "SELECT image FROM images WHERE user='$USERNAME' AND image='$container';")
+  image=$(sqlite3 "$DB" "SELECT environment FROM environments WHERE user='$USERNAME' AND image='$container';")
 }
 
 delete_image(){
   notice "Removing existing container.."
-  sqlite3 "$DB" "pragma foreign_keys = on; DELETE FROM images WHERE user='$USERNAME' AND image='$container';"
+  sqlite3 "$DB" "pragma foreign_keys = on; DELETE FROM environments WHERE user='$USERNAME' AND image='$container';"
   docker stop "${i}.$USERNAME" 2>&1 > /dev/null
   docker rm "${i}.$USERNAME" 2>&1 > /dev/null
   alert "Container removed!"
