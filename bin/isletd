@@ -38,7 +38,7 @@ load_config(){
     . "$CONFIG_DIR/modules/${MODULE}.conf"
     . "$environment"
   else
-    logger -s -p local0.notice -t "islet" "$0: Unable to read $CONFIG"
+    logger -s -p local0.notice -t "isletd" "$0: $FUNCNAME: Unable to read $CONFIG"
     return 1
   fi
 }
@@ -115,9 +115,9 @@ main(){
         # Obtain configurations
         load_config "$environment" || continue
         # Remove containers with size greater than $MAX_SIZE
-        [[ "$MAX_SIZE" ]] && cleanup_container_size "$MAX_SIZE"
+        [[ "$MAX_SIZE" ]] && cleanup_container_size "$MAX_SIZE" "$environment"
         # Remove containers with date older than $DAYS
-        [[ "$DAYS" ]] && cleanup_container_date "$DAYS"
+        [[ "$DAYS" ]] && cleanup_container_date "$DAYS" "$environment"
         # Remove old port forward rules
         [[ "$VIRTUAL_PORT" ]] && cleanup_port_forward
       fi
