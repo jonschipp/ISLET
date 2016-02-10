@@ -370,7 +370,6 @@ config_menu(){
   [[ "$BANNER" ]] && clear && echo "$BANNER"
 
   # This is how we handle using the same account for multiple environments
-  echo "HELP: BASE: $BASE"
   attach=$(sqlite3 $DB "SELECT environment FROM environments WHERE user='$USERNAME' AND environment='$BASE'";)
   { [[ $attach ]] && module_attach; } || module_start
 }
