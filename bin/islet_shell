@@ -203,7 +203,7 @@ choose_password(){
 # Handles container reattachment for existing users
 # Globals:
 #   FAILURE_COUNT - Max # of authentication failures
-#   BASENAME      - Container name prefix
+#   BASE          - Environment config base filename
 # Arguments:
 #   None
 # Returns:
@@ -315,11 +315,11 @@ config_menu(){
   for config in environments/*.conf plugins/*.conf; do
     [[ -f "$config" ]] && . "$config"
     if [[ "$VISIBLE" = "yes" || "$ENABLE" = "yes" ]]; then
-      config_name="$(basename $config)"
+      config_name="$(basename $config)" # blah.conf
       printf '\t\t\t%-30s %-7s %-30s\n' "${WF}$config_name${N}" "|" "${U}$DESCRIPTION${N}"
       LIST+=("$config")
     fi
-    unset BANNER VISIBLE ENABLE PLUGIN config
+    unset BANNER VISIBLE ENABLE PLUGIN config config_name
   done
 
   # Quit if there are no config files present
@@ -334,9 +334,11 @@ config_menu(){
   do
     menu=1
     if [[ -f "$CONFIG_DIR/$CONFIGURATION" ]]; then
-      . "$CONFIG_DIR/$CONFIGURATION"
-      # Export $CONFIGURATION for use in modules
-      export CONFIGURATION
+      . "$CONFIG_DIR/$CONFIGURATION" # /etc/islet + / + environments/blah.conf
+      # Export for use in modules
+      BASE=$(basename $(basename $CONFIGURATION) .conf)
+      export CONFIGURATION  # environments/blah.conf
+      export BASE           # blah
       break
     else
       let count++
@@ -368,7 +370,8 @@ config_menu(){
   [[ "$BANNER" ]] && clear && echo "$BANNER"
 
   # This is how we handle using the same account for multiple environments
-  attach=$(sqlite3 $DB "SELECT environment FROM environments WHERE user='$USERNAME' AND environment='$BASENAME'";)
+  echo "HELP: BASE: $BASE"
+  attach=$(sqlite3 $DB "SELECT environment FROM environments WHERE user='$USERNAME' AND environment='$BASE'";)
   { [[ $attach ]] && module_attach; } || module_start
 }
 
