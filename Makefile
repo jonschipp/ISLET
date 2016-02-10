@@ -1,7 +1,7 @@
 .PHONY: default help install uninstall pull update logo mrproper package
 
 PROG 		= islet
-VERSION		= 1.3.7
+VERSION		= 1.0.0
 CONFIG_DIR 	= /etc/$(PROG)
 INSTALL_DIR 	= /opt/$(PROG)
 LIB_DIR		= $(INSTALL_DIR)/lib
@@ -13,9 +13,6 @@ FUNCTIONS 	= ./functions.sh
 USER		= demo
 PASS		= demo
 GROUP		= islet
-PORT	  = 2222
-SIZE		= 2G
-NAGIOS		= /usr/local/nagios/libexec
 IPTABLES	= /etc/network/if-pre-up.d/iptables-rules
 SUDOERS		= /etc/sudoers.d
 UPSTART  	= /etc/init
@@ -43,7 +40,6 @@ help:
 	$(Q)echo " $(red)iptables-config$(normal)               	- Install iptables rules (def: /etc/network/if-pre-up.d/)"
 	$(Q)echo "$(bold)Miscellaneous targets:$(normal)"
 	$(Q)echo " $(red)install-brolive-config$(normal)        	- Install and configure Brolive image"
-	$(Q)echo " $(red)install-nagios-plugin$(normal)        	- Install ISLET Nagios plugin (def: /usr/local/nagios/libexec)"
 	$(Q)echo " $(red)template$(normal)                       - Print ISLET config template to stdout"
 	$(Q)echo " $(red)package$(normal)                        - Create package from an ISLET installation (def: deb)"
 	$(Q)echo " $(red)logo$(normal)                         	- Print logo to stdout"
@@ -159,9 +155,6 @@ bro-training: install user-config security-config install-docker install-brolive
 iptables-config:
 	install -o root -g root -m 750 extra/iptables-rules $(IPTABLES)
 	$(IPTABLES)
-
-install-nagios-plugin:
-	install -o root -g nagios -m 550 extra/check_islet.sh $(NAGIOS)/check_islet.sh
 
 package:
 	$(Q)! command -v fpm 1>/dev/null && echo "$(yellow)fpm is not installed or in PATH, try \`\`gem install fpm''.$(normal)" \
