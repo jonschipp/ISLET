@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Import configurations
-import_configs
 
 ##############################################
 # Run verify scripts to ensure all is well
@@ -12,7 +11,8 @@ import_configs
 #  None
 ##############################################
 
-module_verify() {
+verify(){
+  import_configs
   verify_group
   return 0
 }
@@ -28,7 +28,7 @@ module_verify() {
 #   None
 #######################################
 
-verify_group() {
+verify_group(){
   getent group docker 1>/dev/null 2>&1 || quit "Fatal: docker group doesn't exist!"
   getent group docker 2>/dev/null | grep -q $USER || quit "Fatal: $USER user not in docker group"
 }
@@ -71,7 +71,8 @@ exit_handler(){
   fi
 }
 
-module_attach(){
+attach(){
+  import_configs
   local result
   # User is re-attaching to previous image
   log "${USERNAME}: Returning user from $CLIENT"
@@ -126,7 +127,7 @@ does_image_exist(){
 #   None
 #################################################################################
 
-port_forwarding_setup() {
+port_forwarding_setup(){
   # Use HOST_PORT and CLIENT as a way to associate the user with a container port (VIRTUAL_PORT)
   if [[ "$VIRTUAL_PORT" ]]; then
     # If host port is in use, find another to bind to
@@ -359,7 +360,8 @@ env_setup(){
 #   None
 ###############################################################################################
 
-module_start(){
+start(){
+  import_configs
   local result
   does_image_exist
   removal_setup
@@ -391,9 +393,6 @@ module_start(){
   # Run container
   eval timeout --foreground "$TIMEOUT" docker run "$name_opt $res_opt $net_opt $glb_opt $oth_opt $cap_opt $lmt_opt $mnt_opt $dir_opt $env_opt $img_opt $cmd_opt" "$INFOLEVEL"
   exit_handler $?
-
-  # Back to menu if we didn't hit $TIMEOUT
-  menu_loop
 }
 
 ##################################################################
@@ -409,6 +408,7 @@ module_start(){
 ##################################################################
 
 cleanup_container_size(){
+  import_configs
   # Stop and remove containers which grows to MAX_SIZE our more.
   # If MAX_SIZE isn't set in per-environment config then it's taken from islet.conf
   local max_size="$1"
@@ -451,6 +451,7 @@ cleanup_container_size(){
 ##################################################################
 
 cleanup_container_date(){
+  import_configs
   # Remove containers which are older than x DAYS, per-environment config
   local days="$1"
   local config="$2"
@@ -491,6 +492,7 @@ cleanup_container_date(){
 ##################################################################
 
 cleanup_port_forward(){
+  import_configs
   # Removes PREROUTING rules no longer associated with running container for port forwarding
   local id
   IFS=$'\n'
@@ -502,3 +504,5 @@ cleanup_port_forward(){
     fi
   done
 }
+
+"$@"

@@ -18,6 +18,7 @@ export DISPLAY="${CLIENT}:0"
 export TERM
 export PPID HOST_PORT="$PPID"
 export TMOUT=60
+export CONFIG
 readonly CLIENT SRCPORT SERVER DSTPORT SSH_TTY TERM PPID TMOUT
 
 err(){
@@ -39,9 +40,6 @@ fi
 export -f import_configs
 
 clear
-
-# Import Module. This will soon be removed.
-. "$INSTALL_DIR/modules/$MODULE"
 
 readonly TIME=$(date +"%s")
 readonly EXPIRATION=$(date --date=@$((TIME+86400*DAYS)) +"%c")
@@ -184,7 +182,7 @@ choose_username(){
   option "a-zA-Z0-9"
   read -r USERNAME
   [[ "$USERNAME" ]] || { alert "Empty value not permitted" && return 1; }
-  USERNAME=$(sanitize "$USERNAME") && return 0
+  USERNAME=$(sanitize "$USERNAME") && export USERNAME && return 0
 }
 
 choose_password(){
@@ -221,7 +219,7 @@ existing_user(){
   while test "$count" -le "$FAILURE_COUNT"; do
     ask "Username: "
     read -r USERNAME
-    USERNAME=$(sanitize $USERNAME)
+    USERNAME=$(sanitize $USERNAME) && export USERNAME
     ask "Password: "
     read -r -s PASSWORD
     echo
@@ -371,7 +369,7 @@ config_menu(){
 
   # This is how we handle using the same account for multiple environments
   attach=$(sqlite3 $DB "SELECT environment FROM environments WHERE user='$USERNAME' AND environment='$BASE'";)
-  { [[ $attach ]] && module_attach; } || module_start
+  { [[ $attach ]] && "$INSTALL_DIR/modules/$MODULE" attach; } || "$INSTALL_DIR/modules/$MODULE" start
 }
 
 ###########################################################
@@ -402,7 +400,7 @@ try_again(){
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
 # It all begins here
 is_sqlite
-module_verify
+"$INSTALL_DIR/modules/$MODULE" verify
 identify
 menu_loop
 exit

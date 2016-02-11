@@ -232,7 +232,6 @@ import_configs(){
   if [[ -f "$CONFIG" ]]; then
     . "$CONFIG"
     . "$LIBISLET"
-    readonly CONFIG
   else
     quit "Error: ${CONFIG:-config} or ${LIBISLET:-libislet} not found!"
   fi
@@ -244,7 +243,6 @@ import_configs(){
   fi
 
   if [[ -f "$CONFIG_DIR/$CONFIGURATION" ]]; then
-    . "$CONFIG_DIR/$CONFIGURATION"
-    quit "Error: ${CONFIGURATION:-environment} config not found!"
+    . "$CONFIG_DIR/${CONFIGURATION}"
   fi
 }
