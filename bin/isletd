@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Global Declarations
 CONFIG=LOCATION
+. $CONFIG
 
 ###################################################
 # Error and log
@@ -53,9 +54,9 @@ load_config(){
 #   None
 ###################################################
 
-clear_vers(){
+clear_vars(){
   # Main globals
-  unset CONFIG LIBISLET DB
+  unset LIBISLET DB
   # Cleanup variables
   unset MAX_SIZE DAYS
 }
@@ -85,7 +86,7 @@ get_time(){
 #   None
 ###################################################
 
-remove_users(){
+cleanup_users(){
   local days="$1"
   if file "$DB" 2>/dev/null | grep -q SQLite; then
     sqlite3 "$DB" "pragma foreign_keys = on; DELETE FROM accounts WHERE (strftime('%s','now') - ts) >= (${days}*86400);"
