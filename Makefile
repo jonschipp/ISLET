@@ -14,7 +14,6 @@ USER		= demo
 PASS		= demo
 GROUP		= islet
 IPTABLES	= /etc/network/if-pre-up.d/iptables-rules
-SUDOERS		= /etc/sudoers.d
 UPSTART  	= /etc/init
 REPO		= $(shell grep url .git/config)
 PACKAGE		= deb
@@ -78,7 +77,6 @@ install-files:
 	install -o root -g root -m 755 plugins/* $(PLUGIN_DIR)/
 	install -o root -g root -m 755 modules/* $(MODULE_DIR)/
 	install -o root -g root -m 644 docs/islet.5 $(MAN_DIR)/man5/islet.5
-	install -o root -g root -m 440 config/islet.sudoers $(SUDOERS)/islet
 	$(Q)echo " $(bold)--> Configuration directory is$(normal) $(underline)$(CONFIG_DIR)$(normal)"
 	$(Q)echo " $(bold)--> Install directory is$(normal) $(underline)$(INSTALL_DIR)$(normal)"
 
@@ -86,7 +84,6 @@ configuration:
 	$(Q)echo " $(yellow)Post-install configuration$(normal)"
 	sed -i "s|ISLETVERS|$(VERSION)|" $(CONFIG_DIR)/islet.conf
 	sed -i "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
-	visudo -c
 	sed -i "s|LOCATION|$(CONFIG_DIR)/$(PROG).conf|g" $(BIN_DIR)/*
 
 uninstall:
@@ -95,7 +92,6 @@ uninstall:
 	rm -rf $(INSTALL_DIR)
 	rm -f /var/tmp/$(PROG)_db
 	rm -f /etc/security/limits.d/islet.conf
-	rm -f $(SUDOERS)/islet
 	rm -f $(MAN_DIR)/man5/islet.5
 	fgrep -q $(USER) /etc/passwd && userdel -r $(USER) || true
 	fgrep -q $(GROUP) /etc/group && groupdel $(GROUP)  || true
