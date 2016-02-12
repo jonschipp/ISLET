@@ -1,2 +1,5 @@
 #!/usr/bin/env bash
-{ [[ $SHELL ]] && exec ${SHELL}; } || alert "Failed to execute ${PLUGIN}..contact the administrator"
+if [[ -f "$SHELL" ]]; then
+  exec "$SHELL"
+  alert "Failed to execute ${PLUGIN}..contact the administrator"
+fi

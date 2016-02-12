@@ -357,6 +357,7 @@ config_menu(){
       alert "Plugin $PLUGIN does not exist..contact the administrator."
     fi
     # Go back to menu_loop after
+    unset PLUGIN
     return 0
   fi
 
