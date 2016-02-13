@@ -39,6 +39,9 @@ fi
 # Export import_configs function to use in modules
 export -f import_configs
 
+# Rewrite MODULE variable for ease of use
+MODULE="$INSTALL_DIR/modules/$MODULE"
+
 clear
 
 readonly TIME=$(date +"%s")
@@ -370,7 +373,7 @@ config_menu(){
 
   # This is how we handle using the same account for multiple environments
   attach=$(sqlite3 $DB "SELECT environment FROM environments WHERE user='$USERNAME' AND environment='$BASE'";)
-  { [[ $attach ]] && "$INSTALL_DIR/modules/$MODULE" attach; } || "$INSTALL_DIR/modules/$MODULE" start
+  { [[ $attach ]] && $MODULE attach; } || $MODULE start
 }
 
 ###########################################################
@@ -401,7 +404,7 @@ try_again(){
 trap 'echo; quit "Trap received, exiting..."' 1 2 3 20
 # It all begins here
 is_sqlite
-"$INSTALL_DIR/modules/$MODULE" verify
+$MODULE verify
 identify
 menu_loop
 exit
