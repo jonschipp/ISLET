@@ -67,7 +67,7 @@ exit_handler(){
   [[ $result -eq 127 ]] && return 0 # Value 127 is last given command is not found
   [[ $result -eq 130 ]] && return 0 # Value 130 SIGINT (^C) was sent, probably by user
   if [[ $result -ne 0 ]]; then
-    [[ DEBUG != "yes" ]] && quit "Failed to run! Turn on debug mode for more info: DEBUG=yes in $CONFIG"
+    [[ DEBUG != "yes" ]] && quit "Command returned non-zero status! Turn on debug mode for more info: DEBUG=yes in $CONFIG"
   fi
 }
 
