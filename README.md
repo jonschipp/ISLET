@@ -49,7 +49,7 @@ See Docker's documentation for installation instructions.
 
 ### Install
 
-After installing the dependencie, run
+After installing the dependencies, run
 ```shell
 make user-config && make install && make security-config
 ```
