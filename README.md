@@ -54,6 +54,7 @@ After installing the dependencies, run
 make user-config && make install && make security-config
 ```
 
+See the menu for more options, `make` 
 ![ISLET Make Screenshot](http://jonschipp.com/islet/islet_make.png)
 
 Target:         |    Description:
