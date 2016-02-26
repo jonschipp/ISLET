@@ -17,6 +17,8 @@ A container based system for teaching Linux based software with minimal particip
 
 ## Design
 
+These images a little old but they mostly represent the design.
+
 ####Simplified Diagram
 ![ISLET Diagram](http://jonschipp.com/islet/islet_diagram.jpg)
 
