@@ -15,13 +15,6 @@ A container based system for teaching Linux based software with minimal particip
 * Capture the flag competitions
 * Development environments
 
-## Demo
-You can quickly try out ISLET on some of my dev systems. Password is demo
-```shell
-ssh demo@islet1.jonschipp.com
-ssh demo@islet2.jonschipp.com
-```
-
 ## Design
 
 ####Simplified Diagram
