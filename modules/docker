@@ -379,9 +379,9 @@ start(){
   local lmt_opt="$ULIMIT_OPTIONS"
   local mnt_opt="$MOUNT"
   local dir_opt="--workdir ${WORKDIR:-/home/$VIRTUSER}"
-  local env_opt="$ENV_CMD"
+  local env_opt="--user ${VIRTUSER:-root} $ENV_CMD"
   local img_opt="$REMOVE --interactive $ENVIRONMENT"
-  local cmd_opt="${COMMAND:-su $VIRTUSER}"
+  local cmd_opt="${COMMAND:-bash}"
   local tim_opt="timeout -s KILL $TIMEOUT"
 
   # If debugging is yes

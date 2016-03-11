@@ -89,7 +89,7 @@ DAYS=3                                 # Container lifetime specified in days, r
 # Container Configuration
 VIRTUSER="demo"                        # Account used when container is entered (Must exist in container!)
 WORKDIR="/home/$VIRTUSER"              # User begins in this directory, usually its VIRTUSER's HOME
-COMMAND="su $VIRTUSER"                 # Command to launch on container entry, typically used to get shell
+COMMAND="bash"                         # Command to launch on container entry, typically used to get a shell
 CPUSHARE=1024                          # Proportion of cpu share allocation per container (Option used to be CPU)
 MEMORY="256m"                          # Amount of memory allocated to each container (Option used to be RAM)
 SWAP="100m"                            # Amount of swap memory allocated to each container

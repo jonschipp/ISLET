@@ -373,7 +373,11 @@ config_menu(){
 
   # This is how we handle using the same account for multiple environments
   attach=$(sqlite3 $DB "SELECT environment FROM environments WHERE user='$USERNAME' AND environment='$BASE'";)
-  { [[ $attach ]] && $MODULE attach; } || $MODULE start
+  if [[ $attach ]]; then
+    $MODULE attach # Call function in module to attach to existing environment
+  else
+    $MODULE start  # Call function in module to create environment
+  fi
 }
 
 ###########################################################
