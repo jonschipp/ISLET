@@ -79,7 +79,7 @@ attach(){
   notice "Welcome back!"
   mention "$MOTD"
   is_debug "opt: docker start -i ${BASE}.${USERNAME}"
-  timeout --foreground "$TIMEOUT" docker start -i "${BASE}.${USERNAME}"
+  docker start -i "${BASE}.${USERNAME}"
   exit_handler $? || return 1
   # No errors, we made it
   return 0
@@ -382,16 +382,17 @@ start(){
   local env_opt="$ENV_CMD"
   local img_opt="$REMOVE --interactive $ENVIRONMENT"
   local cmd_opt="${COMMAND:-su $VIRTUSER}"
+  local tim_opt="timeout -s KILL $TIMEOUT"
 
   # If debugging is yes
   is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"
-  is_debug "opt: docker run $name_opt $res_opt $net_opt $glb_opt $oth_opt $mnt_opt $cap_opt $lmt_opt $dir_opt $env_opt $img_opt $cmd_opt"
+  is_debug "opt: docker run $name_opt $res_opt $net_opt $glb_opt $oth_opt $mnt_opt $cap_opt $lmt_opt $dir_opt $env_opt $img_opt $tim_opt $cmd_opt"
 
   notice "Enjoy yourself!"
   mention "$MOTD"
 
   # Run container
-  eval timeout --foreground "$TIMEOUT" docker run "$name_opt $res_opt $net_opt $glb_opt $oth_opt $cap_opt $lmt_opt $mnt_opt $dir_opt $env_opt $img_opt $cmd_opt" "$INFOLEVEL"
+  eval docker run "$name_opt $res_opt $net_opt $glb_opt $oth_opt $cap_opt $lmt_opt $mnt_opt $dir_opt $env_opt $img_opt $tim_opt $cmd_opt" "$INFOLEVEL"
   exit_handler $?
 }
 
