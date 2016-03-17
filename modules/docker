@@ -331,7 +331,6 @@ env_setup(){
 #   HOSTNAME        - from ISLET config files, hostname of container
 #   COMMAND         - from ISLET config files, set entrypoint command for container
 #   CPUSHARES       - from ISLET config files, relative cpu share allocation per container
-#   CPUSET          - from ISLET config files, cpu's available for container
 #   MEMORY          - from ISLET config files, memory allocation per container
 #   SWAP            - from ISLET config files, swap memory allocation per container
 #   NETWORK         - from ISLET config files, network settings for container
@@ -371,7 +370,7 @@ start(){
   env_setup
 
   local name_opt="--name="${BASE}.${USERNAME}" --tty --hostname $HOSTNAME"
-  local res_opt="--cpu-shares ${CPUSHARES:-1024} --cpuset-cpus ${CPUSET:-0} --memory ${MEMORY:-0} --memory-swap ${SWAP:--1}"
+  local res_opt="--cpu-shares ${CPUSHARES:-1024} --memory ${MEMORY:-0} --memory-swap ${SWAP:--1}"
   local net_opt="$PUBLISH --net $NETWORK --dns $DNS --add-host $HOSTNAME:127.0.0.1"
   local glb_opt="$GLOBAL_OPTIONS"
   local oth_opt="$LOCAL_OPTIONS"
