@@ -15,7 +15,17 @@ A container based system for teaching Linux based software with minimal particip
 * Capture the flag competitions
 * Development environments
 
-ISLET has been used by the [Bro](https://bro.org) and [Suricata](http://suricata-ids.org/) teams, two of the leading open source network security projects, for their official training, among others.  If you would like commercial support for ISLET including creating and deploying custom training environments contact [Draconyx](http://www.draconyx.net/).
+#### Who Uses ISLET?
+ISLET has been used for official training of two leading open source network security projects.  These and other notable examples are listed below.
+
+* [Bro](https://bro.org) Team
+* [Suricata](http://suricata-ids.org/) Team
+* [CriticalStack](https://criticalstack.com)
+* University of Illinois at Urbana-Champaign Digital Forensics 2 Course
+* [OpenNSM](http://open-nsm.net)
+* ACM [GNU/LUG](http://www.gnulug.org/) at UIUC
+
+If you would like commercial support for ISLET including creating and deploying custom training environments contact me through my company [Draconyx](http://www.draconyx.net/).
 
 ## Design
 
