@@ -114,7 +114,7 @@ See Docker's [image documentation](http://docs.docker.com/userguide/dockerimages
 
  2. Create an ISLET config file for that image (training environment). You can use `make template` for an example.
 
- 3. Place it in /etc/islet/environments with a .conf extension.
+ 3. Place it in /etc/islet/environments with a `.conf` extension.
 
  It should now be available from the selection menu upon login.
 
