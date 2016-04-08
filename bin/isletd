@@ -4,19 +4,55 @@ CONFIG=LOCATION
 . $CONFIG
 
 ###################################################
-# Error and log
+# Error and log - fallback to syslog
 # Globals:
 #   None
 # Arguments:
-#   message - Message to write out and log 
+#   message - Message to write out and log
 # Returns:
 #   None
 ###################################################
 
-err(){
+syslog(){
   local message="$1"
-  logger -s -p local0.notice -t "islet" "$0: $message"
-  exit 1
+  logger -s -p local0.notice -t "isletd" "$0: $message"
+}
+
+###################################################
+# Write to islet log file
+# Globals:
+#   None
+# Arguments:
+#   message - Message to write out and log
+# Returns:
+#   None
+###################################################
+
+logfile(){
+  local message="$1"
+  printf "$(date) isletd: $message\n"
+}
+
+###################################################
+#
+# Globals:
+#   LOG - Log file for writing
+# Arguments:
+#   None
+# Returns:
+#   None
+###################################################
+
+enable_logging(){
+  if [[ "$LOG" ]]; then
+    dirname="$(dirname $LOG)"
+    [[ -d "$dirname" ]] || mkdir -p "$dirname"
+    [[ -f "$LOG" ]]     || touch "$LOG"
+    [[ -w "$LOG" ]] && exec >> "$LOG" || return 1
+  else
+    return 1
+  fi
+  return 0
 }
 
 ###################################################
@@ -24,7 +60,7 @@ err(){
 # Globals:
 #   CONFIG - Main configuration file
 #   LIBISLET - Load library containing functions
-#   MODULE - Runtime configuration file 
+#   MODULE - Runtime configuration file
 # Arguments:
 #   None
 # Returns:
@@ -33,11 +69,13 @@ err(){
 
 load_config(){
   local environment="$1"
+  local module
   if [[ -f "$CONFIG" ]]; then
     . "$CONFIG"
-    . "$LIBISLET"
-    . "$CONFIG_DIR/modules/${MODULE}.conf"
-    . "$environment"
+    module="$CONFIG_DIR/modules/${MODULE}.conf"
+    [[ -f "$LIBISLET" ]]    && . "$LIBISLET"    || logfile "Unable to open $LIBISLET"
+    [[ -f "$module" ]]      && . "$module"      || logfile "Unable to open $module"
+    [[ -f "$environment" ]] && . "$environment" || logfile "Unable to open $environment"
   else
     logger -s -p local0.notice -t "isletd" "$0: $FUNCNAME: Unable to read $CONFIG"
     return 1
@@ -56,7 +94,7 @@ load_config(){
 
 clear_vars(){
   # Main globals
-  unset LIBISLET DB
+  unset LIBISLET DB MODULE
   # Cleanup variables
   unset MAX_SIZE DAYS
 }
@@ -107,6 +145,7 @@ main(){
   # We're a daemon, we don't end
   while true; do
     ## Global tasks
+    sleep $INTERVAL
     # Remove users which are older than $DAYS days
     [[ "$DAYS" ]] && cleanup_by_user "$DAYS"
     ## Per config tasks
@@ -115,16 +154,24 @@ main(){
       if [[ -r "$environment" ]]; then
         # Obtain configurations
         load_config "$environment" || continue
-        # Remove containers with size greater than $MAX_SIZE
-        [[ "$MAX_SIZE" ]] && cleanup_by_size "$MAX_SIZE" "$environment"
-        # Remove containers with date older than $DAYS
-        [[ "$DAYS" ]] && cleanup_by_date "$DAYS" "$environment"
-        # Remove old port forward rules
-        [[ "$VIRTUAL_PORT" ]] && cleanup_by_network
+        # Execute cleanup functions from module
+        if [[ -x "$MODULE" ]]; then
+          MODULE="$INSTALL_DIR/modules/$MODULE"
+          # Remove containers with size greater than $MAX_SIZE
+          [[ "$MAX_SIZE" ]]     && "$MODULE" cleanup_by_size "$MAX_SIZE" "$environment"
+          # Remove containers with date older than $DAYS
+          [[ "$DAYS" ]]         && "$MODULE" cleanup_by_date "$DAYS" "$environment"
+          # Remove old port forward rules
+          [[ "$VIRTUAL_PORT" ]] && "$MODULE" cleanup_by_forward
+        fi
       fi
     done
-    sleep $INTERVAL
   done
 }
 
+trap 'logfile "Stopped: Signal caught"; exit 0' 2 3 15
+
+enable_logging || syslog "Cannot write to ${LOG}, check permissions"
+logfile "Started"
 main
+logfile "Stopped"
