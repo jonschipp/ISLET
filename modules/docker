@@ -407,7 +407,7 @@ start(){
 #   None
 ##################################################################
 
-cleanup_container_size(){
+cleanup_by_size(){
   import_configs
   # Stop and remove containers which grows to MAX_SIZE our more.
   # If MAX_SIZE isn't set in per-environment config then it's taken from islet.conf
@@ -450,7 +450,7 @@ cleanup_container_size(){
 #   None
 ##################################################################
 
-cleanup_container_date(){
+cleanup_by_date(){
   import_configs
   # Remove containers which are older than x DAYS, per-environment config
   local days="$1"
@@ -491,7 +491,7 @@ cleanup_container_date(){
 #   None
 ##################################################################
 
-cleanup_port_forward(){
+cleanup_by_network(){
   import_configs
   # Removes PREROUTING rules no longer associated with running container for port forwarding
   local id

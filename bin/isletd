@@ -86,7 +86,7 @@ get_time(){
 #   None
 ###################################################
 
-cleanup_users(){
+cleanup_by_user(){
   local days="$1"
   if file "$DB" 2>/dev/null | grep -q SQLite; then
     sqlite3 "$DB" "pragma foreign_keys = on; DELETE FROM accounts WHERE (strftime('%s','now') - ts) >= (${days}*86400);"
@@ -108,7 +108,7 @@ main(){
   while true; do
     ## Global tasks
     # Remove users which are older than $DAYS days
-    [[ "$DAYS" ]] && cleanup_users "$DAYS"
+    [[ "$DAYS" ]] && cleanup_by_user "$DAYS"
     ## Per config tasks
     for environment in $CONFIG_DIR/environments/*.conf $CONFIG_DIR/islet.conf; do
       clear_vars
@@ -116,11 +116,11 @@ main(){
         # Obtain configurations
         load_config "$environment" || continue
         # Remove containers with size greater than $MAX_SIZE
-        [[ "$MAX_SIZE" ]] && cleanup_container_size "$MAX_SIZE" "$environment"
+        [[ "$MAX_SIZE" ]] && cleanup_by_size "$MAX_SIZE" "$environment"
         # Remove containers with date older than $DAYS
-        [[ "$DAYS" ]] && cleanup_container_date "$DAYS" "$environment"
+        [[ "$DAYS" ]] && cleanup_by_date "$DAYS" "$environment"
         # Remove old port forward rules
-        [[ "$VIRTUAL_PORT" ]] && cleanup_port_forward
+        [[ "$VIRTUAL_PORT" ]] && cleanup_by_network
       fi
     done
     sleep $INTERVAL
