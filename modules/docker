@@ -396,50 +396,6 @@ start(){
 }
 
 ##################################################################
-# Check size of containers, delete if larger than MAX_SIZE
-# Globals:
-#   METADATA   - Option in ISLET configuration files
-#   BASE       - Name of user's environment, environment we check size of
-#   CONFIG_DIR - Path to configuration files
-# Arguments:
-#   MAX_SIZE - Option in ISLET configuration files
-# Returns:
-#   None
-##################################################################
-
-cleanup_by_size(){
-  import_configs
-  # Stop and remove containers which grows to MAX_SIZE our more.
-  # If MAX_SIZE isn't set in per-environment config then it's taken from islet.conf
-  local max_size="$1"
-  local config="$2"
-  local glb_max_size="$max_size"
-  local backend=$(get_backend)
-  local size
-  local path
-  local id
-  local container_path
-
-  container_path="$DOCKER_DIR/$backend/mnt"
-  [[ -d "$container_path" ]] || quit "$FUNCNAME: $container_path doesn't exist or is inaccessible"
-
-  [[ -f "$config" ]] && . "$config"
-  for file in $(grep -l"\/${BASE}\." "$METADATA"); do
-    id="$(basename $(dirname $file))"
-    du="$(du -bs $container_path/$id)"
-    size="$(echo "$du" | awk '{ print $1 }')"
-    path="$(echo "$du" | awk '{ print $2 }')"
-    if [[ "$size" -ge "${max_size:-$glb_max_size}" ]]; then
-      printf 'echo "Warning: Max. disk space reached. Destroying container..."\n' | docker attach "$id"
-      docker stop --time=3 "$id" 1>/dev/null
-      docker rm -f "$id" 1>/dev/null
-      quit "$FUNCBASE: Removing $id size $size because it exceeds $max_size"
-    fi
-      unset MAX_SIZE BASE
-  done
-}
-
-##################################################################
 # Remove containers older than DAYS
 # Globals:
 #   METADATA - Option in ISLET configuration files

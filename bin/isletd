@@ -96,7 +96,7 @@ clear_vars(){
   # Main globals
   unset LIBISLET DB MODULE
   # Cleanup variables
-  unset MAX_SIZE DAYS
+  unset DAYS
 }
 
 ###################################################
@@ -157,8 +157,6 @@ main(){
         # Execute cleanup functions from module
         if [[ -x "$MODULE" ]]; then
           MODULE="$INSTALL_DIR/modules/$MODULE"
-          # Remove containers with size greater than $MAX_SIZE
-          [[ "$MAX_SIZE" ]]     && "$MODULE" cleanup_by_size "$MAX_SIZE" "$environment"
           # Remove containers with date older than $DAYS
           [[ "$DAYS" ]]         && "$MODULE" cleanup_by_date "$DAYS" "$environment"
           # Remove old port forward rules
