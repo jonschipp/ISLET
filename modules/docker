@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Import configurations
 
 ##############################################
 # Run verify scripts to ensure all is well
@@ -339,7 +338,7 @@ env_setup(){
 #   LOCAL_OPTIONS   - from ISLET config files, pass per-environment docker options
 #   MOUNT           - from ISLET config files, pass mount options to docker
 #   REMOVE          - from ISLET config files, remove container after exit
-#   ENVIRONMENT           - from ISLET config files, docker image to launch
+#   ENVIRONMENT     - from ISLET config files, docker image to launch
 #   VIRTUSER        - from ISLET config files, user to become in container
 #   ENVS            - from ISLET config files, environment variables to set in container
 #   WORKDIR         - from ISLET config files, working directory in container

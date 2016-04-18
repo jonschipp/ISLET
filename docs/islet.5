@@ -19,7 +19,7 @@ Config        Description
 ------        --------------
 Global        Global values inherited by all environments but optionally superseded by module and environment configuration
 Module        Defines behavior of software that creates the environments but optionally superseded by environment configuration
-Environment   Environment configuration are specific to a training environment
+Environment   Environment configurations are specific to a training environment
 Plugin        Plugin configurations are used to launch plugins
 .Ed
 
@@ -100,8 +100,8 @@ MOUNT="-v /exercises:/exercises:ro"    # Mount point(s), sep. by -v: /src:/dst:a
 CAP_NET_ADMIN="yes"                    # Configure the network
 CAP_NET_RAW="yes"                      # Use RAW and PACKET sockets
 LOCAL_OPTIONS=""                       # Apply any other options you want passed to docker run here
-export ENVIRONMENT                           # Export variables for container environment
-ENVS="PLATFORM ENVIRONMENT"                  # Make exported variables available in container
+export ENVIRONMENT                     # Export variables for container environment
+ENVS="PLATFORM ENVIRONMENT"            # Make exported variables available in container
 
 # Branding & Information
 MOTD="Training materials are in /exercises" # Message of the day is displayed before entering container
@@ -138,8 +138,8 @@ ISLET ships with a few default plugins:
 Plugin        Description
 ------        --------------
 restart       Restart the ISLET program without reconnecting
-del_user      Deletes the current users account from the database
-del_training  Deletes a users training environment, data contained will be lost
+del_user      Deletes the current user's account from the database
+del_training  Deletes a user's training environment, data contained will be lost
 clear         Used to clear the screen
 .Ed
 

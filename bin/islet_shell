@@ -368,7 +368,7 @@ config_menu(){
   [[ $menu ]] || quit "Quit by user..."
   unset menu
 
-  # Display environmen banner
+  # Display environment banner
   [[ "$BANNER" ]] && clear && echo "$BANNER"
 
   # This is how we handle using the same account for multiple environments
