@@ -5,7 +5,7 @@ Isolated, Scalable, & Lightweight Environment for Training
 
 Making IT training a smoother process... <br>
 
-ISLET is a container based system for teaching Gnu/Linux based software, with minimal effort required for participation and configuration. ISLET supports running a variety different training environments concurrently, and has a plugin system for extending functionality. ISET is modular in design, which makes it easy to add different run times and is flexible to different needs. The participation barrier is set very low, so students will only need an SSH or similar remote access client to connect.
+ISLET is a container based system for teaching Gnu/Linux based software, which requires minimal effort for participation and configuration. ISLET supports running a variety different training environments concurrently, and has a plugin system for extending functionality. ISET is modular in design, which makes it easy to add different run times and is flexible to different needs. The participation barrier is set very low, so students will only need an SSH or similar remote access client to connect.
 
 ![ISLET Screenshot](http://jonschipp.com/islet/islet.png)
 
