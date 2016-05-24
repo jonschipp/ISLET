@@ -3,9 +3,9 @@ Isolated, Scalable, & Lightweight Environment for Training
 
 [![Join the chat at https://gitter.im/jonschipp/ISLET](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jonschipp/ISLET?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Make IT training a smoother process... <br>
+Making IT training a smoother process... <br>
 
-A container based system for teaching Linux based software with minimal participation and configuration effort. ISLET supports running many different training environments concurrently and has a plugin system for extending functionality. The participation barrier is set very low, students only need an SSH client to connect to ISLET.
+ISLET is a container based system for teaching Gnu/Linux based software, which requires minimal effort for participation and configuration. ISLET supports running a variety different training environments concurrently, and has a plugin system for extending functionality. ISET is modular in design, which makes it easy to add different run times and is flexible to different needs. The participation barrier is set very low, so students will only need an SSH or similar remote access client to connect.
 
 ![ISLET Screenshot](http://jonschipp.com/islet/islet.png)
 
@@ -16,7 +16,7 @@ A container based system for teaching Linux based software with minimal particip
 * Development environments
 
 #### Who Uses ISLET?
-ISLET has been used for official training of two leading open source network security projects.  These and other notable examples are listed below.
+ISLET has been used in official training for two leading open source network security projects.  These, in addition to other notable examples, are listed below.
 
 * [Bro](https://bro.org) Team
 * [Suricata](http://suricata-ids.org/) Team
@@ -25,11 +25,11 @@ ISLET has been used for official training of two leading open source network sec
 * [OpenNSM](http://open-nsm.net)
 * ACM [GNU/LUG](http://www.gnulug.org/) at UIUC
 
-If you would like commercial support for ISLET including creating and deploying custom training environments contact me through my company [Draconyx](http://www.draconyx.net/).
+If you would like commercial support for ISLET, including creating and deploying custom training environments, contact me through my company [Draconyx](http://www.draconyx.net/).
 
 ## Design
 
-These images a little old but they mostly represent the design.
+These images are a little old, but they mostly represent the design.
 
 ####Simplified Diagram
 ![ISLET Diagram](http://jonschipp.com/islet/islet_diagram.jpg)
@@ -39,21 +39,21 @@ These images a little old but they mostly represent the design.
 
 ## Installation
 
-Installation of ISLET is very simple, first grab the dependencies and then
+The installation of ISLET is very simple. First, grab the dependencies and then
 install ISLET.
 
 ### Dependencies
 
 * Linux, Bash, Cron, OpenSSH, Make, SQLite, and Docker Engine
 
-The configure script will check for dependencies (except docker)
+The configure script will check for dependencies (except Docker)
 ```shell
 ./configure
 ```
 
 ![ISLET Configure Screenshot](http://jonschipp.com/islet/islet_configure.png)
 
-Typically all you need is make, sqlite, and docker engine (for Debian/Ubuntu):
+Typically, all you need is Make, SQLite and Docker Engine (for Debian/Ubuntu):
 ```shell
 apt-get install make sqlite
 ```
@@ -61,7 +61,7 @@ See Docker's documentation for installation instructions.
 
 ### Install
 
-After installing the dependencies, run
+After installing the dependencies, run:
 ```shell
 make user-config && make install && make security-config
 ```
@@ -79,7 +79,7 @@ user-config     | Configures a user account called demo w/ password demo
 security-config | Configures sshd with islet relevant security in mind
 iptables-config | Installs iptables ruleset
 
-GNU make accepts arguments if you want a customized installation (*not supported*):
+GNU `make` accepts arguments if you want a customized installation (*not supported*):
 ```shell
 make user-config INSTALL_DIR=/usr/local/islet USER=training PASS=training
 make install INSTALL_DIR=/usr/local/islet USER=training
@@ -106,7 +106,6 @@ tar zxf islet_config.tgz -C /       # Restore configs
 ```
 
 # Adding Training Environments
-
 
 See Docker's [image documentation](http://docs.docker.com/userguide/dockerimages)
 

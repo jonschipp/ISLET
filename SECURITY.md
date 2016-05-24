@@ -1,11 +1,11 @@
-## Security Recommendations
+# Security Recommendations
 
-The list below is for manually configuring the items and documenting recommendations.
-Most of these are satisified by make targets.
+Once ISET is installed, users may want to consider reconfiguring their systems to enhance security.  The list below is for manually configuring security controls and documenting recommendations.
+Most of these are satisified by `make` targets.
 
-* SSH: _/etc/ssh/sshd_config_
+#### SSH: _/etc/ssh/sshd_config_
 
-The following command will configure sshd_config to match the example after with the exception of modifying LoginGraceTime.
+The following command will configure sshd_config to match the next example, with the exception of modifying LoginGraceTime.
 
 ```shell
 make security-config
@@ -30,13 +30,13 @@ Match User training
 	PermitEmptyPasswords no
 ```
 
-* Drop capabilities in containers:
+#### Drop capabilities in containers
 
-ISLET includes security options in `$CONFIG_DIR/modules/docker.conf` which can be used to easily add or drop kernel capabilities(7)
+ISLET includes security options in `$CONFIG_DIR/modules/docker.conf`, which can be used to easily add or drop kernel capabilities(7)
 (and apply ulimit values to containers) to all Docker environments. They can be set in any ISLET configuration file.
 Only add what you need to run the software in the container.
 
-* ulimit contraints
+#### System limitation contraints
 
 **Note:** ISLET with Docker 1.6 supports passing ulimit settings in config files.
 
@@ -52,7 +52,7 @@ limit fsize  100000000 200000000 # Limit file sizes to max of 200MB
 # END
 ```
 
-* Separate storage for containers:
+#### Separate storage for containers
 
 ```
 service docker stop
@@ -64,7 +64,7 @@ tail -1 /etc/fstab
 service docker start
 ```
 
-* Limit container storage size to prevent DoS or resource abuse
+#### Limit container storage size to prevent DoS or resource abuse
 
 Switching storage backends to devicemapper allows for disk quotas.
 Set dm.basesize to the maximum size the container can grow to (def: 10G)
@@ -81,16 +81,16 @@ tail -1 /etc/default/docker
 start docker
 ```
 
-**Note:** There's currently a bug in devicemapper that may cause docker to fail run containers [more info](https://github.com/docker/docker/issues/4036).
+**Note:** There's currently a bug in devicemapper that may cause docker to fail to run containers [more info](https://github.com/docker/docker/issues/4036).
 
-* Iptables
+#### Rate limiting
 
-Rate limiting protection for the SSH service
+Use iptables for protection of the SSH service.
 ```
 make iptables-config
 ```
 
-* GRSecurity kernel patches
+#### GRSecurity kernel patches
 
-To aid in protecting the host system it's recommended to patch the Linux kernel [more info](https://grsecurity.net/)
+To aid in protecting the host system, it's recommended to patch the Linux kernel [more info](https://grsecurity.net/)
 
