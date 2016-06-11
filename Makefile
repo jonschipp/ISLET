@@ -48,9 +48,9 @@ install: install-files configuration
 install-contained:
 	$(Q)echo " $(yellow)Installing $(PROG)$(normal)"
 	mkdir -m 755 -p $(CONFIG_DIR)
-	install -o root -g root -m 644 config/islet.conf $(CONFIG_DIR)/$(PROG).conf
-	sed -i "s|ISLETVERS|$(VERSION)|" $(CONFIG_DIR)/islet.conf
-	sed -i "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
+	install -o 0 -g 0 -m 644 config/islet.conf $(CONFIG_DIR)/$(PROG).conf
+	sed -i.bu "s|ISLETVERS|$(VERSION)|" $(CONFIG_DIR)/islet.conf
+	sed -i.bu "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
 	docker run -d --name="islet" \
 								-v /usr/bin/docker:/usr/bin/docker:ro \
 								-v /var/lib/docker/:/var/lib/docker:rw \
@@ -61,30 +61,30 @@ install-contained:
 								-v /var/run/docker.sock:/var/run/docker.sock \
 								--cap-add=NET_ADMIN \
 								-p $(PORT):22 jonschipp/islet
-	install -o root -g root -m 644 config/islet.upstart $(UPSTART)/islet.conf
+	install -o 0 -g 0 -m 644 config/islet.upstart $(UPSTART)/islet.conf
 	$(Q)echo " $(bold)--> Connect to ISLET on $(normal)$(underline)SSH port $(PORT)$(normal)"
 
 install-files:
 	$(Q)echo " $(yellow)Installing $(PROG)$(normal)"
 	mkdir -m 755 -p $(CONFIG_DIR)/modules $(CONFIG_DIR)/environments $(CONFIG_DIR)/plugins
 	mkdir -m 755 -p $(LIB_DIR) $(BIN_DIR) $(PLUGIN_DIR) $(MODULE_DIR)
-	install -o root -g root -m 644 config/islet.conf $(CONFIG_DIR)/
-	install -o root -g root -m 644 config/plugins/*.conf $(CONFIG_DIR)/plugins/
-	install -o root -g root -m 644 config/modules/*.conf $(CONFIG_DIR)/modules/
-	install -o root -g root -m 644 lib/libislet $(LIB_DIR)/libislet
-	install -o root -g root -m 755 bin/islet_shell $(BIN_DIR)/$(PROG)_shell
-	install -o root -g root -m 755 bin/isletd $(BIN_DIR)/$(PROG)d
-	install -o root -g root -m 755 plugins/* $(PLUGIN_DIR)/
-	install -o root -g root -m 755 modules/* $(MODULE_DIR)/
-	install -o root -g root -m 644 docs/islet.5 $(MAN_DIR)/man5/islet.5
+	install -o 0 -g 0 -m 644 config/islet.conf $(CONFIG_DIR)/
+	install -o 0 -g 0 -m 644 config/plugins/*.conf $(CONFIG_DIR)/plugins/
+	install -o 0 -g 0 -m 644 config/modules/*.conf $(CONFIG_DIR)/modules/
+	install -o 0 -g 0 -m 644 lib/libislet $(LIB_DIR)/libislet
+	install -o 0 -g 0 -m 755 bin/islet_shell $(BIN_DIR)/$(PROG)_shell
+	install -o 0 -g 0 -m 755 bin/isletd $(BIN_DIR)/$(PROG)d
+	install -o 0 -g 0 -m 755 plugins/* $(PLUGIN_DIR)/
+	install -o 0 -g 0 -m 755 modules/* $(MODULE_DIR)/
+	install -o 0 -g 0 -m 644 docs/islet.5 $(MAN_DIR)/man5/islet.5
 	$(Q)echo " $(bold)--> Configuration directory is$(normal) $(underline)$(CONFIG_DIR)$(normal)"
 	$(Q)echo " $(bold)--> Install directory is$(normal) $(underline)$(INSTALL_DIR)$(normal)"
 
 configuration:
 	$(Q)echo " $(yellow)Post-install configuration$(normal)"
-	sed -i "s|ISLETVERS|$(VERSION)|" $(CONFIG_DIR)/islet.conf
-	sed -i "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
-	sed -i "s|LOCATION|$(CONFIG_DIR)/$(PROG).conf|g" $(BIN_DIR)/*
+	sed -i.bu "s|ISLETVERS|$(VERSION)|" $(CONFIG_DIR)/islet.conf
+	sed -i.bu "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
+	sed -i.bu "s|LOCATION|$(CONFIG_DIR)/$(PROG).conf|g" $(BIN_DIR)/*
 
 uninstall:
 	$(Q)echo " $(yellow)Uninstalling $(PROG)$(normal)"
@@ -112,7 +112,7 @@ update: pull
 install-brolive-config:
 	$(FUNCTIONS) install_sample_configuration
 	mkdir -m 755 -p $(CONFIG_DIR)/environments
-	install -o root -g root -m 644 extra/brolive.conf $(CONFIG_DIR)/environments/brolive.conf
+	install -o 0 -g 0 -m 644 extra/brolive.conf $(CONFIG_DIR)/environments/brolive.conf
 	$(Q)echo " $(yellow)Try it out: ssh demo@<ip>$(normal)"
 
 install-sample-nsm: install-sample-nsm-configs
@@ -121,13 +121,13 @@ install-sample-nsm: install-sample-nsm-configs
 
 install-sample-nsm-configs:
 	mkdir -m 755 -p $(CONFIG_DIR)
-	install -o root -g root -m 644 extra/brolive.conf $(CONFIG_DIR)/environments/brolive.conf
-	install -o root -g root -m 644 extra/ids.conf $(CONFIG_DIR)/environments/ids.conf
-	install -o root -g root -m 644 extra/argus.conf $(CONFIG_DIR)/environments/argus.conf
-	install -o root -g root -m 644 extra/tcpdump.conf $(CONFIG_DIR)/environments/tcpdump.conf
-	install -o root -g root -m 644 extra/netsniff-ng.conf $(CONFIG_DIR)/environments/netsniff-ng.conf
-	install -o root -g root -m 644 extra/volatility.conf $(CONFIG_DIR)/environments/volatility.conf
-	install -o root -g root -m 644 extra/sagan.conf $(CONFIG_DIR)/environments/sagan.conf
+	install -o 0 -g 0 -m 644 extra/brolive.conf $(CONFIG_DIR)/environments/brolive.conf
+	install -o 0 -g 0 -m 644 extra/ids.conf $(CONFIG_DIR)/environments/ids.conf
+	install -o 0 -g 0 -m 644 extra/argus.conf $(CONFIG_DIR)/environments/argus.conf
+	install -o 0 -g 0 -m 644 extra/tcpdump.conf $(CONFIG_DIR)/environments/tcpdump.conf
+	install -o 0 -g 0 -m 644 extra/netsniff-ng.conf $(CONFIG_DIR)/environments/netsniff-ng.conf
+	install -o 0 -g 0 -m 644 extra/volatility.conf $(CONFIG_DIR)/environments/volatility.conf
+	install -o 0 -g 0 -m 644 extra/sagan.conf $(CONFIG_DIR)/environments/sagan.conf
 
 install-sample-distros:
 	$(FUNCTIONS) install_sample_distributions
@@ -135,7 +135,7 @@ install-sample-distros:
 
 install-sample-cadvisor:
 	docker run -d -v /var/run:/var/run:rw -v /sys:/sys:ro -v /var/lib/docker/:/var/lib/docker:ro -p 8080:8080 --name="cadvisor" google/cadvisor:latest
-	install -o root -g root -m 644 extra/cadvisor.upstart $(UPSTART)/cadvisor.conf
+	install -o 0 -g 0 -m 644 extra/cadvisor.upstart $(UPSTART)/cadvisor.conf
 
 install-docker:
 	$(FUNCTIONS) install_docker
@@ -149,7 +149,7 @@ security-config:
 bro-training: install user-config security-config install-docker install-brolive-config
 
 iptables-config:
-	install -o root -g root -m 750 extra/iptables-rules $(IPTABLES)
+	install -o 0 -g 0 -m 750 extra/iptables-rules $(IPTABLES)
 	$(IPTABLES)
 
 package:
