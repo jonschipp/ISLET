@@ -51,6 +51,7 @@ install-contained:
 	install -o 0 -g 0 -m 644 config/islet.conf $(CONFIG_DIR)/$(PROG).conf
 	sed -i.bu "s|ISLETVERS|$(VERSION)|" $(CONFIG_DIR)/islet.conf
 	sed -i.bu "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
+	rm -f *.bu
 	docker run -d --name="islet" \
 								-v /usr/bin/docker:/usr/bin/docker:ro \
 								-v /var/lib/docker/:/var/lib/docker:rw \
@@ -85,6 +86,7 @@ configuration:
 	sed -i.bu "s|ISLETVERS|$(VERSION)|" $(CONFIG_DIR)/islet.conf
 	sed -i.bu "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
 	sed -i.bu "s|LOCATION|$(CONFIG_DIR)/$(PROG).conf|g" $(BIN_DIR)/*
+	rm -f *.bu
 
 uninstall:
 	$(Q)echo " $(yellow)Uninstalling $(PROG)$(normal)"
