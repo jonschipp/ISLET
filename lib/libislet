@@ -59,14 +59,46 @@ CL="${clearline}"
 red()     { alert; }
 yellow()  { notice; }
 magenta() { info; }
-white()   { ask; }
-
 alert()   { printf "${redf}$*${normal}\n" >&2; }
 notice()  { printf "${yellow}$*${normal}\n"; }
 info()    { printf "${magentaf}$*${normal}\n"; }
 ask()     { printf "${whitef}$*${normal}"; }
 mention() { printf "${whitef}$*${normal}\n"; }
-option()  { printf "${Y}[${N}${BF}$1${N}${Y}/${N}${BF}$2${N}${Y}]${N}: " ;}
+
+#########################################
+# Accept user input with options
+# Globals:
+#   None
+# Arguments:
+#   var    - User input will be stored in its value
+#   secret - Whether input will be echo'd back
+#   opt1   - Optional argument of options to present to user
+#   opt2   - Optional argument of options to present to user
+# Returns:
+#   None
+#############################################################
+
+prompt(){
+  local argc="$#"
+  local var="$1"
+  local secret="$2"
+
+  if [[ "$argc" > 2 ]]; then
+    local opt1="$3"
+    local opt2="$4"
+    if [[ $opt2 ]]; then
+      local options="${Y}[${N}${BF}$opt1${N}${Y}/${N}${BF}$opt2${N}${Y}]${N}: "
+    else
+      local options="${Y}[${N}${BF}$opt1${N}${Y}]${N}: "
+    fi
+  fi
+
+  if [[ "$secret" != "secret" ]]; then
+    read -e -r -p "$options" "$var"
+  else
+    read -s -e -r -p "$options" "$var"
+  fi
+}
 
 #########################################
 # Print, log, and exit script for errors

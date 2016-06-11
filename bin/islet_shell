@@ -139,8 +139,7 @@ identify(){
   local choice
   enable_autocompletion
   ask "Are you a new or existing user? "
-  option "new" "existing"
-  read -e -r choice
+  prompt "choice" "notsecret" "new" "existing"
   # Normalize to lowercase
   choice=${choice,,}
 
@@ -182,20 +181,18 @@ new_user(){
 
 choose_username(){
   ask "Choose a username: "
-  option "a-zA-Z0-9"
-  read -r USERNAME
+  prompt "USERNAME" "notsecret" "a-zA-Z0-9"
   [[ "$USERNAME" ]] || { alert "Empty value not permitted" && return 1; }
   USERNAME=$(sanitize "$USERNAME") && export USERNAME && return 0
 }
 
 choose_password(){
   ask "Choose a password: "
-  option "a-zA-Z0-9{${MIN_PASSWD_LEN},}"
-  read -r -s PASSWORD
+  prompt "PASSWORD" "secret" "a-zA-Z0-9{${MIN_PASSWD_LEN},}"
   [[ "$PASSWORD" ]] || { alert "\nEmpty value not permitted" && return 1; }
   echo
   ask "Verify your password: "
-  read -r -s PASSWORD_VERIFY
+  prompt "PASSWORD_VERIFY" "secret"
   [[ "$PASSWORD_VERIFY" ]] || { alert "\nEmpty value not permitted" && return 1; }
   echo
 }
@@ -221,10 +218,10 @@ existing_user(){
   echo
   while test "$count" -le "$FAILURE_COUNT"; do
     ask "Username: "
-    read -r USERNAME
+    prompt "USERNAME" "notsecret"
     USERNAME=$(sanitize $USERNAME) && export USERNAME
     ask "Password: "
-    read -r -s PASSWORD
+    prompt "PASSWORD" "secret"
     echo
 
     hash=$(echo "$PASSWORD" | sha1sum | sed 's/ .*//')
@@ -393,8 +390,7 @@ config_menu(){
 try_again(){
   local try
   ask "I didn't understand your response. Would you like to try again? "
-  option "yes" "no"
-  read -e -r try
+  prompt "try" "notsecret" "yes" "no"
   # Normalize to lowercase
   try=${try,,}
   if [[ "$try" =~ ^[yn]$ ]] || [[ "$try" =~ ^[y][e][s]$ ]] || [[ "$try" =~ ^[n][o]$ ]]; then
