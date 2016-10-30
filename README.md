@@ -107,7 +107,7 @@ tar zxf islet_config.tgz -C /       # Restore configs
 
 # Adding Training Environments
 
-See Docker's [image documentation](http://docs.docker.com/userguide/dockerimages)
+See Docker's [image documentation](https://docs.docker.com/engine/reference/commandline/build/)
 
  1. Build or pull in a new Docker image
 
