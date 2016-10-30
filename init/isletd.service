@@ -1,0 +1,25 @@
+#
+# systemd unit file for CentOS 7, Ubuntu bleeding edge
+#
+[Unit]
+Description=isletd
+# start us only once the network and logging subsystems are available
+After=syslog.target network.target docker.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/
+ExecStart=/opt/islet/bin/isletd
+
+RestartSec=1
+Restart=on-failure
+
+# Use syslog for logging
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=isletd
+
+[Install]
+WantedBy=multi-user.target

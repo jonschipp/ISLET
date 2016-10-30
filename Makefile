@@ -78,6 +78,8 @@ install-files:
 	install -o 0 -g 0 -m 755 plugins/* $(PLUGIN_DIR)/
 	install -o 0 -g 0 -m 755 modules/* $(MODULE_DIR)/
 	install -o 0 -g 0 -m 644 docs/islet.5 $(MAN_DIR)/man5/islet.5
+	$(Q)test -f /sbin/start && install -o 0 -g 0 -m 644 init/isletd.conf /etc/init || true
+	$(Q)test -d /usr/lib/systemd/system/ && install -o 0 -g 0 -m 644 init/isletd.service /usr/lib/systemd/system || true
 	$(Q)echo " $(bold)--> Configuration directory is$(normal) $(underline)$(CONFIG_DIR)$(normal)"
 	$(Q)echo " $(bold)--> Install directory is$(normal) $(underline)$(INSTALL_DIR)$(normal)"
 
@@ -86,7 +88,10 @@ configuration:
 	sed -i.bu "s|ISLETVERS|$(VERSION)|" $(CONFIG_DIR)/islet.conf
 	sed -i.bu "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
 	sed -i.bu "s|LOCATION|$(CONFIG_DIR)/$(PROG).conf|g" $(BIN_DIR)/*
-	rm -f $(CONFIG_DIR)/*.bu $(BIN_DIR)/*.bu
+	$(Q)rm -f $(CONFIG_DIR)/*.bu $(BIN_DIR)/*.bu
+	$(Q)echo " $(yellow)Starting isletd$(normal)"
+	$(Q)test -f /etc/init/isletd.conf && start isletd || true
+	$(Q)test -f /usr/lib/systemd/system/isletd.service && systemctl enable isletd && systemctl start isletd || true
 
 uninstall:
 	$(Q)echo " $(yellow)Uninstalling $(PROG)$(normal)"
