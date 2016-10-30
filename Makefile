@@ -88,7 +88,7 @@ configuration:
 	sed -i.bu "s|ISLETVERS|$(VERSION)|" $(CONFIG_DIR)/islet.conf
 	sed -i.bu "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
 	sed -i.bu "s|LOCATION|$(CONFIG_DIR)/$(PROG).conf|g" $(BIN_DIR)/*
-	$(Q)rm -f *.bu
+	$(Q)rm -f $(CONFIG_DIR)/*.bu $(BIN_DIR)/*.bu
 	$(Q)echo " $(yellow)Starting isletd$(normal)"
 	$(Q)test -f /etc/init/isletd.conf && start isletd || true
 	$(Q)test -f /usr/lib/systemd/system/isletd.service && systemctl enable isletd && systemctl start isletd || true
