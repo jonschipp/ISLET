@@ -32,6 +32,7 @@ verify(){
 #######################################
 
 running_in_container(){
+  unset $SUDO_DOCKER
   [[ -f /.dockerenv ]] && SUDO_DOCKER=sudo
 }
 
