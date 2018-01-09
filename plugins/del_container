@@ -13,8 +13,8 @@ get_image() {
 delete_image(){
   notice "Removing existing container.."
   sqlite3 "$DB" "pragma foreign_keys = on; DELETE FROM environments WHERE user='$USERNAME' AND environment='$container';"
-  docker stop "${i}.$USERNAME" 2>&1 > /dev/null
-  docker rm "${i}.$USERNAME" 2>&1 > /dev/null
+  $SUDO_DOCKER docker stop "${i}.$USERNAME" 2>&1 > /dev/null
+  $SUDO_DOCKER docker rm "${i}.$USERNAME" 2>&1 > /dev/null
   alert "Container removed!"
   sleep 1
 }

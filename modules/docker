@@ -12,9 +12,27 @@
 
 verify(){
   import_configs
+  running_in_container
   verify_group
   verify_availability
   return 0
+}
+
+#######################################
+# Determine if we're running ISLET
+# in a containter and run docker
+# commands with sudo
+# Globals:
+#  $SUDO_DOCKER - execute docker with
+#                 with sudo
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+
+running_in_container(){
+  [[ -f /.dockerenv ]] && SUDO_DOCKER=sudo
 }
 
 #######################################
@@ -30,7 +48,7 @@ verify(){
 
 verify_availability(){
   [[ -d "$DOCKER_DIR" ]] || quit "Fatal: $DOCKER_DIR cannot be found! Ensure Docker is installed, or update docker.conf "
-  docker info 1>/dev/null 2>&1 || quit "Fatal: There is an issue with the docker configuration!"
+  $SUDO_DOCKER docker info 1>/dev/null 2>&1 || quit "Fatal: There is an issue with the docker configuration!"
 }
 
 #######################################
@@ -61,7 +79,7 @@ verify_group(){
 #######################################
 
 get_backend(){
-  local line="$(docker info 2>/dev/null | fgrep -i 'storage')"
+  local line="$($SUDO_DOCKER docker info 2>/dev/null | fgrep -i 'storage')"
   local backend="${line##* }"
   [[ "$backend" ]] || quit "Fatal: Docker storage backend wasn't found"
   echo "$backend"
@@ -94,8 +112,8 @@ attach(){
   log "${USERNAME}: Returning user from $CLIENT"
   notice "Welcome back!"
   mention "$MOTD"
-  is_debug "opt: docker start -i ${BASE}.${USERNAME}"
-  docker start -i "${BASE}.${USERNAME}"
+  is_debug "opt: $SUDO_DOCKER docker start -i ${BASE}.${USERNAME}"
+  $SUDO_DOCKER docker start -i "${BASE}.${USERNAME}"
   exit_handler $? || return 1
   # No errors, we made it
   return 0
@@ -118,7 +136,7 @@ does_image_exist(){
   [[ $tag ]] || tag=latest
   if ! docker images | fgrep -w "$repo" | fgrep -w -q "$tag"; then
     notice "Image not found, trying Docker Hub..." && echo
-    docker pull "$ENVIRONMENT" 2>/dev/null || quit "Fatal: Image doesn't exist!"
+    $SUDO_DOCKER docker pull "$ENVIRONMENT" 2>/dev/null || quit "Fatal: Image doesn't exist!"
   fi
   unset tag repo
 }
@@ -401,13 +419,13 @@ start(){
 
   # If debugging is yes
   is_debug "shell: CLIENT=$CLIENT SRCPORT=$SRCPORT SERVER=$SERVER DSTPORT=$DSTPORT SSH_TTY=$SSH_TTY TERM=$TERM PPID=$PPID TMOUT=$TMOUT"
-  is_debug "opt: docker run $name_opt $res_opt $net_opt $glb_opt $oth_opt $mnt_opt $cap_opt $lmt_opt $dir_opt $env_opt $img_opt $tim_opt $cmd_opt"
+  is_debug "opt: $SUDO_DOCKER docker run $name_opt $res_opt $net_opt $glb_opt $oth_opt $mnt_opt $cap_opt $lmt_opt $dir_opt $env_opt $img_opt $tim_opt $cmd_opt"
 
   notice "Enjoy yourself!"
   mention "$MOTD"
 
   # Run container
-  eval docker run "$name_opt $res_opt $net_opt $glb_opt $oth_opt $cap_opt $lmt_opt $mnt_opt $dir_opt $env_opt $img_opt $tim_opt $cmd_opt" "$INFOLEVEL"
+  eval $SUDO_DOCKER docker run "$name_opt $res_opt $net_opt $glb_opt $oth_opt $cap_opt $lmt_opt $mnt_opt $dir_opt $env_opt $img_opt $tim_opt $cmd_opt" "$INFOLEVEL"
   exit_handler $?
 }
 
