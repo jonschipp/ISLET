@@ -47,8 +47,10 @@ install: install-files configuration
 
 install-contained:
 	$(Q)echo " $(yellow)Installing $(PROG)$(normal)"
-	mkdir -m 755 -p $(CONFIG_DIR)
+	mkdir -m 755 -p $(CONFIG_DIR)/modules $(CONFIG_DIR)/environments $(CONFIG_DIR)/plugins
 	install -o 0 -g 0 -m 644 config/islet.conf $(CONFIG_DIR)/$(PROG).conf
+	install -o 0 -g 0 -m 644 config/plugins/*.conf $(CONFIG_DIR)/plugins/
+	install -o 0 -g 0 -m 644 config/modules/*.conf $(CONFIG_DIR)/modules/
 	sed -i.bu "s|ISLETVERS|$(VERSION)|" $(CONFIG_DIR)/islet.conf
 	sed -i.bu "s|USERACCOUNT|$(USER)|g" $(CONFIG_DIR)/islet.conf
 	rm -f *.bu
