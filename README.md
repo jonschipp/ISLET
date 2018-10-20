@@ -7,7 +7,7 @@ Making IT training a smoother process... <br>
 
 ISLET is a container based system for teaching Gnu/Linux based software, which requires minimal effort for participation and configuration. ISLET supports running a variety different training environments concurrently, and has a plugin system for extending functionality. ISET is modular in design, which makes it easy to add different run times and is flexible to different needs. The participation barrier is set very low, so students will only need an SSH or similar remote access client to connect.
 
-![ISLET Screenshot](http://jonschipp.com/islet/islet.png)
+![ISLET Screenshot](http://www.jonschipp.com/islet/islet.png)
 
 #### Uses
 
@@ -31,11 +31,13 @@ If you would like commercial support for ISLET, including creating and deploying
 
 These images are a little old, but they mostly represent the design.
 
-####Simplified Diagram
-![ISLET Diagram](http://jonschipp.com/islet/islet_diagram.jpg)
+#### Simplified Diagram
 
-####Detailed Flowchart
-![ISLET Flowchart](http://jonschipp.com/islet/islet_flowchart.png)
+![ISLET Diagram](http://www.jonschipp.com/islet/islet_diagram.jpg)
+
+#### Detailed Flowchart
+
+![ISLET Flowchart](http://www.jonschipp.com/islet/islet_flowchart.png)
 
 ## Installation
 
@@ -51,7 +53,7 @@ The configure script will check for dependencies (except Docker)
 ./configure
 ```
 
-![ISLET Configure Screenshot](http://jonschipp.com/islet/islet_configure.png)
+![ISLET Configure Screenshot](http://www.jonschipp.com/islet/islet_configure.png)
 
 Typically, all you need is Make, SQLite and Docker Engine (for Debian/Ubuntu):
 ```shell
@@ -67,7 +69,7 @@ make user-config && make install && make security-config
 ```
 
 See the menu for more options, `make` 
-![ISLET Make Screenshot](http://jonschipp.com/islet/islet_make.png)
+![ISLET Make Screenshot](http://www.jonschipp.com/islet/islet_make.png)
 
 Target:         |    Description:
 ----------------|----------------
@@ -117,7 +119,7 @@ See Docker's [image documentation](https://docs.docker.com/engine/reference/comm
 
  It should now be available from the selection menu upon login.
 
-![ISLET Configs Screenshot](http://jonschipp.com/islet/islet_configs.png)
+![ISLET Configs Screenshot](http://www.jonschipp.com/islet/islet_configs.png)
 
 More info:
 See the SECURITY file for more information on manually securing the system.
