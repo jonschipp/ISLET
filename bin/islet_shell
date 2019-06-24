@@ -310,6 +310,7 @@ config_menu(){
 
   # Iterate over configuration files in $CONFIG_DIR and display them as options
   # It prints the config file ($config) and its description ($DESCRIPTION)
+  unset BANNER VISIBLE ENABLE PLUGIN config config_name
   for config in environments/*.conf plugins/*.conf; do
     [[ -f "$config" ]] && . "$config"
     if [[ "$VISIBLE" = "yes" || "$ENABLE" = "yes" ]]; then
